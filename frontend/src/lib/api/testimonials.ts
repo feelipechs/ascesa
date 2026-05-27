@@ -1,0 +1,59 @@
+import type { Testimonial, TestimonialFilters, TestimonialWithProject } from '@/types'
+
+export const TestimonialsApi = {
+  async findAll(filters?: TestimonialFilters): Promise<TestimonialWithProject[]> {
+    const params = new URLSearchParams()
+    if (filters?.projectId) params.set('projectId', filters.projectId)
+    const query = params.toString()
+    const res = await fetch(`/api/testimonials${query ? `?${query}` : ''}`)
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao carregar depoimentos')
+    }
+    const json = await res.json()
+    return json.data
+  },
+
+  async findById(id: string): Promise<TestimonialWithProject> {
+    const res = await fetch(`/api/testimonials/${id}`)
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao carregar depoimento')
+    }
+    return res.json()
+  },
+
+  async create(data: unknown): Promise<Testimonial> {
+    const res = await fetch('/api/testimonials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao criar depoimento')
+    }
+    return res.json()
+  },
+
+  async update(id: string, data: unknown): Promise<Testimonial> {
+    const res = await fetch(`/api/testimonials/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao atualizar depoimento')
+    }
+    return res.json()
+  },
+
+  async delete(id: string): Promise<void> {
+    const res = await fetch(`/api/testimonials/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao remover depoimento')
+    }
+  },
+}

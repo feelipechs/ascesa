@@ -1,0 +1,6 @@
+export { ProjectsContent } from './projects-content'
+export { ProjectsGrid } from './projects-grid'
+export { ProjectsHero } from './projects-hero'
+export { ProjectsFilters } from './projects-filters'
+export { GallerySection } from './gallery-section'
+export { TestimonialsSection } from './testimonials-section'

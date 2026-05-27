@@ -1,0 +1,21 @@
+import { z } from 'zod'
+
+export const updateSiteSettingsSchema = z.object({
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  cnpj: z.string().optional(),
+  mission: z.string().optional(),
+  vision: z.string().optional(),
+  about: z.string().optional(),
+  homeTitle: z.string().optional(),
+  homeSubtitle: z.string().optional(),
+  values: z.string().optional(),
+  socialInstagram: z.string().optional(),
+  socialFacebook: z.string().optional(),
+  socialYoutube: z.string().optional(),
+  socialWhatsapp: z.string().optional(),
+  socialLinkedin: z.string().optional(),
+})
+
+export type UpdateSiteSettingsInput = z.infer<typeof updateSiteSettingsSchema>

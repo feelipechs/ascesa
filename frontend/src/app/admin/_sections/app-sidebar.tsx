@@ -1,0 +1,64 @@
+'use client'
+
+import {
+  IconDashboard,
+  IconSettings,
+  IconUsers,
+  IconUserPlus,
+  IconFolder,
+  IconFileText,
+  IconChartBar,
+  IconInnerShadowTop,
+} from '@tabler/icons-react'
+
+import { NavMain } from './nav-main'
+import { NavUser } from './nav-user'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar'
+import Link from 'next/link'
+
+const navMain = [
+  { title: 'Dashboard', url: '/admin', icon: IconDashboard },
+  { title: 'Projetos', url: '/admin/projects', icon: IconFolder },
+  { title: 'Voluntários', url: '/admin/volunteers', icon: IconUserPlus },
+  { title: 'Blog', url: '/admin/posts', icon: IconFileText },
+  { title: 'Estatísticas', url: '/admin/stats', icon: IconChartBar },
+  { title: 'Usuários', url: '/admin/users', icon: IconUsers },
+  { title: 'Configurações', url: '/admin/settings', icon: IconSettings },
+]
+
+type AppSidebarProps = {
+  user?: { name: string; email: string }
+} & React.ComponentProps<typeof Sidebar>
+
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  return (
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
+              <Link href="/admin">
+                <IconInnerShadowTop className="size-5!" />
+                <span className="text-base font-semibold">Ascesa</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={navMain} />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user ?? { name: 'Admin', email: '' }} />
+      </SidebarFooter>
+    </Sidebar>
+  )
+}

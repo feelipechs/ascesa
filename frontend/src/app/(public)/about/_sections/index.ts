@@ -1,0 +1,5 @@
+export { AboutHero } from './about-hero'
+export { AboutHistory } from './about-history'
+export { AboutMvv } from './about-mvv'
+export { AboutContent } from './about-content'
+export { AboutTeam } from './about-team'

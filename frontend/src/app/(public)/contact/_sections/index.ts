@@ -1,0 +1,6 @@
+export { ContactForm } from './contact-form'
+export { ContactHero } from './contact-hero'
+export { ContactInfo } from './contact-info'
+export { ContactMap } from './contact-map'
+export { ContactContent } from './contact-content'
+export { SocialLinks } from './social-links'
