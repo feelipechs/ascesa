@@ -149,7 +149,7 @@ export function SiteSettingsForm() {
       <div className="flex gap-2">
         {!isEditing ? (
           <Button type="button" onClick={() => setIsEditing(true)}>
-            Editar configurações
+            Editar
           </Button>
         ) : (
           <>
@@ -157,7 +157,7 @@ export function SiteSettingsForm() {
               Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Salvando...' : 'Salvar configurações'}
+              {isPending ? 'Salvando...' : 'Salvar alterações'}
             </Button>
           </>
         )}

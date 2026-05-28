@@ -36,7 +36,6 @@ export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps
     defaultValues: {
       title: '',
       slug: '',
-      context: 'CAMPAIGN' as const,
       description: '',
       content: '',
       coverUrl: '',
@@ -48,16 +47,12 @@ export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps
     },
   })
 
-  const context = form.watch('context')
-  const isEvent = context === 'EVENT'
-
   useEffect(() => {
     if (!projectData) return
     const data = projectData as unknown as Record<string, unknown>
     form.reset({
       title: (data.title as string) ?? '',
       slug: (data.slug as string) ?? '',
-      context: (data.context as 'CAMPAIGN' | 'EVENT') ?? 'CAMPAIGN',
       description: (data.description as string) ?? '',
       content: (data.content as string) ?? '',
       coverUrl: (data.coverUrl as string) ?? '',
@@ -108,25 +103,6 @@ export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps
       />
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="context">Tipo</Label>
-        <Controller
-          control={form.control}
-          name="context"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id="context">
-                <SelectValue placeholder="Selecione o tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="CAMPAIGN">Campanha</SelectItem>
-                <SelectItem value="EVENT">Evento</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
         <Label htmlFor="areaId">Área</Label>
         <Controller
           control={form.control}
@@ -157,38 +133,34 @@ export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps
         )}
       </div>
 
-      {isEvent && (
-        <>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="eventDate">Data do evento</Label>
-            <Input
-              id="eventDate"
-              type="date"
-              {...form.register('eventDate')}
-            />
-          </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="eventDate">Data do evento</Label>
+        <Input
+          id="eventDate"
+          type="date"
+          {...form.register('eventDate')}
+        />
+      </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="location">Local</Label>
-            <Input
-              id="location"
-              {...form.register('location')}
-              placeholder="Endereço do evento"
-            />
-          </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="location">Local</Label>
+        <Input
+          id="location"
+          {...form.register('location')}
+          placeholder="Endereço do evento"
+        />
+      </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="vacancies">Vagas</Label>
-            <Input
-              id="vacancies"
-              type="number"
-              min={0}
-              {...form.register('vacancies', { valueAsNumber: true })}
-              placeholder="Número de vagas"
-            />
-          </div>
-        </>
-      )}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="vacancies">Vagas</Label>
+        <Input
+          id="vacancies"
+          type="number"
+          min={0}
+          {...form.register('vacancies', { valueAsNumber: true })}
+          placeholder="Número de vagas"
+        />
+      </div>
 
       <Controller
         control={form.control}
@@ -230,7 +202,7 @@ export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps
           Cancelar
         </Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar projeto'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar projeto'}
         </Button>
       </div>
     </form>

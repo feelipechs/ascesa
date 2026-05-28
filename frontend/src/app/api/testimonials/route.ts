@@ -6,9 +6,11 @@ import { createTestimonialSchema } from '@/schemas/testimonial.schema'
 export async function GET(req: NextRequest) {
   return apiHandler(async () => {
     const { searchParams } = new URL(req.url)
-    const projectId = searchParams.get('projectId') ?? ''
+    const featured = searchParams.get('featured')
 
-    const testimonials = await getTestimonials({ projectId })
+    const testimonials = await getTestimonials({
+      featuredOnly: featured !== null ? featured === 'true' : undefined,
+    })
     return NextResponse.json({ data: testimonials })
   })
 }
@@ -20,7 +22,11 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const testimonial = await createTestimonial(parsed.data)
+    const data = {
+      ...parsed.data,
+      publishedAt: parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : new Date(),
+    }
+    const testimonial = await createTestimonial(data)
     return NextResponse.json(testimonial, { status: 201 })
   })
 }

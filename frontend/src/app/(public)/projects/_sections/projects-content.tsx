@@ -1,7 +1,7 @@
 'use client'
-import { useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { ProjectsGrid } from './projects-grid'
 import { ProjectsFilters } from './projects-filters'
 import { SharedPagination } from '@/components/pagination'
@@ -36,9 +36,6 @@ export function ProjectsContent({ isAuthenticated }: { isAuthenticated: boolean 
   const allProjects = data?.data ?? []
   const totalPages = data?.meta.totalPages ?? 1
 
-  const events = useMemo(() => allProjects.filter((p) => p.context === 'EVENT'), [allProjects])
-  const campaigns = useMemo(() => allProjects.filter((p) => p.context === 'CAMPAIGN'), [allProjects])
-
   function handleEdit(project: { id: string }) {
     setEditingProject(project)
     setSheetOpen(true)
@@ -51,43 +48,21 @@ export function ProjectsContent({ isAuthenticated }: { isAuthenticated: boolean 
 
   return (
     <div className="space-y-12">
-      {isAuthenticated && (
-        <div className="flex justify-end">
-          <Button
-            onClick={() => {
-              setEditingProject(null)
-              setSheetOpen(true)
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo projeto
-          </Button>
-        </div>
-      )}
-
-      {/* Eventos */}
-      {events.length > 0 && (
-        <section>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold tracking-tight">Eventos</h2>
-            <p className="text-muted-foreground mt-1">Participe dos nossos eventos e ações voluntárias.</p>
-          </div>
-          <ProjectsGrid
-            projects={events}
-            isLoading={isLoading}
-            isAuthenticated={isAuthenticated}
-            onEdit={handleEdit}
-            onDelete={(project) => setDeletingProject({ id: project.id })}
-          />
-        </section>
-      )}
-
-      {/* Campanhas */}
       <section>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold tracking-tight">Campanhas</h2>
-          <p className="text-muted-foreground mt-1">Conheça nossas campanhas permanentes de apoio aos animais.</p>
-        </div>
+        {isAuthenticated && (
+          <div className="flex justify-end mb-6">
+            <Button
+              size="sm"
+              onClick={() => {
+                setEditingProject(null)
+                setSheetOpen(true)
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar
+            </Button>
+          </div>
+        )}
 
         <ProjectsFilters
           searchQuery={searchQuery}
@@ -98,7 +73,7 @@ export function ProjectsContent({ isAuthenticated }: { isAuthenticated: boolean 
 
         <div className="mt-6">
           <ProjectsGrid
-            projects={campaigns}
+            projects={allProjects}
             isLoading={isLoading}
             isAuthenticated={isAuthenticated}
             onEdit={handleEdit}

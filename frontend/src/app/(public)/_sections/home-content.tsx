@@ -4,6 +4,7 @@ import { Hero } from './hero'
 import { StatsSection } from './stats-section'
 import { ProjectsCarousel } from './projects-carousel'
 import { ImpactBanner } from './impact-banner'
+import { TestimonialsSection } from './testimonials-section'
 import { GalleryContent } from './gallery-content'
 import { PartnersContent } from './partners-content'
 
@@ -21,6 +22,7 @@ export function HomeContent({ isAuthenticated }: HomeContentProps) {
       <StatsSection />
       <ProjectsCarousel projects={projects.slice(0, 6)} />
       <ImpactBanner />
+      <TestimonialsSection isAuthenticated={isAuthenticated} />
       <GalleryContent isAuthenticated={isAuthenticated} />
       <PartnersContent isAuthenticated={isAuthenticated} />
     </main>

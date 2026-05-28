@@ -10,7 +10,7 @@ import { AdminSheet } from '@/components/admin/admin-sheet'
 import { VolunteerForm } from '@/components/admin/forms/volunteer-form'
 import { useVolunteers, useVolunteerMutations } from '@/hooks/volunteers/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 
 export default function AdminVolunteersPage() {
   const { data: volunteers, isLoading } = useVolunteers()

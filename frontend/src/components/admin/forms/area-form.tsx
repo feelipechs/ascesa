@@ -113,7 +113,7 @@ export function AreaForm({ areaId, onSuccess, onCancel }: AreaFormProps) {
           Cancelar
         </Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar área'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar área'}
         </Button>
       </div>
     </form>

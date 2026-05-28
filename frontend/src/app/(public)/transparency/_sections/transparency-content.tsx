@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Building, Handshake, BarChart3, Wallet, FileText, Plus } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { AdminActions } from '@/components/admin/admin-actions'
 import {
@@ -15,9 +16,16 @@ import { AdminSheet } from '@/components/admin/admin-sheet'
 import { DocumentForm } from '@/components/admin/forms/document-form'
 import { DocumentCategoryForm } from '@/components/admin/forms/document-category-form'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 import type { DocumentCategory, DocumentWithCategory } from '@/types'
-
+import { PageSection } from '@/components/page-section'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type TransparencyContentProps = {
   isAuthenticated?: boolean
@@ -34,8 +42,8 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
   const [deletingDoc, setDeletingDoc] = useState<null | { id: string }>(null)
   const [deletingCat, setDeletingCat] = useState<null | DocumentCategory>(null)
 
-  const { data: categories } = useDocumentCategories()
-  const { data: documentsResponse } = useDocuments({ categoryId: selectedCategory })
+  const { data: categories, isLoading: isCategoriesLoading } = useDocumentCategories()
+  const { data: documentsResponse, isLoading: isDocumentsLoading } = useDocuments({ categoryId: selectedCategory })
   const { remove: removeDoc, isPending: isDeletingDoc } = useDocumentMutations()
   const { remove: removeCat } = useDocumentCategoryMutations()
 
@@ -63,6 +71,47 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
     }
     return map
   }, [categories])
+
+  const availableYears = useMemo(() => {
+    const years = new Set<number>()
+    for (const doc of allDocuments) {
+      if (doc.year) years.add(doc.year)
+    }
+    return Array.from(years).sort((a, b) => b - a)
+  }, [allDocuments])
+
+  if (isCategoriesLoading || isDocumentsLoading)
+    return (
+      <PageSection padding="compact">
+        <div className="mb-8 flex flex-wrap gap-4 items-center justify-between">
+          <div className="flex flex-wrap gap-4">
+            <Skeleton className="h-10 w-48 rounded-md" />
+            <Skeleton className="h-10 w-36 rounded-md" />
+          </div>
+          <Skeleton className="h-9 w-32 rounded-md" />
+        </div>
+        <div className="space-y-16">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i}>
+              {i > 0 && <Separator className="mb-16" />}
+              <div className="flex items-center justify-between mb-6">
+                <Skeleton className="h-6 w-48" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-9 w-24 rounded-md" />
+                  <Skeleton className="h-9 w-9 rounded-md" />
+                  <Skeleton className="h-9 w-9 rounded-md" />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, j) => (
+                  <Skeleton key={j} className="h-40 rounded-xl" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </PageSection>
+    )
 
   function handleAddDocument(categorySlug: string) {
     setAddDocCategoryId(categoryBySlug[categorySlug] ?? '')
@@ -95,45 +144,45 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
     setDeletingCat(cat)
   }
 
-  const availableYears = useMemo(() => {
-    const years = new Set<number>()
-    for (const doc of allDocuments) {
-      if (doc.year) years.add(doc.year)
-    }
-    return Array.from(years).sort((a, b) => b - a)
-  }, [allDocuments])
-
   const hasNoDocuments = documents.length === 0 && !selectedCategory && !selectedYear
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <PageSection padding="compact">
       <div className="mb-8 flex flex-wrap gap-4 items-center justify-between">
         <div className="flex flex-wrap gap-4">
-          <select
-            className="rounded-lg border border-border bg-background px-4 py-2 text-sm"
-            value={selectedCategory ?? ''}
-            onChange={(e) => setSelectedCategory(e.target.value || undefined)}
+          <Select
+            value={selectedCategory ?? 'all'}
+            onValueChange={(v) => setSelectedCategory(v === 'all' ? undefined : v)}
           >
-            <option value="">Todas as categorias</option>
-            {categories?.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name} ({cat._count.documents})
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as categorias</SelectItem>
+              {categories?.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name} ({cat._count.documents})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <select
-            className="rounded-lg border border-border bg-background px-4 py-2 text-sm"
-            value={selectedYear ?? ''}
-            onChange={(e) => setSelectedYear(e.target.value ? Number(e.target.value) : undefined)}
+          <Select
+            value={selectedYear?.toString() ?? 'all'}
+            onValueChange={(v) => setSelectedYear(v === 'all' ? undefined : Number(v))}
           >
-            <option value="">Todos os anos</option>
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os anos</SelectItem>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {isAuthenticated && (
@@ -145,7 +194,7 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
             }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Nova categoria
+            Adicionar
           </Button>
         )}
       </div>
@@ -160,7 +209,7 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
               <DocumentSection
                 icon={<FileText className="h-5 w-5" />}
                 title={category.name}
-                description=''
+                description=""
                 documents={groupedDocuments[category.slug] ?? []}
                 isAuthenticated={isAuthenticated}
                 onAdd={() => handleAddDocument(category.slug)}
@@ -225,6 +274,6 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
           Todos os documentos estão disponíveis para consulta pública.
         </p>
       </div>
-    </div>
+    </PageSection>
   )
 }

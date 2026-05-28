@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { SafeImage } from '@/components/shared/safe-image'
-import { ImagePlaceholder } from '@/components/shared/image-placeholder'
+import { SafeImage } from '@/components/safe-image'
+import { ImagePlaceholder } from '@/components/image-placeholder'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'

@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { SafeImage } from '@/components/shared/safe-image'
-import { ImagePlaceholder } from '@/components/shared/image-placeholder'
+import { SafeImage } from '@/components/safe-image'
+import { ImagePlaceholder } from '@/components/image-placeholder'
 import { ArrowRight, Calendar, MapPin, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { AdminActions } from '@/components/admin/admin-actions'
 import { format } from 'date-fns'
 import type { ProjectListItem } from '@/types'
-import { VolunteerModal } from '@/components/shared/volunteer-modal'
+import { VolunteerModal } from '@/components/volunteer-modal'
 
 export function ProjectCard({
   project,
@@ -23,8 +23,6 @@ export function ProjectCard({
   onEdit?: () => void
   onDelete?: () => void
 }) {
-  const isEvent = project.context === 'EVENT'
-
   return (
     <div
       className={cn(
@@ -58,16 +56,13 @@ export function ProjectCard({
           <Badge variant="secondary" className="text-xs font-medium">
             {project.area.title}
           </Badge>
-          <Badge variant={isEvent ? 'default' : 'outline'} className="text-xs font-medium">
-            {isEvent ? 'Evento' : 'Campanha'}
-          </Badge>
         </div>
 
         <h3 className="text-xl font-semibold tracking-tight mb-2 line-clamp-1 group-hover:text-primary">
           {project.title}
         </h3>
 
-        {isEvent && (project.eventDate || project.location) && (
+        {(project.eventDate || project.location) && (
           <div className="mb-3 space-y-1.5">
             {project.eventDate && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -101,7 +96,7 @@ export function ProjectCard({
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
             </Link>
           </Button>
-          {isEvent && (
+          {project.eventDate && (
             <VolunteerModal projectId={project.id} projectTitle={project.title}>
               <Button variant="default" className="shrink-0" onClick={(e) => e.stopPropagation()}>
                 Inscrever-se

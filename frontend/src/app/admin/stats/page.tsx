@@ -9,7 +9,7 @@ import { AdminSheet } from '@/components/admin/admin-sheet'
 import { StatForm } from '@/components/admin/forms/stat-form'
 import { useStats, useStatMutations } from '@/hooks/stats/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 
 export default function AdminStatsPage() {
   const { data: stats, isLoading } = useStats()

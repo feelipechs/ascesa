@@ -5,7 +5,6 @@ export const ProjectsApi = {
     const params = new URLSearchParams()
     if (filters?.search) params.set('search', filters.search)
     if (filters?.areas?.length) params.set('areas', filters.areas.join(','))
-    if (filters?.context) params.set('context', filters.context)
     if (filters?.featured !== undefined) params.set('featured', String(filters.featured))
     if (filters?.page) params.set('page', String(filters.page))
     if (filters?.limit) params.set('limit', String(filters.limit))

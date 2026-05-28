@@ -14,6 +14,7 @@ import {
 const institucionalLinks = [
   { label: 'Sobre nós', href: '/sobre' },
   { label: 'Projetos', href: '/projetos' },
+  { label: 'Animais', href: '/animais' },
   { label: 'Áreas de atuação', href: '/areas' },
   { label: 'Transparência', href: '/transparencia' },
   { label: 'Doações', href: '/doacoes' },

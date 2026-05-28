@@ -10,7 +10,7 @@ export function ContactMap() {
         </div>
         <div className="overflow-hidden rounded-lg border border-border">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3740.3939198088137!2d-46.23203615343648!3d-23.97952592328583!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce0113c2e55817%3A0xc9432c339055b8e3!2sEducasurf!5e1!3m2!1spt-BR!2sbr!4v1773157605405!5m2!1spt-BR!2sbr"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2894.2377401091253!2d-46.29141333318127!3d-23.942361280494016!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce0323ea795f3f%3A0xb5b373e4690c2e62!2zQXNzb2NpYcOnw6NvIEFzY2VzYQ!5e0!3m2!1spt-BR!2sbr!4v1779920776025!5m2!1spt-BR!2sbr"
             width="100%"
             height="400"
             style={{ border: 0 }}
@@ -19,7 +19,7 @@ export function ContactMap() {
             referrerPolicy="no-referrer-when-downgrade"
             title="Localização no Google Maps"
             className="w-full"
-          />
+          ></iframe>
         </div>
       </div>
     </section>

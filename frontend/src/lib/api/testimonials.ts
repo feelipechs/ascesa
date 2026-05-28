@@ -1,9 +1,9 @@
-import type { Testimonial, TestimonialFilters, TestimonialWithProject } from '@/types'
+import type { Testimonial, TestimonialFilters } from '@/types'
 
 export const TestimonialsApi = {
-  async findAll(filters?: TestimonialFilters): Promise<TestimonialWithProject[]> {
+  async findAll(filters?: TestimonialFilters): Promise<Testimonial[]> {
     const params = new URLSearchParams()
-    if (filters?.projectId) params.set('projectId', filters.projectId)
+    if (filters?.featured) params.set('featured', 'true')
     const query = params.toString()
     const res = await fetch(`/api/testimonials${query ? `?${query}` : ''}`)
     if (!res.ok) {
@@ -14,7 +14,7 @@ export const TestimonialsApi = {
     return json.data
   },
 
-  async findById(id: string): Promise<TestimonialWithProject> {
+  async findById(id: string): Promise<Testimonial> {
     const res = await fetch(`/api/testimonials/${id}`)
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))

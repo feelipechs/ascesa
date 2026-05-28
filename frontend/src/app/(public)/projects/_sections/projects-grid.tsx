@@ -1,7 +1,7 @@
 'use client'
 
 import { ProjectCard } from './project-card'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { ProjectListItem } from '@/types'
 

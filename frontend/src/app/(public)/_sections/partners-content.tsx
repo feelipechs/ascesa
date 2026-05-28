@@ -5,9 +5,10 @@ import { usePartners, usePartnerMutations } from '@/hooks/partners/queries'
 import { Partners } from './partners'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { PartnerForm } from '@/components/admin/forms/partner-form'
-import { Button } from '@/components/ui/button'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
+import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 import type { Partner } from '@/types'
 
 export function PartnersContent({ isAuthenticated }: { isAuthenticated?: boolean }) {
@@ -35,30 +36,36 @@ export function PartnersContent({ isAuthenticated }: { isAuthenticated?: boolean
 
   if (isLoading)
     return (
-      <section className="border-t border-border py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4">
-          <Skeleton className="mx-auto mb-12 h-8 w-64" />
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 rounded-xl" />
-            ))}
-          </div>
+      <PageSection borderTop width="wide">
+        <Skeleton className="mx-auto mb-12 h-8 w-64" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ))}
         </div>
-      </section>
+      </PageSection>
     )
-
-  if ((partners ?? []).length === 0)
-    return <EmptyState title="Nenhum parceiro cadastrado." />
 
   return (
     <>
-      <Partners
-        partners={partners ?? []}
-        isAuthenticated={isAuthenticated}
-        onAdd={handleNew}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <PageSection borderTop width="wide" padding="compact">
+        <SectionHeading
+          title="Parceiros"
+          description="Quem apoia a Ascesa."
+          action={isAuthenticated ? { label: 'Adicionar', onClick: handleNew } : undefined}
+        />
+
+        {(partners ?? []).length > 0 ? (
+          <Partners
+            partners={partners ?? []}
+            isAuthenticated={isAuthenticated}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <EmptyState title="Nenhum parceiro cadastrado." />
+        )}
+      </PageSection>
 
       {isAuthenticated && (
         <>

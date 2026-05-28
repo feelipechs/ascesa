@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { SafeImage } from '@/components/shared/safe-image'
-import { ImagePlaceholder } from '@/components/shared/image-placeholder'
+import { SafeImage } from '@/components/safe-image'
+import { ImagePlaceholder } from '@/components/image-placeholder'
 import { format } from 'date-fns'
 import { ArrowLeft, Calendar, MapPin, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { getProjectBySlug } from '@/services/project.service'
 import { auth } from '@/auth'
 import { routes } from '@/lib/routes'
-import { GallerySection, TestimonialsSection } from '../_sections'
+import { GallerySection } from '../_sections'
 import { VolunteerButton } from './_sections/volunteer-button'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -32,8 +32,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const project = await getProjectBySlug(slug)
 
   if (!project) notFound()
-
-  const isEvent = project.context === 'EVENT'
 
   return (
     <main className="min-h-screen bg-background">
@@ -88,11 +86,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               projectId={project.id}
               isAuthenticated={isAuthenticated}
             />
-
-            <TestimonialsSection
-              projectId={project.id}
-              isAuthenticated={isAuthenticated}
-            />
           </div>
 
           <aside className="space-y-6">
@@ -103,16 +96,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                       <Calendar className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Tipo</p>
-                      <p className="font-medium text-foreground">{isEvent ? 'Evento' : 'Campanha'}</p>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <MapPin className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Área</p>
@@ -134,7 +117,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     </div>
                   </div>
 
-                  {isEvent && project.eventDate && (
+                  {project.eventDate && (
                     <>
                       <Separator />
                       <div className="flex items-center gap-3">
@@ -151,7 +134,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     </>
                   )}
 
-                  {isEvent && project.location && (
+                  {project.location && (
                     <>
                       <Separator />
                       <div className="flex items-center gap-3">
@@ -166,7 +149,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     </>
                   )}
 
-                  {isEvent && project.vacancies !== null && project.vacancies !== undefined && (
+                  {project.vacancies !== null && project.vacancies !== undefined && (
                     <>
                       <Separator />
                       <div className="flex items-center gap-3">
@@ -190,17 +173,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   Quer nos ajudar?
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {isEvent
-                    ? 'Inscreva-se como voluntário neste evento e faça a diferença na vida dos animais.'
-                    : 'Entre em contato conosco e descubra como você pode contribuir para ajudar os animais.'}
+                  Inscreva-se como voluntário e faça a diferença na vida dos animais.
                 </p>
-                {isEvent ? (
-                  <VolunteerButton projectId={project.id} projectTitle={project.title} />
-                ) : (
-                  <Button className="w-full" asChild>
-                    <Link href={routes.contact}>Entre em Contato</Link>
-                  </Button>
-                )}
+                <VolunteerButton projectId={project.id} projectTitle={project.title} />
               </CardContent>
             </Card>
           </aside>

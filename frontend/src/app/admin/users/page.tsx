@@ -11,7 +11,7 @@ import { AdminSheet } from '@/components/admin/admin-sheet'
 import { UserForm } from '@/components/admin/forms/user-form'
 import { useUsers, useUserMutations } from '@/hooks/users/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 
 export default function UsersPage() {
   const { data: users, isLoading } = useUsers()

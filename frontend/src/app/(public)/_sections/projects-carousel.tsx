@@ -24,8 +24,6 @@ type ProjectsCarouselProps = {
 }
 
 export function ProjectsCarousel({ projects, autoplay = true, className }: ProjectsCarouselProps) {
-  if (projects.length === 0) return null
-
   const [api, setApi] = React.useState<CarouselApi>()
   const [current, setCurrent] = React.useState(0)
   const [count, setCount] = React.useState(0)
@@ -34,14 +32,14 @@ export function ProjectsCarousel({ projects, autoplay = true, className }: Proje
 
   React.useEffect(() => {
     if (!api) return
-
     setCount(api.scrollSnapList().length)
     setCurrent(api.selectedScrollSnap())
-
     api.on('select', () => {
       setCurrent(api.selectedScrollSnap())
     })
   }, [api])
+
+  if (projects.length === 0) return null
 
   return (
     <section className={cn('w-full py-12 md:py-16 lg:py-20', className)}>

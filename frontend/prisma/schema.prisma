@@ -51,13 +51,8 @@ model Area {
 }
 
 // ------------------------------
-// PROJETO / EVENTO (unificado por contexto)
+// PROJETO / EVENTO (agora só EVENTO)
 // ------------------------------
-enum ProjectContext {
-  CAMPAIGN
-  EVENT
-}
-
 model Project {
   id             String         @id @default(nanoid())
   title          String
@@ -65,17 +60,15 @@ model Project {
   description    String?
   content        String?
   coverUrl       String?
-  context        ProjectContext @default(CAMPAIGN)
-  eventDate      DateTime?      // EVENT apenas
-  location       String?        // EVENT apenas
-  vacancies      Int?           // EVENT apenas — admin define limite
-  metrics        Json?          // Array [{ label, value }] validado por Zod
+  eventDate      DateTime?
+  location       String?
+  vacancies      Int?
+  metrics        Json?
   featured       Boolean        @default(false)
   publishedAt    DateTime?
   areaId         String
   area           Area           @relation(fields: [areaId], references: [id])
   gallery        GalleryImage[]
-  testimonials   Testimonial[]
   registrations  Registration[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -87,6 +80,7 @@ model Project {
 enum GalleryContext {
   HOME
   PROJECT
+  ANIMAL
 }
 
 model GalleryImage {
@@ -97,6 +91,8 @@ model GalleryImage {
   context   GalleryContext @default(PROJECT)
   projectId String?
   project   Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  animalId  String?
+  animal    Animal?        @relation(fields: [animalId], references: [id], onDelete: SetNull)
 }
 
 // ------------------------------
@@ -184,21 +180,22 @@ model User {
 }
 
 // ------------------------------
-// DEPOIMENTO
+// DEPOIMENTO (standalone)
 // ------------------------------
 model Testimonial {
-  id        String   @id @default(nanoid())
-  name      String
-  role      String?
-  message   String
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(nanoid())
+  name        String
+  role        String?
+  message     String
+  photoUrl    String?
+  featured    Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 // ------------------------------
-// VOLUNTARIO (antiga Person)
+// VOLUNTARIO
 // ------------------------------
 model Volunteer {
   id            String         @id @default(nanoid())
@@ -212,7 +209,7 @@ model Volunteer {
 }
 
 // ------------------------------
-// INSCRICAO EM EVENTO (antiga Participation)
+// INSCRICAO EM EVENTO
 // ------------------------------
 enum RegistrationStatus {
   PENDING
@@ -232,6 +229,7 @@ model Registration {
   updatedAt    DateTime           @updatedAt
 
   @@unique([volunteerId, projectId])
+  @@index([projectId])
 }
 
 // ------------------------------
@@ -261,4 +259,135 @@ model Stat {
   publishedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ------------------------------
+// ESPECIE DE ANIMAL
+// ------------------------------
+model AnimalSpecies {
+  id      String   @id @default(nanoid())
+  name    String   @unique
+  order   Int      @default(0)
+  animals Animal[]
+}
+
+// ------------------------------
+// PORTE DE ANIMAL
+// ------------------------------
+model AnimalSize {
+  id          String   @id @default(nanoid())
+  label       String   @unique
+  description String?
+  order       Int      @default(0)
+  animals     Animal[]
+}
+
+// ------------------------------
+// FAIXA ETARIA DE ANIMAL
+// ------------------------------
+model AnimalAgeRange {
+  id      String   @id @default(nanoid())
+  label   String   @unique
+  minAge  Int?
+  maxAge  Int?
+  order   Int      @default(0)
+  animals Animal[]
+}
+
+// ------------------------------
+// ANIMAL
+// ------------------------------
+enum AnimalGender {
+  MALE
+  FEMALE
+}
+
+enum AnimalStatus {
+  AVAILABLE
+  ADOPTED
+  FOSTERED
+}
+
+model Animal {
+  id           String        @id @default(nanoid())
+  name         String
+  slug         String        @unique
+  speciesId    String
+  species      AnimalSpecies @relation(fields: [speciesId], references: [id])
+  breed        String?
+  gender       AnimalGender
+  sizeId       String?
+  size         AnimalSize?   @relation(fields: [sizeId], references: [id])
+  birthDate    DateTime?
+  ageRangeId   String?
+  ageRange     AnimalAgeRange? @relation(fields: [ageRangeId], references: [id])
+  shelterSince DateTime      @default(now())
+  description  String?
+  content      String?
+  coverUrl     String?
+  status       AnimalStatus  @default(AVAILABLE)
+  featured     Boolean       @default(false)
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  gallery      GalleryImage[]
+}
+
+// ------------------------------
+// METODO DE PAGAMENTO
+// ------------------------------
+enum PaymentMethodType {
+  PIX
+  BANK_TRANSFER
+  CASH
+}
+
+model PaymentMethod {
+  id           String            @id @default(nanoid())
+  type         PaymentMethodType
+  label        String
+  instructions String?
+  isActive     Boolean           @default(true)
+  displayOrder Int               @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  pixConfig    PixConfig?
+  bankConfig   BankConfig?
+}
+
+model PixConfig {
+  id            String        @id
+  paymentMethod PaymentMethod @relation(fields: [id], references: [id], onDelete: Cascade)
+  key           String
+  receiverName  String
+  receiverCity  String
+}
+
+model BankConfig {
+  id            String        @id
+  paymentMethod PaymentMethod @relation(fields: [id], references: [id], onDelete: Cascade)
+  bankName      String
+  agency        String
+  account       String
+  accountType   String?
+}
+
+// ------------------------------
+// NOTA FISCAL
+// ------------------------------
+enum FiscalNoteType {
+  DETAILED
+  ACCESS_KEY
+}
+
+model FiscalNote {
+  id           String         @id @default(nanoid())
+  type         FiscalNoteType
+  cnpj         String?
+  emissionDate DateTime?
+  coo          String?
+  amount       Decimal?       @db.Decimal(10, 2)
+  accessKey    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }

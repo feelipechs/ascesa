@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { useAreas, useAreaMutations } from '@/hooks/areas/queries'
 import { AreasGrid } from './areas-grid'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { AreaForm } from '@/components/admin/forms/area-form'
 import { DeleteDialog } from '@/components/delete-dialog'
+import { PageSection } from '@/components/page-section'
 
 type AreasContentProps = {
   isAuthenticated?: boolean
@@ -49,26 +50,24 @@ export function AreasContent({ isAuthenticated }: AreasContentProps) {
 
   return (
     <>
-      <section className="py-12 md:py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-6">
-          {isAuthenticated && (
-            <div className="flex justify-end">
-              <Button onClick={handleNew} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar área
-              </Button>
-            </div>
-          )}
+      <PageSection padding="compact" className="space-y-6">
+        {isAuthenticated && (
+          <div className="flex justify-end">
+            <Button onClick={handleNew} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar
+            </Button>
+          </div>
+        )}
 
-          <AreasGrid
-            areas={areas}
-            isLoading={isLoading}
-            isAuthenticated={isAuthenticated}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </div>
-      </section>
+        <AreasGrid
+          areas={areas}
+          isLoading={isLoading}
+          isAuthenticated={isAuthenticated}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </PageSection>
 
       {isAuthenticated && (
         <AdminSheet

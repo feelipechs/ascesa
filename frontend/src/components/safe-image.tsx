@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useState, type ComponentProps } from 'react'
-import { ImagePlaceholder } from '@/components/shared/image-placeholder'
+import { ImagePlaceholder } from '@/components/image-placeholder'
 
 type SafeImageProps = ComponentProps<typeof Image> & {
   fallback?: React.ReactNode

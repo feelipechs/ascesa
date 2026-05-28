@@ -3,7 +3,6 @@ import { z } from 'zod'
 export const createProjectSchema = z.object({
   title: z.string().min(1, 'Título obrigatório'),
   slug: z.string().min(1, 'Slug obrigatório'),
-  context: z.enum(['CAMPAIGN', 'EVENT']).default('CAMPAIGN'),
   description: z.string().optional(),
   content: z.string().optional(),
   coverUrl: z.string().url('URL inválida').optional().or(z.literal('')),
@@ -19,7 +18,6 @@ export const createProjectSchema = z.object({
 export const updateProjectSchema = z.object({
   title: z.string().min(1).optional(),
   slug: z.string().min(1).optional(),
-  context: z.enum(['CAMPAIGN', 'EVENT']).optional(),
   description: z.string().optional(),
   content: z.string().optional(),
   coverUrl: z.string().url('URL inválida').optional().or(z.literal('')),

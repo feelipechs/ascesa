@@ -75,7 +75,7 @@ export function StatForm({ statId, onSuccess, onCancel }: StatFormProps) {
           Cancelar
         </Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar métrica'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar métrica'}
         </Button>
       </div>
     </form>

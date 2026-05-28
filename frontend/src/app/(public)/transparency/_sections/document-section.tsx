@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AdminActions } from '@/components/admin/admin-actions'
 import { DocumentCard } from './document-card'
+import { EmptyState } from '@/components/empty-state'
 import type { DocumentWithCategory } from '@/types'
 
 type DocumentSectionProps = {
@@ -58,7 +59,7 @@ export function DocumentSection({
         </div>
         {description && <p className="text-muted-foreground ml-13">{description}</p>}
       </div>
-      {documents.length > 0 && (
+      {documents.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-in fade-in-0 duration-500">
           {documents.map((doc) => (
             <DocumentCard
@@ -70,6 +71,8 @@ export function DocumentSection({
             />
           ))}
         </div>
+      ) : (
+        <EmptyState title={`Nenhum documento em "${title}".`} />
       )}
     </section>
   )

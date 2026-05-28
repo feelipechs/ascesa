@@ -1,15 +1,18 @@
 import {
-  IconFolder,
-  IconMapPin,
-  IconUsers,
-  IconHeartHandshake,
-  IconFileText,
   IconUserPlus,
-  IconActivity,
+  IconFolder,
+  IconFileText,
+  IconPaw,
+  IconArrowsSort,
+  IconMoneybag,
+  IconMessage,
+  IconReceipt,
   IconUserCircle,
-  IconNews,
-  IconCalendarEvent,
-  IconFlag,
+  IconLayoutGrid,
+  IconUsers,
+  IconHeart,
+  IconFile,
+  IconPhoto,
 } from '@tabler/icons-react'
 
 import {
@@ -20,39 +23,57 @@ import {
 } from '@/components/ui/card'
 
 type SectionCardsProps = {
-  projects: number
-  events: number
-  campaigns: number
   areas: number
+  projects: number
+  volunteers: number
+  posts: number
+  animals: number
+  species: number
+  paymentMethods: number
+  testimonials: number
+  fiscalNotes: number
+  users: number
   teamMembers: number
   partners: number
   documents: number
-  volunteers: number
-  pendingRegistrations: number
-  users: number
-  posts: number
+  galleryImages: number
 }
 
 export function SectionCards({
-  projects, events, campaigns, areas, teamMembers, partners,
-  documents, volunteers, pendingRegistrations, users, posts,
+  areas,
+  projects,
+  volunteers,
+  posts,
+  animals,
+  species,
+  paymentMethods,
+  testimonials,
+  fiscalNotes,
+  users,
+  teamMembers,
+  partners,
+  documents,
+  galleryImages,
 }: SectionCardsProps) {
   const cards = [
-    { icon: IconFolder, label: 'Projetos', value: projects },
-    { icon: IconCalendarEvent, label: 'Eventos', value: events },
-    { icon: IconFlag, label: 'Campanhas', value: campaigns },
-    { icon: IconMapPin, label: 'Áreas', value: areas },
-    { icon: IconUsers, label: 'Membros', value: teamMembers },
-    { icon: IconHeartHandshake, label: 'Parceiros', value: partners },
-    { icon: IconFileText, label: 'Documentos', value: documents },
     { icon: IconUserPlus, label: 'Voluntários', value: volunteers },
-    { icon: IconActivity, label: 'Inscrições Pendentes', value: pendingRegistrations },
-    { icon: IconNews, label: 'Posts', value: posts },
+    { icon: IconFolder, label: 'Projetos', value: projects },
+    { icon: IconFileText, label: 'Blog', value: posts },
+    { icon: IconPaw, label: 'Animais', value: animals },
+    { icon: IconArrowsSort, label: 'Espécies', value: species },
+    { icon: IconMoneybag, label: 'Pagamentos', value: paymentMethods },
+    { icon: IconMessage, label: 'Depoimentos', value: testimonials },
+    { icon: IconReceipt, label: 'Notas Fiscais', value: fiscalNotes },
     { icon: IconUserCircle, label: 'Usuários', value: users },
+    { icon: IconLayoutGrid, label: 'Áreas', value: areas },
+    { icon: IconUsers, label: 'Membros da Equipe', value: teamMembers },
+    { icon: IconHeart, label: 'Parceiros', value: partners },
+    { icon: IconFile, label: 'Documentos', value: documents },
+    { icon: IconPhoto, label: 'Galeria', value: galleryImages },
   ]
 
   return (
-    <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 @7xl/main:grid-cols-5">
       {cards.map((card) => (
         <Card key={card.label} className="@container/card">
           <CardHeader>

@@ -7,29 +7,35 @@ export default async function AdminPage() {
   const now = new Date()
 
   const [
-    projectsCount,
-    eventsCount,
-    campaignsCount,
     areasCount,
+    projectsCount,
+    volunteersCount,
+    postsCount,
+    animalsCount,
+    speciesCount,
+    paymentMethodsCount,
+    testimonialsCount,
+    fiscalNotesCount,
+    usersCount,
     teamMembersCount,
     partnersCount,
     documentsCount,
-    volunteersCount,
-    pendingRegistrationsCount,
-    usersCount,
-    postsCount,
+    galleryImagesCount,
   ] = await Promise.all([
-    prisma.project.count(),
-    prisma.project.count({ where: { context: 'EVENT' } }),
-    prisma.project.count({ where: { context: 'CAMPAIGN' } }),
     prisma.area.count(),
+    prisma.project.count(),
+    prisma.volunteer.count(),
+    prisma.post.count(),
+    prisma.animal.count(),
+    prisma.animalSpecies.count(),
+    prisma.paymentMethod.count(),
+    prisma.testimonial.count(),
+    prisma.fiscalNote.count(),
+    prisma.user.count(),
     prisma.teamMember.count(),
     prisma.partner.count(),
     prisma.document.count(),
-    prisma.volunteer.count(),
-    prisma.registration.count({ where: { status: 'PENDING' } }),
-    prisma.user.count(),
-    prisma.post.count(),
+    prisma.galleryImage.count(),
   ])
 
   const last6Months = Array.from({ length: 6 }, (_, i) => {
@@ -46,15 +52,6 @@ export default async function AdminPage() {
     }))
   )
 
-  const postsByMonth = await Promise.all(
-    last6Months.map(async ({ start, end, label }) => ({
-      month: label,
-      count: await prisma.post.count({
-        where: { publishedAt: { gte: start, lte: end } },
-      }),
-    }))
-  )
-
   const registrationsByStatus = await Promise.all(
     (['PENDING', 'APPROVED', 'REJECTED'] as const).map(async (status) => ({
       status,
@@ -62,33 +59,27 @@ export default async function AdminPage() {
     }))
   )
 
-  const projectsByContext = await Promise.all(
-    (['CAMPAIGN', 'EVENT'] as const).map(async (context) => ({
-      context,
-      count: await prisma.project.count({ where: { context } }),
-    }))
-  )
-
   return (
     <div className="px-4 lg:px-6">
       <SectionCards
-        projects={projectsCount}
-        events={eventsCount}
-        campaigns={campaignsCount}
         areas={areasCount}
+        projects={projectsCount}
+        volunteers={volunteersCount}
+        posts={postsCount}
+        animals={animalsCount}
+        species={speciesCount}
+        paymentMethods={paymentMethodsCount}
+        testimonials={testimonialsCount}
+        fiscalNotes={fiscalNotesCount}
+        users={usersCount}
         teamMembers={teamMembersCount}
         partners={partnersCount}
         documents={documentsCount}
-        volunteers={volunteersCount}
-        pendingRegistrations={pendingRegistrationsCount}
-        users={usersCount}
-        posts={postsCount}
+        galleryImages={galleryImagesCount}
       />
       <DashboardCharts
         volunteersByMonth={volunteersByMonth}
         registrationsByStatus={registrationsByStatus}
-        projectsByContext={projectsByContext}
-        postsByMonth={postsByMonth}
       />
     </div>
   )

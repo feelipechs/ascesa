@@ -2,10 +2,11 @@
 
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
-import { SafeImage } from '@/components/shared/safe-image'
+import { SafeImage } from '@/components/safe-image'
 import { AdminActions } from '@/components/admin/admin-actions'
+import { EmptyState } from '@/components/empty-state'
+import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 import type { TeamMember } from '@/types'
 
 type AboutTeamProps = {
@@ -16,24 +17,22 @@ type AboutTeamProps = {
   onAdd?: () => void
 }
 
-export function AboutTeam({ teamMembers, isAuthenticated, onEdit, onDelete, onAdd }: AboutTeamProps) {
+export function AboutTeam({
+  teamMembers,
+  isAuthenticated,
+  onEdit,
+  onDelete,
+  onAdd,
+}: AboutTeamProps) {
   return (
-    <section className="py-8 sm:py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 flex items-center justify-between gap-4">
-          <div className="text-center flex-1">
-            <h2 className="mb-4 text-2xl font-semibold md:text-3xl lg:text-4xl">Nossa Equipe</h2>
-            <p className="text-muted-foreground text-xl">
-              Conheça os profissionais dedicados que fazem a Ascesa acontecer todos os dias.
-            </p>
-          </div>
-          {isAuthenticated && onAdd && (
-            <Button size="sm" onClick={onAdd} className="shrink-0">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar
-            </Button>
-          )}
-        </div>
+    <PageSection width="wide" padding="compact">
+      <SectionHeading
+        title="Nossa Equipe"
+        description="Conheça os profissionais dedicados que fazem a Ascesa acontecer todos os dias."
+        action={isAuthenticated && onAdd ? { label: 'Adicionar', onClick: onAdd } : undefined}
+      />
+
+      {teamMembers.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-10 xl:grid-cols-4 animate-in fade-in-0 duration-500">
           {teamMembers.map((member) => (
             <Card
@@ -42,7 +41,10 @@ export function AboutTeam({ teamMembers, isAuthenticated, onEdit, onDelete, onAd
             >
               {isAuthenticated && onDelete && (
                 <div className="absolute top-2 right-2 z-10">
-                  <AdminActions onEdit={onEdit ? () => onEdit(member) : undefined} onDelete={() => onDelete(member)} />
+                  <AdminActions
+                    onEdit={onEdit ? () => onEdit(member) : undefined}
+                    onDelete={() => onDelete(member)}
+                  />
                 </div>
               )}
               <CardContent className="px-0">
@@ -69,7 +71,9 @@ export function AboutTeam({ teamMembers, isAuthenticated, onEdit, onDelete, onAd
             </Card>
           ))}
         </div>
-      </div>
-    </section>
+      ) : (
+        <EmptyState title="Nenhum membro da equipe cadastrado." />
+      )}
+    </PageSection>
   )
 }

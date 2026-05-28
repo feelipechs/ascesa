@@ -100,7 +100,7 @@ export function UserForm({ userId, onSuccess, onCancel }: UserFormProps) {
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar usuário'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar usuário'}
         </Button>
       </div>
     </form>

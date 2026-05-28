@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { useSettings } from '@/hooks/settings/queries'
 import { useTeamMembers, useTeamMemberMutations } from '@/hooks/team-members/queries'
 import type { TeamMemberWithAreas } from '@/types'
@@ -10,7 +9,6 @@ import { AboutTeam } from './about-team'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { TeamMemberForm } from '@/components/admin/forms/team-member-form'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
 
 type AboutContentProps = {
   isAuthenticated?: boolean
@@ -43,20 +41,16 @@ export function AboutContent({ isAuthenticated }: AboutContentProps) {
     <>
       <AboutHistory about={settings?.about} />
       <AboutMvv mission={settings?.mission} vision={settings?.vision} values={settings?.values} />
-      {(teamMembers ?? []).length === 0 && !isAuthenticated ? (
-        <EmptyState title="Nenhum membro da equipe cadastrado." />
-      ) : (
-        <AboutTeam
-          teamMembers={teamMembers ?? []}
-          isAuthenticated={isAuthenticated}
-          onAdd={handleNew}
-          onEdit={handleEdit}
-          onDelete={(member) => {
-            const full = teamMembers?.find((m) => m.id === member.id)
-            if (full) setDeletingMember(full)
-          }}
-        />
-      )}
+      <AboutTeam
+        teamMembers={teamMembers ?? []}
+        isAuthenticated={isAuthenticated}
+        onAdd={handleNew}
+        onEdit={handleEdit}
+        onDelete={(member) => {
+          const full = teamMembers?.find((m) => m.id === member.id)
+          if (full) setDeletingMember(full)
+        }}
+      />
 
       {isAuthenticated && (
         <>

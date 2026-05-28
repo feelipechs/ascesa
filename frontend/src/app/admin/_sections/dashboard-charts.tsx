@@ -1,21 +1,17 @@
 'use client'
 
-import { Bar, BarChart, Line, LineChart, Pie, PieChart, ResponsiveContainer } from 'recharts'
+import { Line, LineChart, Pie, PieChart, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 
 type DashboardChartsProps = {
   volunteersByMonth: { month: string; count: number }[]
   registrationsByStatus: { status: string; count: number }[]
-  projectsByContext: { context: string; count: number }[]
-  postsByMonth: { month: string; count: number }[]
 }
 
 export function DashboardCharts({
   volunteersByMonth,
   registrationsByStatus,
-  projectsByContext,
-  postsByMonth,
 }: DashboardChartsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mt-6">
@@ -75,52 +71,6 @@ export function DashboardCharts({
                   fill="var(--color-count)"
                 />
               </PieChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Projetos por contexto</CardTitle>
-          <CardDescription>Campanhas vs Eventos</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={{
-              count: { label: 'Projetos' },
-              CAMPAIGN: { label: 'Campanhas', color: 'var(--chart-1)' },
-              EVENT: { label: 'Eventos', color: 'var(--chart-2)' },
-            }}
-            className="h-64"
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={projectsByContext}>
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Posts publicados por mês</CardTitle>
-          <CardDescription>Artigos do blog publicados</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={{
-              count: { label: 'Posts', color: 'var(--chart-5)' },
-            }}
-            className="h-64"
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={postsByMonth}>
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]} />
-              </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>

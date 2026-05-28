@@ -147,7 +147,7 @@ export function DocumentForm({ documentId, defaultCategoryId, onSuccess, onCance
           Cancelar
         </Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar documento'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar documento'}
         </Button>
       </div>
     </form>

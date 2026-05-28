@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       { source: '/transparencia', destination: '/transparency' },
       { source: '/transparencia/:path*', destination: '/transparency/:path*' },
       { source: '/doacoes', destination: '/donations' },
+      { source: '/animais', destination: '/animals' },
+      { source: '/animais/:path*', destination: '/animals/:path*' },
     ]
   },
   images: {

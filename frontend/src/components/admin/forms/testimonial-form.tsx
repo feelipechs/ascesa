@@ -8,17 +8,17 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import { useTestimonialMutations, testimonialQueryOptions } from '@/hooks/testimonials/queries'
 import { useQuery } from '@tanstack/react-query'
 
 type TestimonialFormProps = {
-  projectId: string
   testimonialId?: string
   onSuccess: () => void
   onCancel: () => void
 }
 
-export function TestimonialForm({ projectId, testimonialId, onSuccess, onCancel }: TestimonialFormProps) {
+export function TestimonialForm({ testimonialId, onSuccess, onCancel }: TestimonialFormProps) {
   const isEditing = !!testimonialId
   const { data: testimonialData } = useQuery(testimonialQueryOptions(testimonialId))
   const { create, update, isPending } = useTestimonialMutations()
@@ -29,7 +29,8 @@ export function TestimonialForm({ projectId, testimonialId, onSuccess, onCancel 
       name: '',
       role: '',
       message: '',
-      projectId: projectId,
+      photoUrl: '',
+      featured: false,
     },
   })
 
@@ -39,12 +40,17 @@ export function TestimonialForm({ projectId, testimonialId, onSuccess, onCancel 
       name: testimonialData.name ?? '',
       role: testimonialData.role ?? '',
       message: testimonialData.message ?? '',
-      projectId: testimonialData.projectId ?? projectId,
+      photoUrl: testimonialData.photoUrl ?? '',
+      featured: testimonialData.featured ?? false,
     })
-  }, [testimonialData, form, projectId])
+  }, [testimonialData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
-    const payload = { ...data, role: (data.role as string) || undefined }
+    const payload = {
+      ...data,
+      role: (data.role as string) || undefined,
+      photoUrl: (data.photoUrl as string) || null,
+    }
     if (isEditing && testimonialId) {
       update.mutate({ id: testimonialId, data: payload }, { onSuccess })
     } else {
@@ -64,7 +70,7 @@ export function TestimonialForm({ projectId, testimonialId, onSuccess, onCancel 
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="role">Cargo / Vínculo</Label>
-        <Input id="role" {...form.register('role')} placeholder="Ex: Aluno, Mãe, Voluntário" />
+        <Input id="role" {...form.register('role')} placeholder="Ex: Adotante, Voluntário, Doador" />
       </div>
 
       <div className="flex flex-col gap-2">
@@ -75,12 +81,24 @@ export function TestimonialForm({ projectId, testimonialId, onSuccess, onCancel 
         )}
       </div>
 
-      <input type="hidden" {...form.register('projectId')} />
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="photoUrl">URL da foto</Label>
+        <Input id="photoUrl" {...form.register('photoUrl')} placeholder="https://..." />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Switch
+          id="featured"
+          checked={form.watch('featured')}
+          onCheckedChange={(val) => form.setValue('featured', val)}
+        />
+        <Label htmlFor="featured">Depoimento em destaque</Label>
+      </div>
 
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar depoimento'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar depoimento'}
         </Button>
       </div>
     </form>

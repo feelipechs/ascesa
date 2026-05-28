@@ -1,14 +1,14 @@
 'use client'
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useGalleryImages, useGalleryImageMutations } from '@/hooks/gallery-images/queries'
 import { Gallery } from './gallery'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { GalleryImageForm } from '@/components/admin/forms/gallery-image-form'
-import { Button } from '@/components/ui/button'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
+import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 
 type SectionBlock = {
   layout: 'left-featured' | 'right-featured' | 'grid-4' | 'grid-3' | 'grid-2' | 'single'
@@ -87,38 +87,26 @@ export function GalleryContent({ isAuthenticated }: { isAuthenticated?: boolean 
       </section>
     )
 
-  if ((galleryImages ?? []).length === 0)
-    return <EmptyState title="Nenhuma imagem cadastrada na galeria." />
-
   return (
     <>
-      <section className="border-t border-border py-8 sm:py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 flex items-center justify-between gap-4">
-            <div className="space-y-4 text-center flex-1">
-              <h2 className="text-2xl font-semibold md:text-3xl lg:text-4xl">
-                Nossa <span className="text-primary underline underline-offset-4">Galeria</span>
-              </h2>
-              <p className="text-muted-foreground text-xl">
-                Momentos que mostram o impacto do nosso trabalho nas comunidades.
-              </p>
-            </div>
-            {isAuthenticated && (
-              <Button size="sm" onClick={handleNew} className="shrink-0">
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar
-              </Button>
-            )}
-          </div>
+      <PageSection borderTop width="wide" padding="compact">
+        <SectionHeading
+          title={<>Nossa <span className="text-primary underline underline-offset-4">Galeria</span></>}
+          description="Momentos que mostram o impacto do nosso trabalho nas comunidades."
+          action={isAuthenticated ? { label: 'Adicionar', onClick: handleNew } : undefined}
+        />
 
+        {(galleryImages ?? []).length > 0 ? (
           <Gallery
             sections={sections}
             isAuthenticated={isAuthenticated}
             onEdit={(id) => handleEdit({ id })}
             onDelete={(id) => setDeletingImage({ id })}
           />
-        </div>
-      </section>
+        ) : (
+          <EmptyState title="Nenhuma imagem cadastrada na galeria." />
+        )}
+      </PageSection>
 
       {isAuthenticated && (
         <>

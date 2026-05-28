@@ -87,7 +87,7 @@ export function VolunteerForm({ volunteerId, onSuccess, onCancel }: VolunteerFor
           Cancelar
         </Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Cadastrar voluntário'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar voluntário'}
         </Button>
       </div>
     </form>

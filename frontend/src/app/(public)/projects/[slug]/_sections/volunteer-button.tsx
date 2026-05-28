@@ -1,6 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { VolunteerModal } from '@/components/shared/volunteer-modal'
+import { VolunteerModal } from '@/components/volunteer-modal'
 
 type VolunteerButtonProps = {
   projectId: string

@@ -1,7 +1,7 @@
 'use client'
 
-import { SafeImage } from '@/components/shared/safe-image'
-import { EmptyState } from '@/components/shared/empty-state'
+import { SafeImage } from '@/components/safe-image'
+import { EmptyState } from '@/components/empty-state'
 import { AdminActions } from '@/components/admin/admin-actions'
 import type { TeamMember } from '@/types'
 

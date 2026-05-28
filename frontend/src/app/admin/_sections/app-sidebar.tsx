@@ -5,9 +5,7 @@ import {
   IconSettings,
   IconUsers,
   IconUserPlus,
-  IconFolder,
-  IconFileText,
-  IconChartBar,
+  IconReceipt,
   IconInnerShadowTop,
 } from '@tabler/icons-react'
 
@@ -26,11 +24,9 @@ import Link from 'next/link'
 
 const navMain = [
   { title: 'Dashboard', url: '/admin', icon: IconDashboard },
-  { title: 'Projetos', url: '/admin/projects', icon: IconFolder },
   { title: 'Voluntários', url: '/admin/volunteers', icon: IconUserPlus },
-  { title: 'Blog', url: '/admin/posts', icon: IconFileText },
-  { title: 'Estatísticas', url: '/admin/stats', icon: IconChartBar },
   { title: 'Usuários', url: '/admin/users', icon: IconUsers },
+  { title: 'Notas Fiscais', url: '/admin/fiscal-notes', icon: IconReceipt },
   { title: 'Configurações', url: '/admin/settings', icon: IconSettings },
 ]
 

@@ -11,7 +11,7 @@ import { AdminSheet } from '@/components/admin/admin-sheet'
 import { ProjectForm } from '@/components/admin/forms/project-form'
 import { useProjects, useProjectMutations } from '@/hooks/projects/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 
 export default function AdminProjectsPage() {
   const { data, isLoading } = useProjects()
@@ -60,7 +60,6 @@ export default function AdminProjectsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Título</TableHead>
-              <TableHead>Tipo</TableHead>
               <TableHead>Área</TableHead>
               <TableHead>Destaque</TableHead>
               <TableHead>Criado em</TableHead>
@@ -71,11 +70,6 @@ export default function AdminProjectsPage() {
             {projects.map((project) => (
               <TableRow key={project.id}>
                 <TableCell className="font-medium">{project.title}</TableCell>
-                <TableCell>
-                  <Badge variant={project.context === 'EVENT' ? 'default' : 'secondary'}>
-                    {project.context === 'EVENT' ? 'Evento' : 'Campanha'}
-                  </Badge>
-                </TableCell>
                 <TableCell className="text-muted-foreground">{(project as { area?: { title: string } }).area?.title}</TableCell>
                 <TableCell>{project.featured ? '⭐' : '—'}</TableCell>
                 <TableCell className="text-muted-foreground">

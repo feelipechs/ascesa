@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ContactHero, ContactMap, ContactContent } from './_sections'
+import { PageSection } from '@/components/page-section'
 
 export const metadata: Metadata = {
   title: 'Contato — Ascesa',
@@ -11,9 +12,9 @@ export default function ContactPage() {
   return (
     <main className="flex flex-col pt-17.5">
       <ContactHero />
-      <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+      <PageSection>
         <ContactContent />
-      </section>
+      </PageSection>
       <ContactMap />
     </main>
   )

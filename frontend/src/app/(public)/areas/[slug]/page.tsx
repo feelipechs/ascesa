@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { SafeImage } from '@/components/shared/safe-image'
-import { ImagePlaceholder } from '@/components/shared/image-placeholder'
+import { SafeImage } from '@/components/safe-image'
+import { ImagePlaceholder } from '@/components/image-placeholder'
 import { notFound } from 'next/navigation'
 import * as icons from 'lucide-react'
 import { ArrowLeft, FolderKanban, Users, Heart } from 'lucide-react'

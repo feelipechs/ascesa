@@ -10,7 +10,7 @@ import { AdminSheet } from '@/components/admin/admin-sheet'
 import { PostForm } from '@/components/admin/forms/post-form'
 import { usePosts, usePostMutations } from '@/hooks/posts/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 
 export default function AdminPostsPage() {
   const { data: posts, isLoading } = usePosts()

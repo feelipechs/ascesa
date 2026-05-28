@@ -12,8 +12,14 @@ import type { VolunteerGetPayload } from '@/generated/prisma/models/Volunteer'
 import type { RegistrationGetPayload } from '@/generated/prisma/models/Registration'
 import type { PostGetPayload } from '@/generated/prisma/models/Post'
 import type { StatGetPayload } from '@/generated/prisma/models/Stat'
+import type { AnimalSpeciesGetPayload } from '@/generated/prisma/models/AnimalSpecies'
+import type { AnimalSizeGetPayload } from '@/generated/prisma/models/AnimalSize'
+import type { AnimalAgeRangeGetPayload } from '@/generated/prisma/models/AnimalAgeRange'
+import type { AnimalGetPayload } from '@/generated/prisma/models/Animal'
+import type { PaymentMethodGetPayload } from '@/generated/prisma/models/PaymentMethod'
+import type { FiscalNoteGetPayload } from '@/generated/prisma/models/FiscalNote'
 import type { GalleryContext } from '@/generated/prisma/enums'
-import type { Role, RegistrationStatus, ProjectContext } from '@/generated/prisma/enums'
+import type { Role, RegistrationStatus } from '@/generated/prisma/enums'
 
 export type Project = ProjectGetPayload<{}>
 export type Area = AreaGetPayload<{}>
@@ -28,6 +34,12 @@ export type Volunteer = VolunteerGetPayload<{}>
 export type Registration = RegistrationGetPayload<{}>
 export type Post = PostGetPayload<{}>
 export type Stat = StatGetPayload<{}>
+export type AnimalSpecies = AnimalSpeciesGetPayload<{}>
+export type AnimalSize = AnimalSizeGetPayload<{}>
+export type AnimalAgeRange = AnimalAgeRangeGetPayload<{}>
+export type Animal = AnimalGetPayload<{}>
+export type PaymentMethod = PaymentMethodGetPayload<{}>
+export type FiscalNote = FiscalNoteGetPayload<{}>
 
 export type UserListItem = UserGetPayload<{
   select: {
@@ -78,7 +90,6 @@ export type ProjectListItem = ProjectGetPayload<{
     slug: true
     description: true
     coverUrl: true
-    context: true
     featured: true
     eventDate: true
     location: true
@@ -116,10 +127,6 @@ export type TeamMemberWithAreas = TeamMemberGetPayload<{
   include: { areas: { include: { area: { select: { id: true; title: true } } } } }
 }>
 
-export type TestimonialWithProject = TestimonialGetPayload<{
-  include: { project: { select: { title: true } } }
-}>
-
 export type DocumentListItem = DocumentGetPayload<{
   select: {
     id: true
@@ -148,7 +155,6 @@ export type ApiResponse<T> =
 export type ProjectFilters = {
   search?: string
   areas?: string[]
-  context?: ProjectContext
   featured?: boolean
   page?: number
   limit?: number
@@ -169,10 +175,11 @@ export type DocumentFilters = {
 export type GalleryImageFilters = {
   context?: GalleryContext
   projectId?: string
+  animalId?: string
 }
 
 export type TestimonialFilters = {
-  projectId?: string
+  featured?: boolean
 }
 
 export type RegistrationFilters = {

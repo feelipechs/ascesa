@@ -1,7 +1,7 @@
 'use client'
 
 import { AreaCard } from './area-card'
-import { EmptyState } from '@/components/shared/empty-state'
+import { EmptyState } from '@/components/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { AreaListItem } from '@/types'
 

@@ -24,7 +24,7 @@ export function AdminSheet({ open, onClose, title, description, children }: Admi
           <SheetTitle>{title}</SheetTitle>
           {description && <SheetDescription>{description}</SheetDescription>}
         </SheetHeader>
-        <div className="mt-6 p-4">{children}</div>
+        <div className="p-4">{children}</div>
       </SheetContent>
     </Sheet>
   )

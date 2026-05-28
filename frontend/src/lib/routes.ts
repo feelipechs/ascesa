@@ -4,8 +4,10 @@ export const routes = {
   project: (slug: string) => `/projetos/${slug}`,
   areas: '/areas',
   area: (slug: string) => `/areas/${slug}`,
+  animals: '/animais',
+  animal: (slug: string) => `/animais/${slug}`,
   about: '/sobre',
   contact: '/contato',
   transparency: '/transparencia',
-  donate: '/doar',
+  donate: '/doacoes',
 } as const

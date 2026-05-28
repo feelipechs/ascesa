@@ -108,7 +108,7 @@ export function PostForm({ postId, onSuccess, onCancel }: PostFormProps) {
           Cancelar
         </Button>
         <Button type="submit" disabled={isPending} className="flex-1">
-          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar post'}
+          {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar post'}
         </Button>
       </div>
     </form>

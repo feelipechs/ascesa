@@ -299,207 +299,194 @@ const areasData = [
 // PROJETOS (EVENTOS + CAMPANHAS)
 // --------------------
 
-const projectsByArea: Record<
-  string,
-  {
-    title: string
-    description: string
-    content: string
-    coverUrl: string
-    featured: boolean
-    context: 'CAMPAIGN' | 'EVENT'
-    eventDate?: string
-    location?: string
-    vacancies?: number
-    metrics?: { label: string; value: string }[]
-  }[]
-> = {
-  'resgate-acolhimento': [
+  const projectsByArea: Record<
+    string,
     {
-      title: 'Operação Resgate',
-      description:
-        'Campanha contínua de resgate de animais em situação de risco nas regiões periféricas de São Paulo.',
-      content:
-        'A Operação Resgate é o braço mais urgente da Ascesa. Atendemos denúncias de maus-tratos, animais abandonados em vias públicas, vítimas de atropelamento e situações de risco iminente.\n\nContamos com uma equipe treinada de resgatistas e uma viatura equipada para transporte. Cada animal resgatado passa por avaliação veterinária imediata e é encaminhado para nosso abrigo temporário ou para lares adotivos.\n\nEm 2024 realizamos mais de 200 resgates. Nosso objetivo é ampliar a frota para atender cada vez mais ocorrências com agilidade e dignidade.',
-      coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
-      featured: true,
-      context: 'CAMPAIGN',
-      metrics: [
-        { label: 'Resgates em 2024', value: '200+' },
-        { label: 'Animais acolhidos', value: '150' },
-        { label: 'Lares temporários', value: '45' },
-      ],
-    },
-    {
-      title: 'Mutirão de Resgate — Zona Norte',
-      description:
-        'Ação concentrada de resgate e acolhimento na região da Zona Norte de São Paulo.',
-      content:
-        'O Mutirão de Resgate da Zona Norte é uma ação intensiva de três dias, percorrendo bairros com maior incidência de abandono. Contamos com voluntários, veterinários e transporte dedicado.\n\nOs animais resgatados recebem microchipagem, vacinação e são cadastrados em nosso sistema para acompanhamento. Os tutores que desejam manter seus animais recebem orientação e suporte.\n\nAo final do mutirão, realizamos uma feira de adoção com os animais resgatados.',
-      coverUrl: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800',
-      featured: false,
-      context: 'EVENT',
-      eventDate: '2025-08-15T08:00:00Z',
-      location: 'Zona Norte, São Paulo — SP',
-      vacancies: 50,
-    },
-  ],
-  castracao: [
-    {
-      title: 'Mutirão de Castração Gratuita',
-      description:
-        'Evento mensal de castração gratuita para cães e gatos de famílias de baixa renda cadastradas.',
-      content:
-        'O Mutirão de Castração Gratuita acontece todo último sábado do mês na sede da Ascesa. Cada edição atende até 60 animais entre cães e gatos.\n\nAs inscrições são abertas com 15 dias de antecedência, priorizando famílias cadastradas em programas sociais. Os animais passam por avaliação prévia e os tutores recebem orientações sobre pós-operatório.\n\nO projeto é realizado em parceria com clínicas veterinárias parceiras e conta com uma equipe de 4 veterinários e 6 auxiliares voluntários.',
-      coverUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800',
-      featured: true,
-      context: 'EVENT',
-      eventDate: '2025-06-28T07:00:00Z',
-      location: 'Sede Ascesa — Rua das Flores, 123, São Paulo — SP',
-      vacancies: 60,
-      metrics: [
-        { label: 'Castrações em 2024', value: '1.200+' },
-        { label: 'Atendidas por mês', value: '60' },
-        { label: 'Parceiros veterinários', value: '8' },
-      ],
-    },
-    {
-      title: 'Campanha CastraVerão',
-      description:
-        'Campanha de verão com castração a preço popular e conscientização sobre abandono de filhotes.',
-      content:
-        'O CastraVerão é uma campanha sazonal que ocorre entre dezembro e março, período de maior incidência de crias indesejadas. Oferecemos castração com valores subsidiados para toda a comunidade.\n\nAlém das cirurgias, realizamos ações educativas nas praças e parques sobre a importância da castração e os riscos do abandono de filhotes.\n\nNa última edição, castramos mais de 400 animais em 4 meses.',
-      coverUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
-      featured: false,
-      context: 'CAMPAIGN',
-      metrics: [
-        { label: 'Castrações realizadas', value: '400+' },
-        { label: 'Famílias atendidas', value: '280' },
-      ],
-    },
-  ],
-  'adocao-responsavel': [
-    {
-      title: 'Feira de Adoção — Parque Ibirapuera',
-      description:
-        'Feira mensal de adoção responsável no Parque Ibirapuera, com animais vacinados, castrados e microchipados.',
-      content:
-        'Nossa Feira de Adoção no Parque Ibirapuera é um dos eventos mais aguardados do calendário da Ascesa. Acontece todo primeiro domingo do mês, das 9h às 15h, próximo ao portão principal.\n\nTodos os animais disponíveis para adoção são vacinados, castrados, microchipados e avaliamos cada candidato criteriosamente. Realizamos entrevista, visita domiciliar e assinatura do termo de adoção responsável.\n\nApós a adoção, acompanhamos o animal e a família por 6 meses, com suporte veterinário gratuito no período.',
-      coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
-      featured: true,
-      context: 'EVENT',
-      eventDate: '2025-07-06T09:00:00Z',
-      location: 'Parque Ibirapuera — Portão Principal, São Paulo — SP',
-      vacancies: 30,
-      metrics: [
-        { label: 'Adoções em 2024', value: '180+' },
-        { label: 'Feiras realizadas', value: '12' },
-        { label: 'Animais por feira', value: '25' },
-      ],
-    },
-    {
-      title: 'Campanha Adote um Sênior',
-      description:
-        'Campanha especial para incentivar a adoção de animais idosos, com taxas zero e suporte veterinário vitalício.',
-      content:
-        'A Campanha Adote um Sênior é nossa iniciativa para encontrar lares amorosos para animais com mais de 7 anos. Esses animais costumam ser os últimos a serem adotados, mas têm tanto amor para dar quanto os jovens.\n\nOferecemos isenção total das taxas de adoção, consulta veterinária gratuita por 1 ano, ração especial para idosos por 3 meses e acompanhamento veterinário vitalício.\n\nCada adoção de sênior é uma celebração — damos ao animal a chance de viver seus anos dourados com dignidade e carinho.',
-      coverUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800',
-      featured: false,
-      context: 'CAMPAIGN',
-      metrics: [
-        { label: 'Seniores adotados', value: '35' },
-        { label: 'Taxa de sucesso', value: '92%' },
-      ],
-    },
-    {
-      title: 'Feira de Adoção — Pet Shop Amigo Bicho',
-      description:
-        'Feira de adoção em parceria com PetShop Amigo Bicho, com descontos especiais para adotantes.',
-      content:
-        'Em parceria com o PetShop Amigo Bicho, realizamos feiras de adoção quinzenais na loja. Os adotantes ganham um kit inicial com ração, coleira e brinquedo.\n\nA parceria inclui também descontos permanentes em ração e acessórios para todos os adotantes da Ascesa, facilitando os cuidados com o novo membro da família.',
-      coverUrl: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800',
-      featured: false,
-      context: 'EVENT',
-      eventDate: '2025-06-15T10:00:00Z',
-      location: 'PetShop Amigo Bicho — Av. Paulista, 1000, São Paulo — SP',
-      vacancies: 20,
-    },
-  ],
-  'apoio-veterinario': [
-    {
-      title: 'Consultas Populares',
-      description:
-        'Atendimento veterinário a preço popular para animais de famílias de baixa renda cadastradas.',
-      content:
-        'O projeto Consultas Populares oferece atendimento clínico geral com valor social de R$ 40 para famílias cadastradas. Inclui consulta, prescrição e encaminhamento para exames.\n\nAtendemos cães e gatos de segunda a sexta, das 8h às 17h, na sede da Ascesa. As vagas são limitadas e distribuídas por ordem de chegada, com prioridade para casos urgentes.\n\nContamos com dois veterinários em período integral e um laboratório parceiro para exames com desconto.',
-      coverUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
-      featured: true,
-      context: 'CAMPAIGN',
-      metrics: [
-        { label: 'Consultas/mês', value: '200+' },
-        { label: 'Valor social', value: 'R$ 40' },
-        { label: 'Exames realizados', value: '800+' },
-      ],
-    },
-    {
-      title: 'Campanha de Vacinação',
-      description:
-        'Mutirão de vacinação antirrábica e polivalente a preço popular para a comunidade.',
-      content:
-        'A Campanha de Vacinação acontece trimestralmente em pontos estratégicos da cidade. Oferecemos vacinas antirrábica e V8/V10 com valores subsidiados.\n\nCada edição vacina cerca de 300 animais. Além da vacinação, distribuímos material educativo sobre calendário vacinal e cuidados preventivos.\n\nA campanha é realizada em parceria com a Vigilância Sanitária municipal.',
-      coverUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800',
-      featured: false,
-      context: 'EVENT',
-      eventDate: '2025-09-20T08:00:00Z',
-      location: 'Praça da Sé, s/n — São Paulo — SP',
-      vacancies: 300,
-    },
-  ],
-  educacao: [
-    {
-      title: 'Palestras nas Escolas',
-      description:
-        'Programa educativo itinerante que leva conscientização sobre bem-estar animal para escolas públicas.',
-      content:
-        'O programa Palestras nas Escolas leva educação sobre guarda responsável para crianças e adolescentes da rede pública. As palestras são interativas, com vídeos, jogos e atividades práticas.\n\nOs temas incluem: cuidados básicos com animais, posse responsável, denúncia de maus-tratos, castração e adoção. Cada turma recebe material didático exclusivo.\n\nEm 2024 alcançamos mais de 3.000 estudantes em 25 escolas. O programa é um dos pilares da nossa atuação preventiva.',
-      coverUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800',
-      featured: true,
-      context: 'CAMPAIGN',
-      metrics: [
-        { label: 'Estudantes alcançados', value: '3.000+' },
-        { label: 'Escolas atendidas', value: '25' },
-        { label: 'Palestras realizadas', value: '60' },
-      ],
-    },
-    {
-      title: 'Oficina de Férias — Pequeno Protetor',
-      description:
-        'Oficina de férias para crianças com atividades sobre cuidados com animais e conscientização ambiental.',
-      content:
-        'A Oficina de Férias Pequeno Protetor é um programa de imersão de uma semana para crianças de 7 a 12 anos. As atividades incluem:\n\n- Visita guiada ao abrigo\n- Oficina de enriquecimento ambiental para os animais\n- Aulas sobre nutrição e cuidados básicos\n- Confecção de brinquedos recicláveis para pets\n- Roda de conversa sobre sentimentos e empatia\n\nAs crianças saem transformadas, levando para casa o compromisso de serem protetores dos animais.',
-      coverUrl: 'https://images.unsplash.com/photo-1518399681705-1c1a254e6e82?w=800',
-      featured: false,
-      context: 'EVENT',
-      eventDate: '2025-07-14T09:00:00Z',
-      location: 'Sede Ascesa — Rua das Flores, 123, São Paulo — SP',
-      vacancies: 30,
-    },
-    {
-      title: 'Campanha Dezembro Verde',
-      description:
-        'Campanha anual de conscientização contra o abandono de animais durante as festas de fim de ano.',
-      content:
-        'O Dezembro Verde é nossa campanha mais importante do ano. Durante todo o mês de dezembro, intensificamos as ações de conscientização sobre abandono de animais — crime que cresce até 30% nesta época.\n\nRealizamos panfletagem em pontos turísticos, postagens nas redes sociais, entrevistas em rádio e TV, e distribuição de materiais em pet shops e clínicas.\n\nA campanha também oferece descontos especiais em castração e microchipagem para prevenir crias indesejadas.',
-      coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
-      featured: false,
-      context: 'CAMPAIGN',
-      metrics: [
-        { label: 'Materiais distribuídos', value: '10.000+' },
-        { label: 'Castrações na campanha', value: '150' },
-      ],
-    },
-  ],
-}
+      title: string
+      description: string
+      content: string
+      coverUrl: string
+      featured: boolean
+      eventDate?: string
+      location?: string
+      vacancies?: number
+      metrics?: { label: string; value: string }[]
+    }[]
+  > = {
+    'resgate-acolhimento': [
+      {
+        title: 'Operação Resgate',
+        description:
+          'Campanha contínua de resgate de animais em situação de risco nas regiões periféricas de São Paulo.',
+        content:
+          'A Operação Resgate é o braço mais urgente da Ascesa. Atendemos denúncias de maus-tratos, animais abandonados em vias públicas, vítimas de atropelamento e situações de risco iminente.\n\nContamos com uma equipe treinada de resgatistas e uma viatura equipada para transporte. Cada animal resgatado passa por avaliação veterinária imediata e é encaminhado para nosso abrigo temporário ou para lares adotivos.\n\nEm 2024 realizamos mais de 200 resgates. Nosso objetivo é ampliar a frota para atender cada vez mais ocorrências com agilidade e dignidade.',
+        coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
+        featured: true,
+        metrics: [
+          { label: 'Resgates em 2024', value: '200+' },
+          { label: 'Animais acolhidos', value: '150' },
+          { label: 'Lares temporários', value: '45' },
+        ],
+      },
+      {
+        title: 'Mutirão de Resgate — Zona Norte',
+        description:
+          'Ação concentrada de resgate e acolhimento na região da Zona Norte de São Paulo.',
+        content:
+          'O Mutirão de Resgate da Zona Norte é uma ação intensiva de três dias, percorrendo bairros com maior incidência de abandono. Contamos com voluntários, veterinários e transporte dedicado.\n\nOs animais resgatados recebem microchipagem, vacinação e são cadastrados em nosso sistema para acompanhamento. Os tutores que desejam manter seus animais recebem orientação e suporte.\n\nAo final do mutirão, realizamos uma feira de adoção com os animais resgatados.',
+        coverUrl: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800',
+        featured: false,
+        eventDate: '2025-08-15T08:00:00Z',
+        location: 'Zona Norte, São Paulo — SP',
+        vacancies: 50,
+      },
+    ],
+    castracao: [
+      {
+        title: 'Mutirão de Castração Gratuita',
+        description:
+          'Evento mensal de castração gratuita para cães e gatos de famílias de baixa renda cadastradas.',
+        content:
+          'O Mutirão de Castração Gratuita acontece todo último sábado do mês na sede da Ascesa. Cada edição atende até 60 animais entre cães e gatos.\n\nAs inscrições são abertas com 15 dias de antecedência, priorizando famílias cadastradas em programas sociais. Os animais passam por avaliação prévia e os tutores recebem orientações sobre pós-operatório.\n\nO projeto é realizado em parceria com clínicas veterinárias parceiras e conta com uma equipe de 4 veterinários e 6 auxiliares voluntários.',
+        coverUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800',
+        featured: true,
+        eventDate: '2025-06-28T07:00:00Z',
+        location: 'Sede Ascesa — Rua das Flores, 123, São Paulo — SP',
+        vacancies: 60,
+        metrics: [
+          { label: 'Castrações em 2024', value: '1.200+' },
+          { label: 'Atendidas por mês', value: '60' },
+          { label: 'Parceiros veterinários', value: '8' },
+        ],
+      },
+      {
+        title: 'Campanha CastraVerão',
+        description:
+          'Campanha de verão com castração a preço popular e conscientização sobre abandono de filhotes.',
+        content:
+          'O CastraVerão é uma campanha sazonal que ocorre entre dezembro e março, período de maior incidência de crias indesejadas. Oferecemos castração com valores subsidiados para toda a comunidade.\n\nAlém das cirurgias, realizamos ações educativas nas praças e parques sobre a importância da castração e os riscos do abandono de filhotes.\n\nNa última edição, castramos mais de 400 animais em 4 meses.',
+        coverUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
+        featured: false,
+        metrics: [
+          { label: 'Castrações realizadas', value: '400+' },
+          { label: 'Famílias atendidas', value: '280' },
+        ],
+      },
+    ],
+    'adocao-responsavel': [
+      {
+        title: 'Feira de Adoção — Parque Ibirapuera',
+        description:
+          'Feira mensal de adoção responsável no Parque Ibirapuera, com animais vacinados, castrados e microchipados.',
+        content:
+          'Nossa Feira de Adoção no Parque Ibirapuera é um dos eventos mais aguardados do calendário da Ascesa. Acontece todo primeiro domingo do mês, das 9h às 15h, próximo ao portão principal.\n\nTodos os animais disponíveis para adoção são vacinados, castrados, microchipados e avaliamos cada candidato criteriosamente. Realizamos entrevista, visita domiciliar e assinatura do termo de adoção responsável.\n\nApós a adoção, acompanhamos o animal e a família por 6 meses, com suporte veterinário gratuito no período.',
+        coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
+        featured: true,
+        eventDate: '2025-07-06T09:00:00Z',
+        location: 'Parque Ibirapuera — Portão Principal, São Paulo — SP',
+        vacancies: 30,
+        metrics: [
+          { label: 'Adoções em 2024', value: '180+' },
+          { label: 'Feiras realizadas', value: '12' },
+          { label: 'Animais por feira', value: '25' },
+        ],
+      },
+      {
+        title: 'Campanha Adote um Sênior',
+        description:
+          'Campanha especial para incentivar a adoção de animais idosos, com taxas zero e suporte veterinário vitalício.',
+        content:
+          'A Campanha Adote um Sênior é nossa iniciativa para encontrar lares amorosos para animais com mais de 7 anos. Esses animais costumam ser os últimos a serem adotados, mas têm tanto amor para dar quanto os jovens.\n\nOferecemos isenção total das taxas de adoção, consulta veterinária gratuita por 1 ano, ração especial para idosos por 3 meses e acompanhamento veterinário vitalício.\n\nCada adoção de sênior é uma celebração — damos ao animal a chance de viver seus anos dourados com dignidade e carinho.',
+        coverUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800',
+        featured: false,
+        metrics: [
+          { label: 'Seniores adotados', value: '35' },
+          { label: 'Taxa de sucesso', value: '92%' },
+        ],
+      },
+      {
+        title: 'Feira de Adoção — Pet Shop Amigo Bicho',
+        description:
+          'Feira de adoção em parceria com PetShop Amigo Bicho, com descontos especiais para adotantes.',
+        content:
+          'Em parceria com o PetShop Amigo Bicho, realizamos feiras de adoção quinzenais na loja. Os adotantes ganham um kit inicial com ração, coleira e brinquedo.\n\nA parceria inclui também descontos permanentes em ração e acessórios para todos os adotantes da Ascesa, facilitando os cuidados com o novo membro da família.',
+        coverUrl: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800',
+        featured: false,
+        eventDate: '2025-06-15T10:00:00Z',
+        location: 'PetShop Amigo Bicho — Av. Paulista, 1000, São Paulo — SP',
+        vacancies: 20,
+      },
+    ],
+    'apoio-veterinario': [
+      {
+        title: 'Consultas Populares',
+        description:
+          'Atendimento veterinário a preço popular para animais de famílias de baixa renda cadastradas.',
+        content:
+          'O projeto Consultas Populares oferece atendimento clínico geral com valor social de R$ 40 para famílias cadastradas. Inclui consulta, prescrição e encaminhamento para exames.\n\nAtendemos cães e gatos de segunda a sexta, das 8h às 17h, na sede da Ascesa. As vagas são limitadas e distribuídas por ordem de chegada, com prioridade para casos urgentes.\n\nContamos com dois veterinários em período integral e um laboratório parceiro para exames com desconto.',
+        coverUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
+        featured: true,
+        metrics: [
+          { label: 'Consultas/mês', value: '200+' },
+          { label: 'Valor social', value: 'R$ 40' },
+          { label: 'Exames realizados', value: '800+' },
+        ],
+      },
+      {
+        title: 'Campanha de Vacinação',
+        description:
+          'Mutirão de vacinação antirrábica e polivalente a preço popular para a comunidade.',
+        content:
+          'A Campanha de Vacinação acontece trimestralmente em pontos estratégicos da cidade. Oferecemos vacinas antirrábica e V8/V10 com valores subsidiados.\n\nCada edição vacina cerca de 300 animais. Além da vacinação, distribuímos material educativo sobre calendário vacinal e cuidados preventivos.\n\nA campanha é realizada em parceria com a Vigilância Sanitária municipal.',
+        coverUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800',
+        featured: false,
+        eventDate: '2025-09-20T08:00:00Z',
+        location: 'Praça da Sé, s/n — São Paulo — SP',
+        vacancies: 300,
+      },
+    ],
+    educacao: [
+      {
+        title: 'Palestras nas Escolas',
+        description:
+          'Programa educativo itinerante que leva conscientização sobre bem-estar animal para escolas públicas.',
+        content:
+          'O programa Palestras nas Escolas leva educação sobre guarda responsável para crianças e adolescentes da rede pública. As palestras são interativas, com vídeos, jogos e atividades práticas.\n\nOs temas incluem: cuidados básicos com animais, posse responsável, denúncia de maus-tratos, castração e adoção. Cada turma recebe material didático exclusivo.\n\nEm 2024 alcançamos mais de 3.000 estudantes em 25 escolas. O programa é um dos pilares da nossa atuação preventiva.',
+        coverUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800',
+        featured: true,
+        metrics: [
+          { label: 'Estudantes alcançados', value: '3.000+' },
+          { label: 'Escolas atendidas', value: '25' },
+          { label: 'Palestras realizadas', value: '60' },
+        ],
+      },
+      {
+        title: 'Oficina de Férias — Pequeno Protetor',
+        description:
+          'Oficina de férias para crianças com atividades sobre cuidados com animais e conscientização ambiental.',
+        content:
+          'A Oficina de Férias Pequeno Protetor é um programa de imersão de uma semana para crianças de 7 a 12 anos. As atividades incluem:\n\n- Visita guiada ao abrigo\n- Oficina de enriquecimento ambiental para os animais\n- Aulas sobre nutrição e cuidados básicos\n- Confecção de brinquedos recicláveis para pets\n- Roda de conversa sobre sentimentos e empatia\n\nAs crianças saem transformadas, levando para casa o compromisso de serem protetores dos animais.',
+        coverUrl: 'https://images.unsplash.com/photo-1518399681705-1c1a254e6e82?w=800',
+        featured: false,
+        eventDate: '2025-07-14T09:00:00Z',
+        location: 'Sede Ascesa — Rua das Flores, 123, São Paulo — SP',
+        vacancies: 30,
+      },
+      {
+        title: 'Campanha Dezembro Verde',
+        description:
+          'Campanha anual de conscientização contra o abandono de animais durante as festas de fim de ano.',
+        content:
+          'O Dezembro Verde é nossa campanha mais importante do ano. Durante todo o mês de dezembro, intensificamos as ações de conscientização sobre abandono de animais — crime que cresce até 30% nesta época.\n\nRealizamos panfletagem em pontos turísticos, postagens nas redes sociais, entrevistas em rádio e TV, e distribuição de materiais em pet shops e clínicas.\n\nA campanha também oferece descontos especiais em castração e microchipagem para prevenir crias indesejadas.',
+        coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
+        featured: false,
+        metrics: [
+          { label: 'Materiais distribuídos', value: '10.000+' },
+          { label: 'Castrações na campanha', value: '150' },
+        ],
+      },
+    ],
+  }
 
 // --------------------
 // DEPOIMENTOS
@@ -752,6 +739,14 @@ async function main() {
   await prisma.document.deleteMany()
   await prisma.documentCategory.deleteMany()
   await prisma.partner.deleteMany()
+  await prisma.fiscalNote.deleteMany()
+  await prisma.pixConfig.deleteMany()
+  await prisma.bankConfig.deleteMany()
+  await prisma.paymentMethod.deleteMany()
+  await prisma.animal.deleteMany()
+  await prisma.animalAgeRange.deleteMany()
+  await prisma.animalSize.deleteMany()
+  await prisma.animalSpecies.deleteMany()
   await prisma.testimonial.deleteMany()
   await prisma.galleryImage.deleteMany()
   await prisma.project.deleteMany()
@@ -853,7 +848,7 @@ async function main() {
 
   // Projetos
   console.log('🚀  Criando projetos...')
-  const projectsCreated: { id: string; areaSlug: string; context: string }[] = []
+  const projectsCreated: { id: string; areaSlug: string }[] = []
 
   for (const area of areas) {
     const dataList = projectsByArea[area.slug]
@@ -873,32 +868,25 @@ async function main() {
           featured: data.featured,
           publishedAt: new Date(),
           areaId: area.id,
-          context: data.context,
           eventDate: data.eventDate ? new Date(data.eventDate) : null,
           location: data.location ?? null,
           vacancies: data.vacancies ?? null,
           metrics: data.metrics ?? undefined,
         },
       })
-      projectsCreated.push({ id: project.id, areaSlug: area.slug, context: data.context })
+      projectsCreated.push({ id: project.id, areaSlug: area.slug })
     }
   }
 
   // Testimonials
   console.log('💬  Criando depoimentos...')
-  const testimonials = projectsCreated.flatMap((project, i) => {
-    const start = (i * 3) % testimonialTemplates.length
-    const selected: typeof testimonialTemplates = []
-    for (let j = 0; j < 3; j++) {
-      selected.push(testimonialTemplates[(start + j) % testimonialTemplates.length])
-    }
-    return selected.map((t) => ({
-      name: t.name,
-      role: t.role,
-      message: t.message,
-      projectId: project.id,
-    }))
-  })
+  const testimonials = testimonialTemplates.map((t, i) => ({
+    name: t.name,
+    role: t.role,
+    message: t.message,
+    featured: i < 6,
+    publishedAt: new Date(),
+  }))
   await prisma.testimonial.createMany({ data: testimonials })
 
   // Gallery — Project context
@@ -934,12 +922,11 @@ async function main() {
     )
   )
 
-  // Registrations (inscrever voluntários em eventos)
+    // Registrations (inscrever voluntários em eventos)
   console.log('📝  Criando inscrições...')
-  const eventProjects = projectsCreated.filter((p) => p.context === 'EVENT')
-  if (eventProjects.length > 0 && volunteers.length > 0) {
+  if (projectsCreated.length > 0 && volunteers.length > 0) {
     const registrationsData = volunteers.slice(0, 6).map((volunteer, i) => {
-      const project = eventProjects[i % eventProjects.length]
+      const project = projectsCreated[i % projectsCreated.length]
       return {
         volunteerId: volunteer.id,
         projectId: project.id,
@@ -965,16 +952,234 @@ async function main() {
     data: statsData.map((s) => ({ ...s, publishedAt: new Date() })),
   })
 
+  // Animal Species
+  console.log('🐾  Criando espécies...')
+  const speciesData = [
+    { name: 'Cão', order: 0 },
+    { name: 'Gato', order: 1 },
+  ]
+  const species = await Promise.all(
+    speciesData.map((s) => prisma.animalSpecies.create({ data: s }))
+  )
+  const speciesByName = Object.fromEntries(species.map((s) => [s.name, s]))
+
+  // Animal Sizes
+  console.log('📏  Criando portes...')
+  const sizesData = [
+    { label: 'Pequeno', description: 'até 10kg', order: 0 },
+    { label: 'Médio', description: '10kg a 25kg', order: 1 },
+    { label: 'Grande', description: 'acima de 25kg', order: 2 },
+  ]
+  const sizes = await Promise.all(
+    sizesData.map((s) => prisma.animalSize.create({ data: s }))
+  )
+  const sizeByLabel = Object.fromEntries(sizes.map((s) => [s.label, s]))
+
+  // Animal Age Ranges
+  console.log('🎂  Criando faixas etárias...')
+  const ageRangesData = [
+    { label: 'Filhote', minAge: 0, maxAge: 12, order: 0 },
+    { label: 'Adulto', minAge: 12, maxAge: 96, order: 1 },
+    { label: 'Idoso', minAge: 96, maxAge: null, order: 2 },
+  ]
+  const ageRanges = await Promise.all(
+    ageRangesData.map((a) => prisma.animalAgeRange.create({ data: a }))
+  )
+  const ageRangeByLabel = Object.fromEntries(ageRanges.map((a) => [a.label, a]))
+
+  // Animals
+  console.log('🐕  Criando animais...')
+  const animalsData: {
+    name: string; slug: string; speciesName: string; breed: string | null
+    gender: 'MALE' | 'FEMALE'; sizeLabel: string; ageRangeLabel: string
+    birthDate: Date; description: string; content: string; coverUrl: string
+    status: 'AVAILABLE' | 'ADOPTED' | 'FOSTERED'; featured: boolean
+  }[] = [
+    {
+      name: 'Thor', slug: 'thor',
+      speciesName: 'Cão', breed: 'SRD', gender: 'MALE',
+      sizeLabel: 'Grande', ageRangeLabel: 'Adulto',
+      birthDate: new Date('2020-03-15'),
+      description: 'Cão dócil e brincalhão, ótimo com crianças e outros animais.',
+      content: 'Thor foi resgatado pela nossa equipe em janeiro de 2025. Ele estava em situação de abandono em uma região periférica, muito magro e assustado.\n\nApós tratamento veterinário e muito carinho, Thor se recuperou completamente. É um cão de grande porte, mas de coração gigante. Adora brincar, correr no parque e receber carinho na barriga.\n\nThor se dá bem com crianças e outros cães. Ideal para famílias com espaço amplo.',
+      coverUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800',
+      status: 'AVAILABLE', featured: true,
+    },
+    {
+      name: 'Luna', slug: 'luna',
+      speciesName: 'Gato', breed: 'SRD', gender: 'FEMALE',
+      sizeLabel: 'Pequeno', ageRangeLabel: 'Filhote',
+      birthDate: new Date('2025-01-10'),
+      description: 'Filhote de gata carinhosa e brincalhona, vacinada e castrada.',
+      content: 'Luna foi encontrada ainda filhote, sozinha em uma caixa de papelão. Nossa equipe a resgatou e desde então recebeu todos os cuidados necessários.\n\nÉ uma gata muito sociável, adora colo e brincar com brinquedos. Ideal para quem busca uma companheira dócil e afetuosa.',
+      coverUrl: 'https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=800',
+      status: 'AVAILABLE', featured: true,
+    },
+    {
+      name: 'Buddy', slug: 'buddy',
+      speciesName: 'Cão', breed: 'Labrador', gender: 'MALE',
+      sizeLabel: 'Grande', ageRangeLabel: 'Adulto',
+      birthDate: new Date('2019-08-22'),
+      description: 'Labrador puro sangue, muito amigável e treinado.',
+      content: 'Buddy foi abandonado por seus antigos tutores quando se mudaram de cidade. Ele chegou ao abrigo confuso e triste, mas logo se adaptou.\n\nÉ um cão extremamente inteligente, sabe comandos básicos e é muito sociável. Precisa de espaço para gastar energia. Ideal para tutores experientes.',
+      coverUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800',
+      status: 'AVAILABLE', featured: false,
+    },
+    {
+      name: 'Mimi', slug: 'mimi',
+      speciesName: 'Gato', breed: 'Siamês', gender: 'FEMALE',
+      sizeLabel: 'Pequeno', ageRangeLabel: 'Adulto',
+      birthDate: new Date('2021-06-01'),
+      description: 'Gata siamesa elegante e carinhosa, castrada e vacinada.',
+      content: 'Mimi foi resgatada de um abrigo municipal superlotado. Apesar de um início difícil, ela é uma gata muito afetuosa e tranquila.\n\nPrefere ambientes calmos e se dá bem com outros gatos. Ideal para quem busca uma companhia serena.',
+      coverUrl: 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=800',
+      status: 'ADOPTED', featured: false,
+    },
+    {
+      name: 'Rex', slug: 'rex',
+      speciesName: 'Cão', breed: 'SRD', gender: 'MALE',
+      sizeLabel: 'Médio', ageRangeLabel: 'Idoso',
+      birthDate: new Date('2016-02-14'),
+      description: 'Cão idoso e sábio, merece um lar tranquilo para seus anos dourados.',
+      content: 'Rex passou anos em um abrigo antes de chegar até nós. É um cão calmo, educado e muito grato por qualquer atenção que recebe.\n\nPor ser idoso, requer cuidados veterinários regulares. A Ascesa oferece suporte veterinário vitalício para adotantes de animais idosos.',
+      coverUrl: 'https://images.unsplash.com/photo-1568572933382-74d440642117?w=800',
+      status: 'AVAILABLE', featured: true,
+    },
+    {
+      name: 'Mel', slug: 'mel',
+      speciesName: 'Gato', breed: 'SRD', gender: 'FEMALE',
+      sizeLabel: 'Médio', ageRangeLabel: 'Adulto',
+      birthDate: new Date('2022-11-30'),
+      description: 'Gata dócil que adiciona doçura a qualquer lar.',
+      content: 'Mel foi resgatada grávida das ruas. Teve seus filhotes em segurança no abrigo e todos foram adotados.\n\nAgora é a vez dela! Mel é uma gata extremamente carinhosa, adora ficar no colo e ronronar. Ideal para famílias.',
+      coverUrl: 'https://images.unsplash.com/photo-1494256997604-768d1f608cac?w=800',
+      status: 'FOSTERED', featured: false,
+    },
+    {
+      name: 'Zeca', slug: 'zeca',
+      speciesName: 'Cão', breed: 'SRD', gender: 'MALE',
+      sizeLabel: 'Pequeno', ageRangeLabel: 'Filhote',
+      birthDate: new Date('2025-04-01'),
+      description: 'Filhote cheio de energia, ideal para famílias ativas.',
+      content: 'Zeca e seus irmãos foram resgatados de uma situação de maus-tratos. Ele é o mais brincalhão da ninhada.\n\nEstá com as vacinas em dia e será castrado assim que atingir a idade recomendada. Cheio de energia e amor para dar!',
+      coverUrl: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800',
+      status: 'AVAILABLE', featured: false,
+    },
+    {
+      name: 'Nina', slug: 'nina',
+      speciesName: 'Gato', breed: 'SRD', gender: 'FEMALE',
+      sizeLabel: 'Pequeno', ageRangeLabel: 'Idoso',
+      birthDate: new Date('2017-05-20'),
+      description: 'Gata idosa e tranquila, busca um lar para viver seus anos dourados.',
+      content: 'Nina viveu boa parte da vida nas ruas até ser resgatada. Apesar da idade, é saudável e muito carinhosa.\n\nEla merece um lar onde possa descansar e receber amor. A Ascesa oferece suporte veterinário vitalício para adotantes de animais idosos.',
+      coverUrl: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=800',
+      status: 'AVAILABLE', featured: false,
+    },
+  ]
+
+  const animals = await Promise.all(
+    animalsData.map((a) =>
+      prisma.animal.create({
+        data: {
+          name: a.name,
+          slug: a.slug,
+          breed: a.breed,
+          gender: a.gender,
+          birthDate: a.birthDate,
+          description: a.description,
+          content: a.content,
+          coverUrl: a.coverUrl,
+          status: a.status,
+          featured: a.featured,
+          shelterSince: new Date(),
+          publishedAt: new Date(),
+          speciesId: speciesByName[a.speciesName].id,
+          sizeId: sizeByLabel[a.sizeLabel].id,
+          ageRangeId: ageRangeByLabel[a.ageRangeLabel].id,
+        },
+      })
+    )
+  )
+  const animalBySlug = Object.fromEntries(animals.map((a) => [a.slug, a]))
+
+  // Gallery — Animal context
+  console.log('🖼️  Criando galeria dos animais...')
+  const animalGallery = [
+    { slug: 'thor', url: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800', caption: 'Thor feliz no parque' },
+    { slug: 'thor', url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800', caption: 'Thor descansando' },
+    { slug: 'luna', url: 'https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=800', caption: 'Luna brincando' },
+    { slug: 'buddy', url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800', caption: 'Buddy no quintal' },
+    { slug: 'rex', url: 'https://images.unsplash.com/photo-1568572933382-74d440642117?w=800', caption: 'Rex tirando uma soneca' },
+  ]
+  await prisma.galleryImage.createMany({
+    data: animalGallery.map((img, i) => ({
+      url: img.url,
+      caption: img.caption,
+      order: i,
+      context: 'ANIMAL' as const,
+      projectId: null,
+      animalId: animalBySlug[img.slug].id,
+    })),
+  })
+
+  // Payment Methods
+  console.log('💳  Criando métodos de pagamento...')
+  const pixMethod = await prisma.paymentMethod.create({
+    data: {
+      type: 'PIX',
+      label: 'PIX — CNPJ',
+      instructions: 'Use qualquer banco para fazer um PIX usando a chave CNPJ abaixo.',
+      isActive: true,
+      displayOrder: 0,
+    },
+  })
+  await prisma.pixConfig.create({
+    data: {
+      id: pixMethod.id,
+      key: '12.345.678/0001-99',
+      receiverName: 'Associação Ascesa',
+      receiverCity: 'São Paulo',
+    },
+  })
+
+  const bankMethod = await prisma.paymentMethod.create({
+    data: {
+      type: 'BANK_TRANSFER',
+      label: 'Transferência Bancária',
+      instructions: 'Depósito ou transferência para a conta corrente da Ascesa.',
+      isActive: true,
+      displayOrder: 1,
+    },
+  })
+  await prisma.bankConfig.create({
+    data: {
+      id: bankMethod.id,
+      bankName: 'Banco do Brasil',
+      agency: '1234-5',
+      account: '67890-1',
+      accountType: 'Corrente',
+    },
+  })
+
+  await prisma.paymentMethod.create({
+    data: {
+      type: 'CASH',
+      label: 'Doação em Dinheiro',
+      instructions: 'Entre em contato pelo WhatsApp para combinar a entrega da sua doação.',
+      isActive: true,
+      displayOrder: 2,
+    },
+  })
+
   const totalProjects = projectsCreated.length
   const totalTestimonials = testimonials.length
   const totalProjectGallery = projectGallery.length
-  const totalGallery = totalProjectGallery + homeGallery.length
-  const eventCount = eventProjects.length
-  const campaignCount = projectsCreated.filter((p) => p.context === 'CAMPAIGN').length
+  const totalAnimalGallery = animalGallery.length
+  const totalGallery = totalProjectGallery + homeGallery.length + totalAnimalGallery
 
   console.log('✅ Seed concluído com sucesso!')
   console.log(`   ${areas.length} áreas`)
-  console.log(`   ${totalProjects} projetos (${campaignCount} campanhas, ${eventCount} eventos)`)
+  console.log(`   ${totalProjects} projetos`)
   console.log(`   ${teamMembersData.length} membros na equipe`)
   console.log(`   ${totalTestimonials} depoimentos`)
   console.log(`   ${totalGallery} imagens na galeria`)
@@ -982,6 +1187,10 @@ async function main() {
   console.log(`   ${volunteers.length} voluntários`)
   console.log(`   ${postsData.length} posts`)
   console.log(`   ${statsData.length} métricas`)
+  console.log(`   ${species.length} espécies`)
+  console.log(`   ${sizes.length} portes`)
+  console.log(`   ${ageRanges.length} faixas etárias`)
+  console.log(`   ${animals.length} animais`)
 }
 
 main()

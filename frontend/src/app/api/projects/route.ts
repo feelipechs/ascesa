@@ -8,8 +8,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get('search') ?? ''
     const areas = searchParams.get('areas') ?? ''
-    const contextRaw = searchParams.get('context')
-    const context = contextRaw === 'EVENT' || contextRaw === 'CAMPAIGN' ? contextRaw : undefined
     const featured = searchParams.get('featured')
     const page = Number(searchParams.get('page') ?? '1')
     const limit = Number(searchParams.get('limit') ?? '8')
@@ -17,7 +15,6 @@ export async function GET(req: NextRequest) {
     const result = await getProjects({
       search,
       areas: areas ? areas.split(',') : [],
-      context,
       featured: featured !== null ? featured === 'true' : undefined,
       page,
       limit,

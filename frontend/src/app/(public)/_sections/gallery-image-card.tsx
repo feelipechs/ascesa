@@ -1,6 +1,6 @@
 'use client'
 
-import { SafeImage } from '@/components/shared/safe-image'
+import { SafeImage } from '@/components/safe-image'
 import { AdminActions } from '@/components/admin/admin-actions'
 
 type GalleryImageCardProps = {

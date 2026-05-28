@@ -47,8 +47,8 @@ export function useVolunteerMutations() {
 
   const create = useMutation({
     mutationFn: VolunteersApi.create,
-    onSuccess: () => onSuccess('Voluntário cadastrado com sucesso!'),
-    onError: (e) => onError(e, 'cadastrar voluntário'),
+    onSuccess: () => onSuccess('Voluntário criado com sucesso!'),
+    onError: (e) => onError(e, 'criar voluntário'),
   })
 
   const update = useMutation({

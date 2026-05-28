@@ -7,9 +7,13 @@ export const createGalleryImageSchema = z.object({
   order: z.coerce.number().int().default(0),
   context: z.nativeEnum(GalleryContext).default('PROJECT'),
   projectId: z.string().nullable().optional(),
+  animalId: z.string().nullable().optional(),
 }).refine(
   (data) => data.context !== 'PROJECT' || data.projectId,
   { message: 'projectId é obrigatório quando context é PROJECT', path: ['projectId'] }
+).refine(
+  (data) => data.context !== 'ANIMAL' || data.animalId,
+  { message: 'animalId é obrigatório quando context é ANIMAL', path: ['animalId'] }
 )
 
 export const updateGalleryImageSchema = z.object({
@@ -18,6 +22,7 @@ export const updateGalleryImageSchema = z.object({
   order: z.coerce.number().int().optional(),
   context: z.nativeEnum(GalleryContext).optional(),
   projectId: z.string().nullable().optional(),
+  animalId: z.string().nullable().optional(),
 })
 
 export type CreateGalleryImageInput = z.infer<typeof createGalleryImageSchema>
