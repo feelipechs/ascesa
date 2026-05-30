@@ -11,3 +11,9 @@ export const updateAnimalAgeRangeSchema = createAnimalAgeRangeSchema.partial()
 
 export type CreateAnimalAgeRangeInput = z.infer<typeof createAnimalAgeRangeSchema>
 export type UpdateAnimalAgeRangeInput = z.infer<typeof updateAnimalAgeRangeSchema>
+
+export const reorderAnimalAgeRangeSchema = z.object({
+  items: z.array(z.object({ id: z.string(), order: z.coerce.number().int() })),
+})
+
+export type ReorderAnimalAgeRangeInput = z.infer<typeof reorderAnimalAgeRangeSchema>

@@ -25,5 +25,10 @@ export const updateGalleryImageSchema = z.object({
   animalId: z.string().nullable().optional(),
 })
 
+export const reorderGalleryImageSchema = z.object({
+  items: z.array(z.object({ id: z.string(), order: z.coerce.number().int() })),
+})
+
 export type CreateGalleryImageInput = z.infer<typeof createGalleryImageSchema>
 export type UpdateGalleryImageInput = z.infer<typeof updateGalleryImageSchema>
+export type ReorderGalleryImageInput = z.infer<typeof reorderGalleryImageSchema>

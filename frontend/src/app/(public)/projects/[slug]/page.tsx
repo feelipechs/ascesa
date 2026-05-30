@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { getProjectBySlug } from '@/services/project.service'
 import { auth } from '@/auth'
 import { routes } from '@/lib/routes'
-import { GallerySection } from '../_sections'
+import { GallerySection } from '@/components/gallery-section'
 import { VolunteerButton } from './_sections/volunteer-button'
 
 const getCachedProject = cache((slug: string) => getProjectBySlug(slug))
@@ -85,10 +85,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               </div>
             </section>
 
-            <GallerySection
-              projectId={project.id}
-              isAuthenticated={isAuthenticated}
-            />
+              <GallerySection
+                context="PROJECT"
+                foreignKey={project.id}
+                isAuthenticated={isAuthenticated}
+              />
           </div>
 
           <aside className="space-y-6">

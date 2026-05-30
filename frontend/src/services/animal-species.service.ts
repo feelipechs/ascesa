@@ -19,3 +19,14 @@ export async function updateAnimalSpecies(id: string, data: { name?: string; ord
 export async function deleteAnimalSpecies(id: string) {
   return prisma.animalSpecies.delete({ where: { id } })
 }
+
+export async function reorderAnimalSpecies(items: { id: string; order: number }[]) {
+  return prisma.$transaction(
+    items.map((item) =>
+      prisma.animalSpecies.update({
+        where: { id: item.id },
+        data: { order: item.order },
+      })
+    )
+  )
+}

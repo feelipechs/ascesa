@@ -2,6 +2,12 @@ import { hashPassword } from '@/lib/utils-server'
 import { toSlug } from '../src/lib/utils'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../src/generated/prisma/client'
+import { reorderGalleryImages } from '@/services/gallery-image.service'
+import { reorderTeamMembers } from '@/services/team-member.service'
+import { StatService } from '@/services/stat.service'
+import { reorderAnimalSpecies } from '@/services/animal-species.service'
+import { reorderAnimalSizes } from '@/services/animal-size.service'
+import { reorderAnimalAgeRanges } from '@/services/animal-age-range.service'
 import 'dotenv/config'
 
 const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL! })
@@ -728,10 +734,10 @@ const postsData = [
 // --------------------
 
 const statsData = [
-  { label: 'Animais Resgatados', value: '800+', order: 0 },
-  { label: 'Castrações Realizadas', value: '1.500+', order: 1 },
-  { label: 'Adoções Responsáveis', value: '600+', order: 2 },
-  { label: 'Voluntários Ativos', value: '120+', order: 3 },
+  { label: 'Animais Resgatados', value: '800+' },
+  { label: 'Castrações Realizadas', value: '1.500+' },
+  { label: 'Adoções Responsáveis', value: '600+' },
+  { label: 'Voluntários Ativos', value: '120+' },
 ]
 
 // --------------------
@@ -834,7 +840,8 @@ async function main() {
   }
 
   // TeamMembers
-  console.log('👥  Criando membros da equipe...')
+  console.log('👥 Criando membros da equipe...')
+  const teamMembersCreated: { id: string }[] = []
   for (const tm of teamMembersData) {
     const member = await prisma.teamMember.create({
       data: {
@@ -842,10 +849,10 @@ async function main() {
         role: tm.role,
         bio: tm.bio,
         photoUrl: avatarUrl(tm.name, tm.gender),
-        order: teamMembersData.indexOf(tm),
         publishedAt: new Date(),
       },
     })
+    teamMembersCreated.push({ id: member.id })
     for (const slug of tm.areaSlugs) {
       const area = areaBySlug[slug]
       if (area) {
@@ -899,29 +906,37 @@ async function main() {
   await prisma.testimonial.createMany({ data: testimonials })
 
   // Gallery — Project context
-  console.log('🖼️  Criando galeria dos projetos...')
-  const projectGallery = projectsCreated.flatMap((project) => {
+  console.log('🖼️ Criando galeria dos projetos...')
+  const projectGalleryItems: { id: string }[] = []
+  for (const project of projectsCreated) {
     const images = projectGalleryByArea[project.areaSlug] ?? []
-    return images.map((img, i) => ({
-      url: img.url,
-      caption: img.caption,
-      order: i,
-      context: 'PROJECT' as const,
-      projectId: project.id,
-    }))
-  })
-  await prisma.galleryImage.createMany({ data: projectGallery })
+    for (const img of images) {
+      const created = await prisma.galleryImage.create({
+        data: {
+          url: img.url,
+          caption: img.caption,
+          context: 'PROJECT',
+          projectId: project.id,
+        },
+      })
+      projectGalleryItems.push({ id: created.id })
+    }
+  }
 
   // Gallery — Home context
-  console.log('🏠  Criando galeria da home...')
-  const homeGallery = homeGalleryData.map((img, i) => ({
-    url: img.url,
-    caption: img.caption,
-    order: i,
-    context: 'HOME' as const,
-    projectId: null,
-  }))
-  await prisma.galleryImage.createMany({ data: homeGallery })
+  console.log('🏠 Criando galeria da home...')
+  const homeGalleryItems: { id: string }[] = []
+  for (const img of homeGalleryData) {
+    const created = await prisma.galleryImage.create({
+      data: {
+        url: img.url,
+        caption: img.caption,
+        context: 'HOME',
+        projectId: null,
+      },
+    })
+    homeGalleryItems.push({ id: created.id })
+  }
 
   // Volunteers
   console.log('🙋  Criando voluntários...')
@@ -956,28 +971,29 @@ async function main() {
   })
 
   // Stats
-  console.log('📊  Criando métricas...')
-  await prisma.stat.createMany({
-    data: statsData.map((s) => ({ ...s, publishedAt: new Date() })),
-  })
+  console.log('📊 Criando métricas...')
+  const statsCreated: { id: string }[] = []
+  for (const s of statsData) {
+    const stat = await prisma.stat.create({
+      data: { ...s, publishedAt: new Date() },
+    })
+    statsCreated.push({ id: stat.id })
+  }
 
   // Animal Species
-  console.log('🐾  Criando espécies...')
-  const speciesData = [
-    { name: 'Cão', order: 0 },
-    { name: 'Gato', order: 1 },
-  ]
+  console.log('🐾 Criando espécies...')
+  const speciesData = [{ name: 'Cão' }, { name: 'Gato' }]
   const species = await Promise.all(
     speciesData.map((s) => prisma.animalSpecies.create({ data: s }))
   )
   const speciesByName = Object.fromEntries(species.map((s) => [s.name, s]))
 
   // Animal Sizes
-  console.log('📏  Criando portes...')
+  console.log('📏 Criando portes...')
   const sizesData = [
-    { label: 'Pequeno', description: 'até 10kg', order: 0 },
-    { label: 'Médio', description: '10kg a 25kg', order: 1 },
-    { label: 'Grande', description: 'acima de 25kg', order: 2 },
+    { label: 'Pequeno', description: 'até 10kg' },
+    { label: 'Médio', description: '10kg a 25kg' },
+    { label: 'Grande', description: 'acima de 25kg' },
   ]
   const sizes = await Promise.all(
     sizesData.map((s) => prisma.animalSize.create({ data: s }))
@@ -985,11 +1001,11 @@ async function main() {
   const sizeByLabel = Object.fromEntries(sizes.map((s) => [s.label, s]))
 
   // Animal Age Ranges
-  console.log('🎂  Criando faixas etárias...')
+  console.log('🎂 Criando faixas etárias...')
   const ageRangesData = [
-    { label: 'Filhote', minAge: 0, maxAge: 12, order: 0 },
-    { label: 'Adulto', minAge: 12, maxAge: 96, order: 1 },
-    { label: 'Idoso', minAge: 96, maxAge: null, order: 2 },
+    { label: 'Filhote', minAge: 0, maxAge: 12 },
+    { label: 'Adulto', minAge: 12, maxAge: 96 },
+    { label: 'Idoso', minAge: 96, maxAge: null },
   ]
   const ageRanges = await Promise.all(
     ageRangesData.map((a) => prisma.animalAgeRange.create({ data: a }))
@@ -1112,7 +1128,7 @@ async function main() {
   const animalBySlug = Object.fromEntries(animals.map((a) => [a.slug, a]))
 
   // Gallery — Animal context
-  console.log('🖼️  Criando galeria dos animais...')
+  console.log('🖼️ Criando galeria dos animais...')
   const animalGallery = [
     { slug: 'thor', url: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800', caption: 'Thor feliz no parque' },
     { slug: 'thor', url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800', caption: 'Thor descansando' },
@@ -1120,16 +1136,19 @@ async function main() {
     { slug: 'buddy', url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800', caption: 'Buddy no quintal' },
     { slug: 'rex', url: 'https://images.unsplash.com/photo-1568572933382-74d440642117?w=800', caption: 'Rex tirando uma soneca' },
   ]
-  await prisma.galleryImage.createMany({
-    data: animalGallery.map((img, i) => ({
-      url: img.url,
-      caption: img.caption,
-      order: i,
-      context: 'ANIMAL' as const,
-      projectId: null,
-      animalId: animalBySlug[img.slug].id,
-    })),
-  })
+  const animalGalleryItems: { id: string }[] = []
+  for (const img of animalGallery) {
+    const created = await prisma.galleryImage.create({
+      data: {
+        url: img.url,
+        caption: img.caption,
+        context: 'ANIMAL' as const,
+        projectId: null,
+        animalId: animalBySlug[img.slug].id,
+      },
+    })
+    animalGalleryItems.push({ id: created.id })
+  }
 
   // Payment Methods
   console.log('💳  Criando métodos de pagamento...')
@@ -1180,26 +1199,62 @@ async function main() {
     },
   })
 
+  // -------------------------------------------------------
+  // REORDER — set order via the same service functions the admin UI uses
+  // -------------------------------------------------------
+  console.log('🔄 Aplicando ordenação...')
+
+  await reorderGalleryImages(
+    projectGalleryItems.map((item, i) => ({ id: item.id, order: i }))
+  )
+  await reorderGalleryImages(
+    homeGalleryItems.map((item, i) => ({ id: item.id, order: i }))
+  )
+  await reorderGalleryImages(
+    animalGalleryItems.map((item, i) => ({ id: item.id, order: i }))
+  )
+
+  await reorderTeamMembers(
+    teamMembersCreated.map((item, i) => ({ id: item.id, order: i }))
+  )
+
+  const statsForReorder = await prisma.stat.findMany({ orderBy: { createdAt: 'asc' } })
+  await StatService.reorder(
+    statsForReorder.map((item, i) => ({ id: item.id, order: i }))
+  )
+
+  await reorderAnimalSpecies(
+    species.map((item, i) => ({ id: item.id, order: i }))
+  )
+
+  await reorderAnimalSizes(
+    sizes.map((item, i) => ({ id: item.id, order: i }))
+  )
+
+  await reorderAnimalAgeRanges(
+    ageRanges.map((item, i) => ({ id: item.id, order: i }))
+  )
+
   const totalProjects = projectsCreated.length
   const totalTestimonials = testimonials.length
-  const totalProjectGallery = projectGallery.length
-  const totalAnimalGallery = animalGallery.length
-  const totalGallery = totalProjectGallery + homeGallery.length + totalAnimalGallery
+  const totalProjectGallery = projectGalleryItems.length
+  const totalAnimalGallery = animalGalleryItems.length
+  const totalGallery = totalProjectGallery + homeGalleryItems.length + totalAnimalGallery
 
   console.log('✅ Seed concluído com sucesso!')
-  console.log(`   ${areas.length} áreas`)
-  console.log(`   ${totalProjects} projetos`)
-  console.log(`   ${teamMembersData.length} membros na equipe`)
-  console.log(`   ${totalTestimonials} depoimentos`)
-  console.log(`   ${totalGallery} imagens na galeria`)
-  console.log(`   ${partnersData.length} parceiros`)
-  console.log(`   ${volunteers.length} voluntários`)
-  console.log(`   ${postsData.length} posts`)
-  console.log(`   ${statsData.length} métricas`)
-  console.log(`   ${species.length} espécies`)
-  console.log(`   ${sizes.length} portes`)
-  console.log(`   ${ageRanges.length} faixas etárias`)
-  console.log(`   ${animals.length} animais`)
+  console.log(` ${areas.length} áreas`)
+  console.log(` ${totalProjects} projetos`)
+  console.log(` ${teamMembersData.length} membros na equipe`)
+  console.log(` ${totalTestimonials} depoimentos`)
+  console.log(` ${totalGallery} imagens na galeria`)
+  console.log(` ${partnersData.length} parceiros`)
+  console.log(` ${volunteers.length} voluntários`)
+  console.log(` ${postsData.length} posts`)
+  console.log(` ${statsCreated.length} métricas`)
+  console.log(` ${species.length} espécies`)
+  console.log(` ${sizes.length} portes`)
+  console.log(` ${ageRanges.length} faixas etárias`)
+  console.log(` ${animals.length} animais`)
 }
 
 main()

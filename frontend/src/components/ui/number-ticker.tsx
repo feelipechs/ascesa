@@ -32,7 +32,6 @@ export function NumberTicker({
     const startTime = Date.now() + delay * 1000
     const endValue = value
     const startValue = direction === 'down' ? value : 0
-    const range = Math.abs(endValue - startValue)
 
     function animate() {
       const now = Date.now()
@@ -53,6 +52,14 @@ export function NumberTicker({
 
     requestAnimationFrame(animate)
   }, [isInView, value, direction, delay, duration, started])
+
+  useEffect(() => {
+    if (started) return
+    const timeout = setTimeout(() => {
+      if (!started) setDisplayValue(value)
+    }, 3000)
+    return () => clearTimeout(timeout)
+  }, [started, value])
 
   return (
     <span ref={ref} className={cn('tabular-nums', className)}>

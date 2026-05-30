@@ -3,9 +3,8 @@ import { useProjects } from '@/hooks/projects/queries'
 import { Hero } from './hero'
 import { StatsSection } from './stats-section'
 import { ProjectsCarousel } from './projects-carousel'
-import { ImpactBanner } from './impact-banner'
 import { TestimonialsSection } from './testimonials-section'
-import { GalleryContent } from './gallery-content'
+import { GallerySection } from '@/components/gallery-section'
 import { PartnersContent } from './partners-content'
 
 type HomeContentProps = {
@@ -21,9 +20,14 @@ export function HomeContent({ isAuthenticated }: HomeContentProps) {
       <Hero />
       <StatsSection isAuthenticated={isAuthenticated} />
       <ProjectsCarousel projects={projects.slice(0, 6)} />
-      <ImpactBanner />
       <TestimonialsSection isAuthenticated={isAuthenticated} />
-      <GalleryContent isAuthenticated={isAuthenticated} />
+      <GallerySection
+        context="HOME"
+        isAuthenticated={isAuthenticated}
+        title={<>Nossa <span className="text-primary underline underline-offset-4">Galeria</span></>}
+        description="Momentos que mostram o impacto do nosso trabalho nas comunidades."
+        wrapInPageSection
+      />
       <PartnersContent isAuthenticated={isAuthenticated} />
     </main>
   )

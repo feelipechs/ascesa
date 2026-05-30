@@ -38,4 +38,16 @@ export const AnimalAgeRangesApi = {
     const res = await fetch(`/api/animal-age-ranges/${id}`, { method: 'DELETE' })
     if (!res.ok) throw new Error('Falha ao remover faixa etária')
   },
+
+  async reorder(items: { id: string; order: number }[]): Promise<void> {
+    const res = await fetch('/api/animal-age-ranges/reorder', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items }),
+    })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao reordenar faixas etárias')
+    }
+  },
 }

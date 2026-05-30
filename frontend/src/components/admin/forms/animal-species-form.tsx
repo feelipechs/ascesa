@@ -23,20 +23,19 @@ export function AnimalSpeciesForm({ speciesId, onSuccess, onCancel }: AnimalSpec
 
   const form = useForm({
     resolver: zodResolver(isEditing ? updateAnimalSpeciesSchema : createAnimalSpeciesSchema),
-    defaultValues: { name: '', order: 0 },
+    defaultValues: { name: '' },
   })
 
   useEffect(() => {
     if (!species) return
-    form.reset({ name: species.name ?? '', order: species.order ?? 0 })
+    form.reset({ name: species.name ?? '' })
   }, [species, form])
 
   function handleSubmit(data: Record<string, unknown>) {
-    const payload = { ...data, order: Number(data.order) || 0 }
     if (isEditing && speciesId) {
-      update.mutate({ id: speciesId, data: payload }, { onSuccess })
+      update.mutate({ id: speciesId, data }, { onSuccess })
     } else {
-      create.mutate(payload, { onSuccess })
+      create.mutate(data, { onSuccess })
     }
   }
 
@@ -49,11 +48,7 @@ export function AnimalSpeciesForm({ speciesId, onSuccess, onCancel }: AnimalSpec
           <p className="text-sm text-destructive">{form.formState.errors.name.message as string}</p>
         )}
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="order">Ordem</Label>
-        <Input id="order" type="number" {...form.register('order', { valueAsNumber: true })} placeholder="0" />
-      </div>
-      <div className="flex gap-2 pt-2">
+    <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">
           {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar espécie'}

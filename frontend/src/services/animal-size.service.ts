@@ -19,3 +19,14 @@ export async function updateAnimalSize(id: string, data: { label?: string; descr
 export async function deleteAnimalSize(id: string) {
   return prisma.animalSize.delete({ where: { id } })
 }
+
+export async function reorderAnimalSizes(items: { id: string; order: number }[]) {
+  return prisma.$transaction(
+    items.map((item) =>
+      prisma.animalSize.update({
+        where: { id: item.id },
+        data: { order: item.order },
+      })
+    )
+  )
+}

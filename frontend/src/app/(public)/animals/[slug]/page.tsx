@@ -12,17 +12,17 @@ import Link from 'next/link'
 import { routes } from '@/lib/routes'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
-import { AnimalGallerySection } from './_sections/animal-gallery-section'
+import { GallerySection } from '@/components/gallery-section'
 
 const getCachedAnimal = cache((slug: string) => AnimalService.findBySlug(slug))
 
 const statusConfig: Record<
   string,
-  { label: string; variant: 'default' | 'secondary' | 'outline' }
+  { label: string; variant: 'default' | 'secondary' | 'outline'; className?: string }
 > = {
   AVAILABLE: { label: 'Disponível para adoção', variant: 'default' },
   ADOPTED: { label: 'Adotado', variant: 'secondary' },
-  FOSTERED: { label: 'Lar Temporário', variant: 'outline' },
+  FOSTERED: { label: 'Lar Temporário', variant: 'outline', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700' },
 }
 
 const genderLabel: Record<string, string> = { MALE: 'Macho', FEMALE: 'Fêmea' }
@@ -64,7 +64,7 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
         </Button>
 
         <div className="grid gap-8 lg:grid-cols-2">
-          <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
+          <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-[3/2] rounded-xl overflow-hidden">
             {animal.coverUrl ? (
               <SafeImage
                 src={animal.coverUrl}
@@ -80,17 +80,18 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
 
           <div className="space-y-6">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold md:text-4xl">{animal.name}</h1>
-                <Badge variant={status.variant}>{status.label}</Badge>
-              </div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold md:text-4xl">{animal.name}</h1>
+            <Badge variant={status.variant} className={status.className}>{status.label}</Badge>
+          </div>
 
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <span>{animal.species.name}</span>
-                {animal.breed && <span>{animal.breed}</span>}
-                <span>{genderLabel[animal.gender] ?? animal.gender}</span>
-                {animal.size && <span>{animal.size.label}</span>}
-              </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline">{animal.species.name}</Badge>
+            {animal.breed && <Badge variant="outline">{animal.breed}</Badge>}
+            <Badge variant="outline">{genderLabel[animal.gender] ?? animal.gender}</Badge>
+            {animal.size && <Badge variant="outline">{animal.size.label}</Badge>}
+            {animal.ageRange && <Badge variant="outline">{animal.ageRange.label}</Badge>}
+          </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -146,7 +147,11 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
         </div>
 
         <div className="mt-12">
-          <AnimalGallerySection animalId={animal.id} isAuthenticated={isAuthenticated} />
+          <GallerySection
+        context="ANIMAL"
+        foreignKey={animal.id}
+        isAuthenticated={isAuthenticated}
+      />
         </div>
       </div>
     </main>

@@ -2,16 +2,25 @@
 
 import { useState } from 'react'
 import { format } from 'date-fns'
+import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { DataTable } from '@/components/data-table'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { UserForm } from '@/components/admin/forms/user-form'
 import { useUsers, useUserMutations } from '@/hooks/users/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
+
+type UserRow = {
+  id: string
+  name: string | null
+  email: string
+  role: string
+  createdAt: Date
+}
 
 export function UsersContent() {
   const { data: users, isLoading } = useUsers()
@@ -35,6 +44,52 @@ export function UsersContent() {
     setEditingUser(null)
   }
 
+  const columns: ColumnDef<UserRow>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Nome',
+      cell: ({ getValue }) => <span className="font-medium">{(getValue() as string | null) ?? '—'}</span>,
+    },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+    },
+    {
+      accessorKey: 'role',
+      header: 'Perfil',
+      cell: ({ getValue }) => {
+        const role = getValue() as string
+        return (
+          <Badge variant={role === 'ADMIN' ? 'default' : 'secondary'}>
+            {role}
+          </Badge>
+        )
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Criado em',
+      cell: ({ getValue }) => {
+        const date = getValue() as Date
+        return <span className="text-muted-foreground">{format(date, 'dd/MM/yyyy')}</span>
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Ações',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <Button size="icon" variant="ghost" onClick={() => handleEdit(row.original)} className="h-8 w-8">
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button size="icon" variant="ghost" onClick={() => setDeletingUser({ id: row.original.id })} className="h-8 w-8 text-destructive hover:text-destructive">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className="px-4 lg:px-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -55,43 +110,7 @@ export function UsersContent() {
       ) : !users || users.length === 0 ? (
         <EmptyState title="Nenhum usuário encontrado." />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Perfil</TableHead>
-              <TableHead>Criado em</TableHead>
-              <TableHead className="w-20">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.name ?? '—'}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <Badge variant={user.role === 'ADMIN' ? 'default' : 'secondary'}>
-                    {user.role}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {format(user.createdAt, 'dd/MM/yyyy')}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => handleEdit(user)} className="h-8 w-8">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDeletingUser({ id: user.id })} className="h-8 w-8 text-destructive hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable columns={columns} data={users as UserRow[]} searchKey="name" />
       )}
 
       <AdminSheet

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -9,13 +10,22 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
+import { SortableList, SortableItem } from '@/components/sortable-list'
+import { useReorder } from '@/hooks/use-reorder'
+import { toast } from 'sonner'
 import { AnimalSpeciesForm } from '@/components/admin/forms/animal-species-form'
 import { AnimalSizeForm } from '@/components/admin/forms/animal-size-form'
 import { AnimalAgeRangeForm } from '@/components/admin/forms/animal-age-range-form'
-import { useAnimalSpecies, useAnimalSpeciesMutations } from '@/hooks/animal-species/queries'
-import { useAnimalSizes, useAnimalSizeMutations } from '@/hooks/animal-sizes/queries'
-import { useAnimalAgeRanges, useAnimalAgeRangeMutations } from '@/hooks/animal-age-ranges/queries'
+import { useAnimalSpecies, useAnimalSpeciesMutations, animalSpeciesKeys } from '@/hooks/animal-species/queries'
+import { useAnimalSizes, useAnimalSizeMutations, animalSizeKeys } from '@/hooks/animal-sizes/queries'
+import { useAnimalAgeRanges, useAnimalAgeRangeMutations, animalAgeRangeKeys } from '@/hooks/animal-age-ranges/queries'
+import { AnimalSpeciesApi } from '@/lib/api/animal-species'
+import { AnimalSizesApi } from '@/lib/api/animal-sizes'
+import { AnimalAgeRangesApi } from '@/lib/api/animal-age-ranges'
 import type { UseMutationResult } from '@tanstack/react-query'
+
+type ReorderFn = (items: { id: string; order: number }[]) => Promise<void>
+type InvalidateKey = { all: readonly unknown[] }
 
 type ReferenceTabProps<TEntity> = {
   useQuery: () => { data: TEntity[] | undefined; isLoading: boolean }
@@ -26,6 +36,8 @@ type ReferenceTabProps<TEntity> = {
   entityLabel: string
   emptyMessage: string
   getNameField: (entity: TEntity) => string
+  reorderApi: ReorderFn
+  queryKeys: InvalidateKey
 }
 
 function ReferenceTab<TEntity extends { id: string; order: number }>({
@@ -37,8 +49,12 @@ function ReferenceTab<TEntity extends { id: string; order: number }>({
   entityLabel,
   emptyMessage,
   getNameField,
+  reorderApi,
+  queryKeys,
 }: ReferenceTabProps<TEntity>) {
   const { data: items, isLoading } = useQuery()
+  const queryClient = useQueryClient()
+  const { optimisticItems, reorder, setOptimisticItems } = useReorder(items ?? [], { field: 'order' })
   const [formSheetOpen, setFormSheetOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -58,6 +74,20 @@ function ReferenceTab<TEntity extends { id: string; order: number }>({
     setEditingId(null)
   }
 
+  async function handleReorder(activeIndex: number, overIndex: number) {
+    const reordered = reorder(activeIndex, overIndex)
+    if (!reordered) return
+
+    const reorderItems = reordered.map((item, i) => ({ id: item.id, order: i }))
+    try {
+      await reorderApi(reorderItems)
+      queryClient.invalidateQueries({ queryKey: queryKeys.all })
+    } catch {
+      toast.error('Falha ao reordenar')
+      setOptimisticItems(items ?? [])
+    }
+  }
+
   return (
     <>
       <div className="flex justify-end mb-4">
@@ -75,33 +105,47 @@ function ReferenceTab<TEntity extends { id: string; order: number }>({
       ) : !items || items.length === 0 ? (
         <EmptyState title={emptyMessage} />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">Ordem</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead className="w-20">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="text-muted-foreground text-sm">{item.order}</TableCell>
-                <TableCell className="font-medium">{getNameField(item)}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => handleEdit(item.id)} className="h-8 w-8">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDeletingId(item.id)} className="h-8 w-8 text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+        <SortableList items={optimisticItems} onReorder={handleReorder}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-10" />
+                <TableHead>Nome</TableHead>
+                <TableHead className="w-20">Ações</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {optimisticItems.map((item) => (
+                <SortableItem key={item.id} id={item.id}>
+                  {({ attributes, listeners, isDragging }) => (
+                    <TableRow className={isDragging ? 'opacity-50' : ''}>
+                      <TableCell>
+                        <button
+                          {...attributes}
+                          {...listeners}
+                          className="cursor-grab active:cursor-grabbing touch-none flex items-center justify-center h-8 w-8 rounded-md hover:bg-muted"
+                        >
+                          <GripVertical className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      </TableCell>
+                      <TableCell className="font-medium">{getNameField(item)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Button size="icon" variant="ghost" onClick={() => handleEdit(item.id)} className="h-8 w-8">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" onClick={() => setDeletingId(item.id)} className="h-8 w-8 text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </SortableItem>
+              ))}
+            </TableBody>
+          </Table>
+        </SortableList>
       )}
 
       <AdminSheet
@@ -170,6 +214,8 @@ function SpeciesTab() {
       entityLabel="espécie"
       emptyMessage="Nenhuma espécie cadastrada."
       getNameField={(s) => s.name}
+      reorderApi={AnimalSpeciesApi.reorder.bind(AnimalSpeciesApi)}
+      queryKeys={animalSpeciesKeys}
     />
   )
 }
@@ -187,6 +233,8 @@ function SizesTab() {
       entityLabel="porte"
       emptyMessage="Nenhum porte cadastrado."
       getNameField={(s) => s.label}
+      reorderApi={AnimalSizesApi.reorder.bind(AnimalSizesApi)}
+      queryKeys={animalSizeKeys}
     />
   )
 }
@@ -204,6 +252,8 @@ function AgeRangesTab() {
       entityLabel="faixa etária"
       emptyMessage="Nenhuma faixa etária cadastrada."
       getNameField={(r) => r.label}
+      reorderApi={AnimalAgeRangesApi.reorder.bind(AnimalAgeRangesApi)}
+      queryKeys={animalAgeRangeKeys}
     />
   )
 }

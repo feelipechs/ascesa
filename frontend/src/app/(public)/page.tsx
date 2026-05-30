@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { auth } from '@/auth'
+import { StatService } from '@/services/stat.service'
 import { HomeContent } from './_sections'
 
 export const metadata: Metadata = {
@@ -12,5 +14,15 @@ export default async function Home() {
   const session = await auth()
   const isAuthenticated = !!session
 
-  return <HomeContent isAuthenticated={isAuthenticated} />
+  const queryClient = new QueryClient()
+  await queryClient.prefetchQuery({
+    queryKey: ['stats', 'list'],
+    queryFn: () => StatService.findAll(),
+  })
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <HomeContent isAuthenticated={isAuthenticated} />
+    </HydrationBoundary>
+  )
 }

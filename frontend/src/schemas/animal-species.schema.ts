@@ -9,3 +9,9 @@ export const updateAnimalSpeciesSchema = createAnimalSpeciesSchema.partial()
 
 export type CreateAnimalSpeciesInput = z.infer<typeof createAnimalSpeciesSchema>
 export type UpdateAnimalSpeciesInput = z.infer<typeof updateAnimalSpeciesSchema>
+
+export const reorderAnimalSpeciesSchema = z.object({
+  items: z.array(z.object({ id: z.string(), order: z.coerce.number().int() })),
+})
+
+export type ReorderAnimalSpeciesInput = z.infer<typeof reorderAnimalSpeciesSchema>

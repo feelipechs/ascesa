@@ -1,7 +1,10 @@
 'use client'
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSettings } from '@/hooks/settings/queries'
-import { useTeamMembers, useTeamMemberMutations } from '@/hooks/team-members/queries'
+import { useTeamMembers, useTeamMemberMutations, teamMemberKeys } from '@/hooks/team-members/queries'
+import { TeamMembersApi } from '@/lib/api/team-members'
+import { useReorder } from '@/hooks/use-reorder'
 import type { TeamMemberWithAreas } from '@/types'
 import { AboutHistory } from './about-history'
 import { AboutMvv } from './about-mvv'
@@ -9,6 +12,7 @@ import { AboutTeam } from './about-team'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { TeamMemberForm } from '@/components/admin/forms/team-member-form'
 import { DeleteDialog } from '@/components/delete-dialog'
+import { toast } from 'sonner'
 
 type AboutContentProps = {
   isAuthenticated?: boolean
@@ -16,8 +20,12 @@ type AboutContentProps = {
 
 export function AboutContent({ isAuthenticated }: AboutContentProps) {
   const { data: settings } = useSettings()
-  const { data: teamMembers } = useTeamMembers()
+  const { data: teamMembers = [] } = useTeamMembers()
   const { remove, isPending } = useTeamMemberMutations()
+  const queryClient = useQueryClient()
+
+  const { optimisticItems, reorder, setOptimisticItems } = useReorder(teamMembers, { field: 'order' })
+
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<null | { id: string }>(null)
   const [deletingMember, setDeletingMember] = useState<TeamMemberWithAreas | null>(null)
@@ -37,12 +45,26 @@ export function AboutContent({ isAuthenticated }: AboutContentProps) {
     setEditingMember(null)
   }
 
+  async function handleReorder(activeIndex: number, overIndex: number) {
+    const reordered = reorder(activeIndex, overIndex)
+    if (!reordered) return
+
+    const items = reordered.map((item, i) => ({ id: item.id, order: i }))
+    try {
+      await TeamMembersApi.reorder(items)
+      queryClient.invalidateQueries({ queryKey: teamMemberKeys.all })
+    } catch {
+      toast.error('Falha ao reordenar')
+      setOptimisticItems(teamMembers)
+    }
+  }
+
   return (
     <>
       <AboutHistory about={settings?.about} />
       <AboutMvv mission={settings?.mission} vision={settings?.vision} values={settings?.values} />
       <AboutTeam
-        teamMembers={teamMembers ?? []}
+        teamMembers={optimisticItems}
         isAuthenticated={isAuthenticated}
         onAdd={handleNew}
         onEdit={handleEdit}
@@ -50,6 +72,7 @@ export function AboutContent({ isAuthenticated }: AboutContentProps) {
           const full = teamMembers?.find((m) => m.id === member.id)
           if (full) setDeletingMember(full)
         }}
+        onReorder={isAuthenticated ? handleReorder : undefined}
       />
 
       {isAuthenticated && (

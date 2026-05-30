@@ -35,9 +35,14 @@ export async function createGalleryImage(data: {
   order?: number
   context: GalleryContext
   projectId?: string | null
+  animalId?: string | null
 }) {
   return prisma.galleryImage.create({
-    data: { ...data, projectId: data.projectId ?? null },
+    data: {
+      ...data,
+      projectId: data.projectId ?? null,
+      animalId: data.animalId ?? null,
+    },
   })
 }
 
@@ -49,14 +54,30 @@ export async function updateGalleryImage(
     order?: number
     context?: GalleryContext
     projectId?: string | null
+    animalId?: string | null
   }
 ) {
   return prisma.galleryImage.update({
     where: { id },
-    data: { ...data, projectId: data.projectId ?? undefined },
+    data: {
+      ...data,
+      projectId: data.projectId ?? undefined,
+      animalId: data.animalId ?? undefined,
+    },
   })
 }
 
 export async function deleteGalleryImage(id: string) {
   return prisma.galleryImage.delete({ where: { id } })
+}
+
+export async function reorderGalleryImages(items: { id: string; order: number }[]) {
+  return prisma.$transaction(
+    items.map((item) =>
+      prisma.galleryImage.update({
+        where: { id: item.id },
+        data: { order: item.order },
+      })
+    )
+  )
 }

@@ -2,15 +2,24 @@
 
 import { useState } from 'react'
 import { format } from 'date-fns'
+import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { DataTable } from '@/components/data-table'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { VolunteerForm } from '@/components/admin/forms/volunteer-form'
 import { useVolunteers, useVolunteerMutations } from '@/hooks/volunteers/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
+
+type VolunteerRow = {
+  id: string
+  name: string
+  email: string
+  phone: string | null
+  createdAt: Date
+}
 
 export function VolunteersContent() {
   const { data: volunteers, isLoading } = useVolunteers()
@@ -34,6 +43,48 @@ export function VolunteersContent() {
     setEditingVolunteer(null)
   }
 
+  const columns: ColumnDef<VolunteerRow>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Nome',
+      cell: ({ getValue }) => <span className="font-medium">{getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+    },
+    {
+      accessorKey: 'phone',
+      header: 'Telefone',
+      cell: ({ getValue }) => {
+        const phone = getValue() as string | null
+        return <span className="text-muted-foreground">{phone ?? '—'}</span>
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Cadastro',
+      cell: ({ getValue }) => {
+        const date = getValue() as Date
+        return <span className="text-muted-foreground">{format(date, 'dd/MM/yyyy')}</span>
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Ações',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <Button size="icon" variant="ghost" onClick={() => handleEdit(row.original)} className="h-8 w-8">
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button size="icon" variant="ghost" onClick={() => setDeletingVolunteer({ id: row.original.id })} className="h-8 w-8 text-destructive hover:text-destructive">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className="px-4 lg:px-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -53,39 +104,7 @@ export function VolunteersContent() {
       ) : !volunteers || volunteers.length === 0 ? (
         <EmptyState title="Nenhum voluntário encontrado." />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Cadastro</TableHead>
-              <TableHead className="w-20">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {volunteers.map((volunteer) => (
-              <TableRow key={volunteer.id}>
-                <TableCell className="font-medium">{volunteer.name}</TableCell>
-                <TableCell>{volunteer.email}</TableCell>
-                <TableCell className="text-muted-foreground">{volunteer.phone ?? '—'}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {format(volunteer.createdAt, 'dd/MM/yyyy')}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => handleEdit(volunteer)} className="h-8 w-8">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDeletingVolunteer({ id: volunteer.id })} className="h-8 w-8 text-destructive hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable columns={columns} data={volunteers as VolunteerRow[]} searchKey="name" />
       )}
 
       <AdminSheet

@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function AreasLoading() {
   return (
-    <main className="min-h-screen pt-17.5">
+    <main className="flex flex-col pt-17.5">
       <section className="border-b border-border py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-4">
           <Skeleton className="mx-auto mb-3 h-5 w-40 rounded-full" />

@@ -89,44 +89,44 @@ export function StatsSection({ isAuthenticated }: StatsSectionProps) {
           )}
 
           {optimisticItems.length > 0 ? (
-            isAuthenticated ? (
-              <SortableList items={optimisticItems} onReorder={handleReorder}>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
-                  {optimisticItems.map((stat) => (
-                    <SortableItem key={stat.id} id={stat.id}>
-                      {({ attributes, listeners, isDragging }) => (
-                        <div
-                          className={`relative flex flex-col items-center text-center gap-2 ${isDragging ? 'opacity-50' : ''}`}
-                        >
-                          <div className="absolute top-0 right-0 z-10 flex items-center gap-1">
-                            <button
-                              {...attributes}
-                              {...listeners}
-                              className="cursor-grab active:cursor-grabbing touch-none flex items-center justify-center h-8 w-8 rounded-md hover:bg-muted"
-                            >
-                              <GripVertical className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                            <AdminActions
-                              onEdit={() => handleEdit(stat)}
-                              onDelete={() => setDeletingStat({ id: stat.id })}
-                            />
-                          </div>
-                          <span className="text-4xl md:text-5xl font-bold text-primary">
-                            <NumberTicker
-                              value={Number(
-                                String(stat.value).replace(/[^\d.,]/g, '').replace(',', '.')
-                              )}
-                            />
-                          </span>
-                          <span className="text-sm text-muted-foreground uppercase tracking-wider font-medium">
-                            {stat.label}
-                          </span>
-                        </div>
+    isAuthenticated ? (
+      <SortableList items={optimisticItems} onReorder={handleReorder}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
+          {optimisticItems.map((stat) => (
+            <SortableItem key={stat.id} id={stat.id}>
+              {({ attributes, listeners, isDragging }) => (
+                <div
+                  className={`relative flex flex-col items-center text-center gap-2 ${isDragging ? 'opacity-50' : ''}`}
+                >
+                  <div className="absolute top-0 right-0 z-10 flex items-center gap-1">
+                    <button
+                      {...attributes}
+                      {...listeners}
+                      className="cursor-grab active:cursor-grabbing touch-none flex items-center justify-center h-8 w-8 rounded-md bg-background/95 backdrop-blur shadow-sm border hover:bg-muted"
+                    >
+                      <GripVertical className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                    <AdminActions
+                      onEdit={() => handleEdit(stat)}
+                      onDelete={() => setDeletingStat({ id: stat.id })}
+                    />
+                  </div>
+                  <span className="text-4xl md:text-5xl font-bold text-primary">
+                    <NumberTicker
+                      value={Number(
+                        String(stat.value).replace(/[^\d.,]/g, '').replace(',', '.')
                       )}
-                    </SortableItem>
-                  ))}
+                    />
+                  </span>
+                  <span className="text-sm text-muted-foreground uppercase tracking-wider font-medium">
+                    {stat.label}
+                  </span>
                 </div>
-              </SortableList>
+              )}
+            </SortableItem>
+          ))}
+        </div>
+      </SortableList>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
                 {optimisticItems.map((stat) => (

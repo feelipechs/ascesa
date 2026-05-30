@@ -30,7 +30,6 @@ export function TeamMemberForm({ areaIds = [], memberId, onSuccess, onCancel }: 
       role: '',
       bio: '',
       photoUrl: '',
-      order: 0,
     },
   })
 
@@ -41,7 +40,6 @@ export function TeamMemberForm({ areaIds = [], memberId, onSuccess, onCancel }: 
       role: memberData.role ?? '',
       bio: memberData.bio ?? '',
       photoUrl: memberData.photoUrl ?? '',
-      order: memberData.order ?? 0,
     })
   }, [memberData, form])
 
@@ -82,12 +80,7 @@ export function TeamMemberForm({ areaIds = [], memberId, onSuccess, onCancel }: 
         <Input id="photoUrl" {...form.register('photoUrl')} placeholder="https://..." />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="order">Ordem de exibição</Label>
-        <Input id="order" type="number" {...form.register('order')} />
-      </div>
-
-      <div className="flex gap-2 pt-2">
+    <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">
           {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar membro'}

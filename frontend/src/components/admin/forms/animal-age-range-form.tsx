@@ -23,7 +23,7 @@ export function AnimalAgeRangeForm({ rangeId, onSuccess, onCancel }: AnimalAgeRa
 
   const form = useForm({
     resolver: zodResolver(isEditing ? updateAnimalAgeRangeSchema : createAnimalAgeRangeSchema),
-    defaultValues: { label: '', minAge: null, maxAge: null, order: 0 },
+    defaultValues: { label: '', minAge: null, maxAge: null },
   })
 
   useEffect(() => {
@@ -32,14 +32,12 @@ export function AnimalAgeRangeForm({ rangeId, onSuccess, onCancel }: AnimalAgeRa
       label: range.label ?? '',
       minAge: range.minAge ?? null,
       maxAge: range.maxAge ?? null,
-      order: range.order ?? 0,
     })
   }, [range, form])
 
   function handleSubmit(data: Record<string, unknown>) {
     const payload = {
       label: data.label as string,
-      order: Number(data.order) || 0,
       minAge: data.minAge ? Number(data.minAge) : null,
       maxAge: data.maxAge ? Number(data.maxAge) : null,
     }
@@ -69,11 +67,7 @@ export function AnimalAgeRangeForm({ rangeId, onSuccess, onCancel }: AnimalAgeRa
           <Input id="maxAge" type="number" {...form.register('maxAge', { setValueAs: (v) => (v === '' || v === null ? null : Number(v)) })} placeholder="120" />
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="order">Ordem</Label>
-        <Input id="order" type="number" {...form.register('order', { valueAsNumber: true })} placeholder="0" />
-      </div>
-      <div className="flex gap-2 pt-2">
+    <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">
           {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar faixa etária'}

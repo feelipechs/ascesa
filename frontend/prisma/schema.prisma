@@ -91,9 +91,11 @@ model GalleryImage {
   order     Int            @default(0)
   context   GalleryContext @default(PROJECT)
   projectId String?
-  project   Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project   Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   animalId  String?
-  animal    Animal?        @relation(fields: [animalId], references: [id], onDelete: SetNull)
+  animal    Animal?        @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 }
 
 // ------------------------------

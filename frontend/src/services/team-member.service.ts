@@ -70,3 +70,14 @@ export async function updateTeamMember(
 export async function deleteTeamMember(id: string) {
   return prisma.teamMember.delete({ where: { id } })
 }
+
+export async function reorderTeamMembers(items: { id: string; order: number }[]) {
+  return prisma.$transaction(
+    items.map((item) =>
+      prisma.teamMember.update({
+        where: { id: item.id },
+        data: { order: item.order },
+      })
+    )
+  )
+}

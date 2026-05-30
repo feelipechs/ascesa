@@ -22,3 +22,9 @@ export const updateTeamMemberSchema = z.object({
 
 export type CreateTeamMemberInput = z.infer<typeof createTeamMemberSchema>
 export type UpdateTeamMemberInput = z.infer<typeof updateTeamMemberSchema>
+
+export const reorderTeamMemberSchema = z.object({
+  items: z.array(z.object({ id: z.string(), order: z.coerce.number().int() })),
+})
+
+export type ReorderTeamMemberInput = z.infer<typeof reorderTeamMemberSchema>

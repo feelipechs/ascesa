@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Loading() {
   return (
-    <div className="overflow-x-hidden">
+    <main className="min-h-screen bg-background">
       <section className="relative h-[50vh] min-h-[400px] overflow-hidden bg-muted" />
       <div className="mx-auto max-w-6xl px-4 py-12">
         <Skeleton className="mb-8 h-4 w-32" />
@@ -26,6 +26,6 @@ export default function Loading() {
           </aside>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

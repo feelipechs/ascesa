@@ -2,28 +2,31 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Loading() {
   return (
-    <div className="overflow-x-hidden">
-      <section className="relative min-h-[100dvh] w-full overflow-hidden bg-foreground">
-        <div className="flex min-h-[100dvh] flex-col items-center justify-center px-6">
-          <Skeleton className="mb-6 h-6 w-40 rounded-full" />
-          <Skeleton className="mb-6 h-16 w-3/4 max-w-4xl" />
-          <Skeleton className="mb-12 h-6 w-96" />
-          <div className="flex gap-12">
-            <Skeleton className="h-16 w-28" />
-            <Skeleton className="h-16 w-28" />
-            <Skeleton className="h-16 w-28" />
+    <main className="flex flex-col">
+      <section className="relative min-h-dvh bg-background flex items-center px-6 md:px-12 lg:px-20">
+        <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+          <div className="space-y-7">
+            <Skeleton className="h-16 w-3/4" />
+            <Skeleton className="h-6 w-2/3" />
+            <div className="flex gap-4">
+              <Skeleton className="h-14 w-36 rounded-xl" />
+              <Skeleton className="h-14 w-40 rounded-xl" />
+            </div>
+          </div>
+          <div className="hidden lg:flex items-center justify-center">
+            <Skeleton className="aspect-[3/2] w-full rounded-2xl" />
           </div>
         </div>
       </section>
       <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid gap-6 grid-cols-2 md:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[3/4] rounded-xl" />
+              <Skeleton key={i} className="h-24 rounded-xl" />
             ))}
           </div>
         </div>
       </section>
-    </div>
+    </main>
   )
 }

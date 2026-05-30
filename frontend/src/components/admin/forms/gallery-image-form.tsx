@@ -30,7 +30,6 @@ export function GalleryImageForm({ context, projectId, animalId, imageId, onSucc
     defaultValues: {
       url: '',
       caption: '',
-      order: 0,
       context: context,
       projectId: projectId ?? null,
       animalId: animalId ?? null,
@@ -42,7 +41,6 @@ export function GalleryImageForm({ context, projectId, animalId, imageId, onSucc
     form.reset({
       url: imageData.url ?? '',
       caption: imageData.caption ?? '',
-      order: imageData.order ?? 0,
       context: imageData.context ?? context,
       projectId: imageData.projectId ?? projectId ?? null,
       animalId: imageData.animalId ?? animalId ?? null,
@@ -73,12 +71,7 @@ export function GalleryImageForm({ context, projectId, animalId, imageId, onSucc
         <Input id="caption" {...form.register('caption')} placeholder="Descrição da imagem" />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="order">Ordem</Label>
-        <Input id="order" type="number" {...form.register('order')} />
-      </div>
-
-      <input type="hidden" {...form.register('context')} />
+    <input type="hidden" {...form.register('context')} />
       <input type="hidden" {...form.register('projectId')} />
       <input type="hidden" {...form.register('animalId')} />
 

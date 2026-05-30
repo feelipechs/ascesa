@@ -53,4 +53,16 @@ export const TeamMembersApi = {
       throw new Error(body.error || 'Falha ao remover membro')
     }
   },
+
+  async reorder(items: { id: string; order: number }[]): Promise<void> {
+    const res = await fetch('/api/team-members/reorder', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items }),
+    })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao reordenar membros')
+    }
+  },
 }

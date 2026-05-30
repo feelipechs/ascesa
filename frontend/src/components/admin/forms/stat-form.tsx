@@ -26,7 +26,6 @@ export function StatForm({ statId, onSuccess, onCancel }: StatFormProps) {
     defaultValues: {
       label: '',
       value: '',
-      order: 0,
     },
   })
 
@@ -35,7 +34,6 @@ export function StatForm({ statId, onSuccess, onCancel }: StatFormProps) {
     form.reset({
       label: statData.label ?? '',
       value: statData.value ?? '',
-      order: (statData as { order?: number }).order ?? 0,
     })
   }, [statData, form])
 
@@ -65,12 +63,7 @@ export function StatForm({ statId, onSuccess, onCancel }: StatFormProps) {
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="order">Ordem</Label>
-        <Input id="order" type="number" min={0} {...form.register('order', { valueAsNumber: true })} placeholder="0" />
-      </div>
-
-      <div className="flex gap-2 pt-2">
+    <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
           Cancelar
         </Button>

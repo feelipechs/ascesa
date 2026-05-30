@@ -24,18 +24,17 @@ export function AnimalSizeForm({ sizeId, onSuccess, onCancel }: AnimalSizeFormPr
 
   const form = useForm({
     resolver: zodResolver(isEditing ? updateAnimalSizeSchema : createAnimalSizeSchema),
-    defaultValues: { label: '', description: '', order: 0 },
+    defaultValues: { label: '', description: '' },
   })
 
   useEffect(() => {
     if (!size) return
-    form.reset({ label: size.label ?? '', description: size.description ?? '', order: size.order ?? 0 })
+    form.reset({ label: size.label ?? '', description: size.description ?? '' })
   }, [size, form])
 
   function handleSubmit(data: Record<string, unknown>) {
     const payload = {
       ...data,
-      order: Number(data.order) || 0,
       description: (data.description as string) || null,
     }
     if (isEditing && sizeId) {
@@ -58,11 +57,7 @@ export function AnimalSizeForm({ sizeId, onSuccess, onCancel }: AnimalSizeFormPr
         <Label htmlFor="description">Descrição (opcional)</Label>
         <Textarea id="description" {...form.register('description')} placeholder="Ex: até 10kg" />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="order">Ordem</Label>
-        <Input id="order" type="number" {...form.register('order', { valueAsNumber: true })} placeholder="0" />
-      </div>
-      <div className="flex gap-2 pt-2">
+    <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">
           {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar porte'}

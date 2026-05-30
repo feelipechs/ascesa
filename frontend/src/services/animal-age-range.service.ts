@@ -19,3 +19,14 @@ export async function updateAnimalAgeRange(id: string, data: { label?: string; m
 export async function deleteAnimalAgeRange(id: string) {
   return prisma.animalAgeRange.delete({ where: { id } })
 }
+
+export async function reorderAnimalAgeRanges(items: { id: string; order: number }[]) {
+  return prisma.$transaction(
+    items.map((item) =>
+      prisma.animalAgeRange.update({
+        where: { id: item.id },
+        data: { order: item.order },
+      })
+    )
+  )
+}
