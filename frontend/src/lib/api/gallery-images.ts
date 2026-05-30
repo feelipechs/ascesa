@@ -5,6 +5,7 @@ export const GalleryImagesApi = {
     const params = new URLSearchParams()
     if (filters?.context) params.set('context', filters.context)
     if (filters?.projectId) params.set('projectId', filters.projectId)
+    if (filters?.animalId) params.set('animalId', filters.animalId)
     const query = params.toString()
     const res = await fetch(`/api/gallery-images${query ? `?${query}` : ''}`)
     if (!res.ok) {

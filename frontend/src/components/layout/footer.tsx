@@ -3,6 +3,7 @@ import { MapPinIcon, MailIcon, PhoneIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { mainNavigation } from '@/lib/navigation'
 import {
   FacebookIcon,
   InstagramIcon,
@@ -10,15 +11,6 @@ import {
   WhatsAppIcon,
   LinkedInIcon,
 } from '@/components/icons/social'
-
-const institucionalLinks = [
-  { label: 'Sobre nós', href: '/sobre' },
-  { label: 'Projetos', href: '/projetos' },
-  { label: 'Animais', href: '/animais' },
-  { label: 'Áreas de atuação', href: '/areas' },
-  { label: 'Transparência', href: '/transparencia' },
-  { label: 'Doações', href: '/doacoes' },
-]
 
 export async function Footer() {
   const settings = await prisma.siteSettings.findUnique({ where: { id: 'main' } })
@@ -70,13 +62,13 @@ export async function Footer() {
           <div className="flex flex-col gap-4">
             <h3 className="font-semibold">Institucional</h3>
             <div className="flex flex-col gap-2">
-              {institucionalLinks.map((link) => (
+              {mainNavigation.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
-                  {link.label}
+                  {link.title}
                 </Link>
               ))}
             </div>

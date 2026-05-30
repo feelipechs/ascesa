@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (speciesId !== undefined) data.species = { connect: { id: speciesId } }
     if (publishedAt !== undefined) data.publishedAt = publishedAt ? new Date(publishedAt) : null
     if (birthDate !== undefined) data.birthDate = birthDate ? new Date(birthDate) : null
-    const animal = await AnimalService.update(existing.id, data as never)
+    const animal = await AnimalService.update(existing.id, data)
     return NextResponse.json(animal)
   })
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FiscalNoteService } from '@/services/fiscal-note.service'
-import { protectedApiHandler, validationError } from '@/lib/api-handler'
+import { apiHandler, protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createFiscalNoteSchema } from '@/schemas/fiscal-note.schema'
 
 export async function GET() {
@@ -11,14 +11,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  return protectedApiHandler(async () => {
+  return apiHandler(async () => {
     const body = await req.json()
     const parsed = createFiscalNoteSchema.safeParse(body)
     if (!parsed.success) return validationError(parsed.error)
-    const data: Record<string, unknown> = { ...parsed.data }
-    if (data.emissionDate) data.emissionDate = new Date(data.emissionDate as string)
-    if (data.amount !== undefined) data.amount = Number(data.amount)
-    const note = await FiscalNoteService.create(data)
+    const note = await FiscalNoteService.create(parsed.data)
     return NextResponse.json(note, { status: 201 })
   })
 }

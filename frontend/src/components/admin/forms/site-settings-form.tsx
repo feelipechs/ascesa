@@ -146,6 +146,18 @@ export function SiteSettingsForm() {
         </CardContent>
       </Card>
 
+      <Separator />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Mapa</CardTitle>
+          <CardDescription>URL do iframe do Google Maps para a página de contato.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Field label="Google Maps Embed URL" disabled={!isEditing} {...form.register('googleMapsEmbedUrl')} placeholder="https://www.google.com/maps/embed?pb=..." />
+        </CardContent>
+      </Card>
+
       <div className="flex gap-2">
         {!isEditing ? (
           <Button type="button" onClick={() => setIsEditing(true)}>

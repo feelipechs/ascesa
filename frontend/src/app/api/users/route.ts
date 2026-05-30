@@ -14,10 +14,7 @@ const userSelect = {
 } as const
 
 export async function GET() {
-  return protectedApiHandler(async (session) => {
-    if (session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
-    }
+  return protectedApiHandler(async () => {
     const users = await prisma.user.findMany({
       select: userSelect,
       orderBy: { createdAt: 'desc' },

@@ -1,4 +1,5 @@
 import { hashPassword } from '@/lib/utils-server'
+import { toSlug } from '../src/lib/utils'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../src/generated/prisma/client'
 import 'dotenv/config'
@@ -8,15 +9,6 @@ const prisma = new PrismaClient({ adapter })
 
 // --------------------
 // HELPERS
-// --------------------
-
-const slugify = (text: string) =>
-  text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '-')
-
 // --------------------
 // MEMBROS DA EQUIPE
 // --------------------
@@ -317,11 +309,14 @@ const areasData = [
       {
         title: 'Operação Resgate',
         description:
-          'Campanha contínua de resgate de animais em situação de risco nas regiões periféricas de São Paulo.',
+          'Mutirão de resgate de animais em situação de risco nas regiões periféricas de São Paulo.',
         content:
           'A Operação Resgate é o braço mais urgente da Ascesa. Atendemos denúncias de maus-tratos, animais abandonados em vias públicas, vítimas de atropelamento e situações de risco iminente.\n\nContamos com uma equipe treinada de resgatistas e uma viatura equipada para transporte. Cada animal resgatado passa por avaliação veterinária imediata e é encaminhado para nosso abrigo temporário ou para lares adotivos.\n\nEm 2024 realizamos mais de 200 resgates. Nosso objetivo é ampliar a frota para atender cada vez mais ocorrências com agilidade e dignidade.',
         coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
         featured: true,
+        eventDate: '2025-07-19T08:00:00Z',
+        location: 'Zona Sul, São Paulo — SP',
+        vacancies: 40,
         metrics: [
           { label: 'Resgates em 2024', value: '200+' },
           { label: 'Animais acolhidos', value: '150' },
@@ -362,11 +357,14 @@ const areasData = [
       {
         title: 'Campanha CastraVerão',
         description:
-          'Campanha de verão com castração a preço popular e conscientização sobre abandono de filhotes.',
+          'Mutirão de verão com castração a preço popular e conscientização sobre abandono de filhotes.',
         content:
           'O CastraVerão é uma campanha sazonal que ocorre entre dezembro e março, período de maior incidência de crias indesejadas. Oferecemos castração com valores subsidiados para toda a comunidade.\n\nAlém das cirurgias, realizamos ações educativas nas praças e parques sobre a importância da castração e os riscos do abandono de filhotes.\n\nNa última edição, castramos mais de 400 animais em 4 meses.',
         coverUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
         featured: false,
+        eventDate: '2026-01-10T08:00:00Z',
+        location: 'Sede Ascesa — Rua das Flores, 123, São Paulo — SP',
+        vacancies: 80,
         metrics: [
           { label: 'Castrações realizadas', value: '400+' },
           { label: 'Famílias atendidas', value: '280' },
@@ -394,11 +392,14 @@ const areasData = [
       {
         title: 'Campanha Adote um Sênior',
         description:
-          'Campanha especial para incentivar a adoção de animais idosos, com taxas zero e suporte veterinário vitalício.',
+          'Evento especial para incentivar a adoção de animais idosos, com taxas zero e suporte veterinário vitalício.',
         content:
           'A Campanha Adote um Sênior é nossa iniciativa para encontrar lares amorosos para animais com mais de 7 anos. Esses animais costumam ser os últimos a serem adotados, mas têm tanto amor para dar quanto os jovens.\n\nOferecemos isenção total das taxas de adoção, consulta veterinária gratuita por 1 ano, ração especial para idosos por 3 meses e acompanhamento veterinário vitalício.\n\nCada adoção de sênior é uma celebração — damos ao animal a chance de viver seus anos dourados com dignidade e carinho.',
         coverUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800',
         featured: false,
+        eventDate: '2025-08-02T09:00:00Z',
+        location: 'Parque Ibirapuera — Portão Principal, São Paulo — SP',
+        vacancies: 30,
         metrics: [
           { label: 'Seniores adotados', value: '35' },
           { label: 'Taxa de sucesso', value: '92%' },
@@ -419,13 +420,16 @@ const areasData = [
     ],
     'apoio-veterinario': [
       {
-        title: 'Consultas Populares',
+        title: 'Mutirão de Consultas Populares',
         description:
-          'Atendimento veterinário a preço popular para animais de famílias de baixa renda cadastradas.',
+          'Mutirão de atendimento veterinário a preço popular para animais de famílias de baixa renda cadastradas.',
         content:
-          'O projeto Consultas Populares oferece atendimento clínico geral com valor social de R$ 40 para famílias cadastradas. Inclui consulta, prescrição e encaminhamento para exames.\n\nAtendemos cães e gatos de segunda a sexta, das 8h às 17h, na sede da Ascesa. As vagas são limitadas e distribuídas por ordem de chegada, com prioridade para casos urgentes.\n\nContamos com dois veterinários em período integral e um laboratório parceiro para exames com desconto.',
+          'O Mutirão de Consultas Populares oferece atendimento clínico geral com valor social de R$ 40 para famílias cadastradas. Inclui consulta, prescrição e encaminhamento para exames.\n\nAtendemos cães e gatos durante o evento, com prioridade para casos urgentes.\n\nContamos com dois veterinários e um laboratório parceiro para exames com desconto.',
         coverUrl: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800',
         featured: true,
+        eventDate: '2025-07-05T08:00:00Z',
+        location: 'Sede Ascesa — Rua das Flores, 123, São Paulo — SP',
+        vacancies: 100,
         metrics: [
           { label: 'Consultas/mês', value: '200+' },
           { label: 'Valor social', value: 'R$ 40' },
@@ -449,11 +453,14 @@ const areasData = [
       {
         title: 'Palestras nas Escolas',
         description:
-          'Programa educativo itinerante que leva conscientização sobre bem-estar animal para escolas públicas.',
+          'Mutirão educativo itinerante que leva conscientização sobre bem-estar animal para escolas públicas.',
         content:
           'O programa Palestras nas Escolas leva educação sobre guarda responsável para crianças e adolescentes da rede pública. As palestras são interativas, com vídeos, jogos e atividades práticas.\n\nOs temas incluem: cuidados básicos com animais, posse responsável, denúncia de maus-tratos, castração e adoção. Cada turma recebe material didático exclusivo.\n\nEm 2024 alcançamos mais de 3.000 estudantes em 25 escolas. O programa é um dos pilares da nossa atuação preventiva.',
         coverUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800',
         featured: true,
+        eventDate: '2025-08-25T08:00:00Z',
+        location: 'EMEF Professor José de Anchieta — São Paulo — SP',
+        vacancies: 200,
         metrics: [
           { label: 'Estudantes alcançados', value: '3.000+' },
           { label: 'Escolas atendidas', value: '25' },
@@ -475,11 +482,14 @@ const areasData = [
       {
         title: 'Campanha Dezembro Verde',
         description:
-          'Campanha anual de conscientização contra o abandono de animais durante as festas de fim de ano.',
+          'Mutirão de conscientização contra o abandono de animais durante as festas de fim de ano.',
         content:
           'O Dezembro Verde é nossa campanha mais importante do ano. Durante todo o mês de dezembro, intensificamos as ações de conscientização sobre abandono de animais — crime que cresce até 30% nesta época.\n\nRealizamos panfletagem em pontos turísticos, postagens nas redes sociais, entrevistas em rádio e TV, e distribuição de materiais em pet shops e clínicas.\n\nA campanha também oferece descontos especiais em castração e microchipagem para prevenir crias indesejadas.',
         coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
         featured: false,
+        eventDate: '2025-12-01T09:00:00Z',
+        location: 'Praça da Sé, s/n — São Paulo — SP',
+        vacancies: 100,
         metrics: [
           { label: 'Materiais distribuídos', value: '10.000+' },
           { label: 'Castrações na campanha', value: '150' },
@@ -855,7 +865,7 @@ async function main() {
     if (!dataList) continue
 
     for (const data of dataList) {
-      const slug = slugify(data.title)
+      const slug = toSlug(data.title)
       const project = await prisma.project.upsert({
         where: { slug },
         update: {},
@@ -884,7 +894,6 @@ async function main() {
     name: t.name,
     role: t.role,
     message: t.message,
-    featured: i < 6,
     publishedAt: new Date(),
   }))
   await prisma.testimonial.createMany({ data: testimonials })

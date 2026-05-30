@@ -1,6 +1,3 @@
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
-
 -- CreateExtension
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 
@@ -43,6 +40,7 @@ CREATE TABLE "SiteSettings" (
     "socialYoutube" TEXT,
     "socialWhatsapp" TEXT,
     "socialLinkedin" TEXT,
+    "googleMapsEmbedUrl" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -180,7 +178,6 @@ CREATE TABLE "Testimonial" (
     "role" TEXT,
     "message" TEXT NOT NULL,
     "photoUrl" TEXT,
-    "featured" BOOLEAN NOT NULL DEFAULT false,
     "publishedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

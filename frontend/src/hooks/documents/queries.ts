@@ -1,3 +1,5 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { DocumentsApi } from '@/lib/api/documents'
@@ -28,10 +30,6 @@ export const documentQueryOptions = (id: string | undefined) =>
 
 export function useDocuments(filters?: DocumentFilters) {
   return useQuery(documentsQueryOptions(filters))
-}
-
-export function useDocument(id: string) {
-  return useQuery(documentQueryOptions(id))
 }
 
 export function useDocumentMutations() {

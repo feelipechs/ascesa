@@ -26,14 +26,16 @@ export function SharedPagination({ currentPage, totalPages, pageNumbers, onPageC
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious
-            href="#"
-            onClick={(e) => {
-              e.preventDefault()
-              if (currentPage > 1) onPageChange(currentPage - 1)
-            }}
-            className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-          />
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault()
+                if (currentPage > 1) onPageChange(currentPage - 1)
+              }}
+              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+            >
+              Anterior
+            </PaginationPrevious>
         </PaginationItem>
 
         {pages.map((page, i) =>
@@ -59,13 +61,15 @@ export function SharedPagination({ currentPage, totalPages, pageNumbers, onPageC
 
         <PaginationItem>
           <PaginationNext
-            href="#"
-            onClick={(e) => {
-              e.preventDefault()
-              if (currentPage < totalPages) onPageChange(currentPage + 1)
-            }}
-            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-          />
+              href="#"
+              onClick={(e) => {
+                e.preventDefault()
+                if (currentPage < totalPages) onPageChange(currentPage + 1)
+              }}
+              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+            >
+              Próximo
+            </PaginationNext>
         </PaginationItem>
       </PaginationContent>
     </Pagination>

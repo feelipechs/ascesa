@@ -9,6 +9,10 @@ import { unstable_cache } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import Script from 'next/script'
 
+// unstable_cache é usado aqui pois é a única API do Next.js que suporta
+// cache com revalidação para dados de configuração. Quando a API de cache
+// for estabilizada, substituir por React.cache() + fetch com revalidate.
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -47,11 +51,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <Script
-          src="//unpkg.com/react-scan/dist/auto.global.js"
-          crossOrigin="anonymous"
-          strategy="beforeInteractive"
-        />
+        {process.env.NODE_ENV === 'development' && (
+          <Script src="//unpkg.com/react-scan/dist/auto.global.js" strategy="beforeInteractive" />
+        )}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

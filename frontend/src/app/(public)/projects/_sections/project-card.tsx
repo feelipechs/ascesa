@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge'
 import { AdminActions } from '@/components/admin/admin-actions'
 import { format } from 'date-fns'
 import type { ProjectListItem } from '@/types'
-import { VolunteerModal } from '@/components/volunteer-modal'
 
 export function ProjectCard({
   project,
@@ -96,13 +95,6 @@ export function ProjectCard({
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
             </Link>
           </Button>
-          {project.eventDate && (
-            <VolunteerModal projectId={project.id} projectTitle={project.title}>
-              <Button variant="default" className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                Inscrever-se
-              </Button>
-            </VolunteerModal>
-          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { toSlug } from '@/lib/utils'
 import type { CreatePostInput, UpdatePostInput } from '@/schemas/post.schema'
 
 export const PostService = {
@@ -6,9 +7,19 @@ export const PostService = {
     return prisma.post.findMany({ orderBy: { publishedAt: 'desc' } })
   },
 
-  async findPublished() {
+  async findPublished(search?: string) {
     return prisma.post.findMany({
-      where: { publishedAt: { not: null } },
+      where: {
+        publishedAt: { not: null },
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: 'insensitive' as const } },
+                { excerpt: { contains: search, mode: 'insensitive' as const } },
+              ],
+            }
+          : {}),
+      },
       orderBy: { publishedAt: 'desc' },
     })
   },
@@ -22,7 +33,7 @@ export const PostService = {
   },
 
   async create(data: CreatePostInput) {
-    const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, '-')
+    const slug = data.slug || toSlug(data.title)
     return prisma.post.create({ data: { ...data, slug } })
   },
 

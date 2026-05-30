@@ -1,3 +1,5 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { DocumentCategoriesApi } from '@/lib/api/document-categories'

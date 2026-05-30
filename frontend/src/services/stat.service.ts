@@ -21,4 +21,15 @@ export const StatService = {
   async delete(id: string) {
     return prisma.stat.delete({ where: { id } })
   },
+
+  async reorder(items: { id: string; order: number }[]) {
+    return prisma.$transaction(
+      items.map((item) =>
+        prisma.stat.update({
+          where: { id: item.id },
+          data: { order: item.order },
+        })
+      )
+    )
+  },
 }

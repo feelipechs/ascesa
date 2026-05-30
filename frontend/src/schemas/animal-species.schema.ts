@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const createAnimalSpeciesSchema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
-  order: z.number().int().optional(),
+  order: z.coerce.number().int().optional(),
 })
 
 export const updateAnimalSpeciesSchema = createAnimalSpeciesSchema.partial()

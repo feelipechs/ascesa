@@ -9,7 +9,9 @@ import Link from 'next/link'
 
 export function Hero() {
   const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <section className="relative w-full min-h-dvh bg-background text-foreground flex flex-col overflow-hidden">
@@ -23,9 +25,7 @@ export function Hero() {
               transition: 'opacity 0.8s ease, transform 0.8s ease',
             }}
           >
-            <h1
-              className="text-5xl md:text-6xl xl:text-7xl font-black leading-[1.08] tracking-tight"
-            >
+            <h1 className="text-5xl md:text-6xl xl:text-7xl font-black leading-[1.08] tracking-tight">
               <span className="block text-foreground">Todo animal</span>
               <span className="block">
                 <AuroraText>merece</AuroraText>{' '}
@@ -44,15 +44,24 @@ export function Hero() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg" className="group px-8 py-6 text-base font-semibold rounded-xl shadow-[0_4px_24px_color-mix(in_oklch,var(--primary)_30%,transparent)] hover:shadow-[0_6px_32px_color-mix(in_oklch,var(--primary)_45%,transparent)] transition-all duration-300 hover:-translate-y-0.5">
-                <Link href="/projetos">
+              <Button
+                asChild
+                size="lg"
+                className="group px-8 py-6 text-base font-semibold rounded-xl shadow-[0_4px_24px_color-mix(in_oklch,var(--primary)_30%,transparent)] hover:shadow-[0_6px_32px_color-mix(in_oklch,var(--primary)_45%,transparent)] transition-all duration-300 hover:-translate-y-0.5"
+              >
+                <Link href="/animais">
                   <span className="flex items-center gap-2">
                     Quero adotar
                     <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="px-8 py-6 text-base font-medium rounded-xl transition-all duration-300 hover:-translate-y-0.5">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="px-8 py-6 text-base font-medium rounded-xl transition-all duration-300 hover:-translate-y-0.5"
+              >
                 <Link href="/sobre">Conhecer a ONG</Link>
               </Button>
             </div>
@@ -82,7 +91,7 @@ export function Hero() {
 
       <div className="relative z-10 flex justify-center py-5 flex-shrink-0">
         <div className="flex flex-col items-center gap-1.5 text-border animate-bounce">
-          <span className="text-[10px] uppercase tracking-widest">scroll</span>
+          <span className="text-[10px] uppercase tracking-widest">descubra mais</span>
           <ChevronDown className="w-4 h-4" />
         </div>
       </div>

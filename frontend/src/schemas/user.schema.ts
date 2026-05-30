@@ -9,7 +9,7 @@ export const createUserSchema = z.object({
 })
 
 export const updateUserSchema = z.object({
-  email: z.string().email().optional(),
+  email: z.string().email('Email inválido').optional(),
   name: z.string().optional(),
   role: z.nativeEnum(Role).optional(),
 })

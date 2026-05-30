@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { useAnimalSizeMutations, useAnimalSizeById } from '@/hooks/animal-sizes/queries'
+import { useAnimalSizeMutations, animalSizeByIdQueryOptions } from '@/hooks/animal-sizes/queries'
+import { useQuery } from '@tanstack/react-query'
 
 type AnimalSizeFormProps = {
   sizeId?: string
@@ -18,7 +19,7 @@ type AnimalSizeFormProps = {
 
 export function AnimalSizeForm({ sizeId, onSuccess, onCancel }: AnimalSizeFormProps) {
   const isEditing = !!sizeId
-  const { data: size } = useAnimalSizeById(sizeId ?? '')
+  const { data: size } = useQuery(animalSizeByIdQueryOptions(sizeId))
   const { create, update, isPending } = useAnimalSizeMutations()
 
   const form = useForm({

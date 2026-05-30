@@ -40,11 +40,11 @@ export default function AdminAnimalsPage() {
   return (
     <div className="px-4 lg:px-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Animais</h1>
-        <Button onClick={() => setSheetOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Animal
-        </Button>
+      <h1 className="text-2xl font-semibold">Animais</h1>
+      <Button onClick={() => setSheetOpen(true)}>
+        <Plus className="h-4 w-4 mr-2" />
+        Novo Animal
+      </Button>
       </div>
 
       {isLoading ? (

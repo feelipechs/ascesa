@@ -3,14 +3,9 @@ import { getTestimonials, createTestimonial } from '@/services/testimonial.servi
 import { apiHandler, protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createTestimonialSchema } from '@/schemas/testimonial.schema'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   return apiHandler(async () => {
-    const { searchParams } = new URL(req.url)
-    const featured = searchParams.get('featured')
-
-    const testimonials = await getTestimonials({
-      featuredOnly: featured !== null ? featured === 'true' : undefined,
-    })
+    const testimonials = await getTestimonials()
     return NextResponse.json({ data: testimonials })
   })
 }

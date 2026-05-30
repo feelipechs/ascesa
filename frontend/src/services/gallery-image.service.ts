@@ -4,15 +4,19 @@ import { GalleryContext } from '@/generated/prisma/enums'
 export async function getGalleryImages(params?: {
   context?: string
   projectId?: string
+  animalId?: string
 }) {
-  const { context, projectId = '' } = params ?? {}
+  const { context, projectId, animalId } = params ?? {}
 
   const where: Record<string, unknown> = {}
-  if (context && (context === GalleryContext.HOME || context === GalleryContext.PROJECT)) {
+  if (context && (context === GalleryContext.HOME || context === GalleryContext.PROJECT || context === GalleryContext.ANIMAL)) {
     where.context = context
   }
   if (projectId) {
     where.projectId = projectId
+  }
+  if (animalId) {
+    where.animalId = animalId
   }
 
   return prisma.galleryImage.findMany({

@@ -7,7 +7,8 @@ import { createAnimalSpeciesSchema, updateAnimalSpeciesSchema } from '@/schemas/
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAnimalSpeciesMutations, useAnimalSpeciesById } from '@/hooks/animal-species/queries'
+import { useAnimalSpeciesMutations, animalSpeciesByIdQueryOptions } from '@/hooks/animal-species/queries'
+import { useQuery } from '@tanstack/react-query'
 
 type AnimalSpeciesFormProps = {
   speciesId?: string
@@ -17,7 +18,7 @@ type AnimalSpeciesFormProps = {
 
 export function AnimalSpeciesForm({ speciesId, onSuccess, onCancel }: AnimalSpeciesFormProps) {
   const isEditing = !!speciesId
-  const { data: species } = useAnimalSpeciesById(speciesId ?? '')
+  const { data: species } = useQuery(animalSpeciesByIdQueryOptions(speciesId))
   const { create, update, isPending } = useAnimalSpeciesMutations()
 
   const form = useForm({

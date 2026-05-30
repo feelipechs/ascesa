@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { GalleryContext } from '@/generated/prisma/enums'
 
 export const createGalleryImageSchema = z.object({
-  url: z.string().min(1, 'URL obrigatória'),
+  url: z.string().url('URL inválida'),
   caption: z.string().optional(),
   order: z.coerce.number().int().default(0),
   context: z.nativeEnum(GalleryContext).default('PROJECT'),
@@ -17,7 +17,7 @@ export const createGalleryImageSchema = z.object({
 )
 
 export const updateGalleryImageSchema = z.object({
-  url: z.string().min(1).optional(),
+  url: z.string().url('URL inválida').optional(),
   caption: z.string().optional(),
   order: z.coerce.number().int().optional(),
   context: z.nativeEnum(GalleryContext).optional(),

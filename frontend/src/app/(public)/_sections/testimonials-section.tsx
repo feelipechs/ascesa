@@ -12,6 +12,7 @@ import { SafeImage } from '@/components/safe-image'
 import { EmptyState } from '@/components/empty-state'
 import { PageSection } from '@/components/page-section'
 import { SectionHeading } from '@/components/section-heading'
+import { Marquee } from '@/components/ui/marquee'
 
 type TestimonialsSectionProps = {
   isAuthenticated?: boolean
@@ -21,7 +22,7 @@ export function TestimonialsSection({ isAuthenticated }: TestimonialsSectionProp
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingTestimonial, setEditingTestimonial] = useState<null | { id: string }>(null)
   const [deletingTestimonial, setDeletingTestimonial] = useState<null | { id: string }>(null)
-  const { data: testimonials = [], isLoading } = useTestimonials({ featured: true })
+  const { data: testimonials = [], isLoading } = useTestimonials()
   const { remove, isPending } = useTestimonialMutations()
 
   function handleNew() {
@@ -57,15 +58,19 @@ export function TestimonialsSection({ isAuthenticated }: TestimonialsSectionProp
     <>
       <PageSection borderTop width="wide" padding="compact">
         <SectionHeading
-          title={<>Quem ama, <span className="text-primary underline underline-offset-4">diz</span></>}
+          title={
+            <>
+              Quem ama, <span className="text-primary underline underline-offset-4">diz</span>
+            </>
+          }
           description="Histórias reais de quem viveu a transformação."
           action={isAuthenticated ? { label: 'Adicionar', onClick: handleNew } : undefined}
         />
 
         {testimonials.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Marquee pauseOnHover repeat={2} className="[--duration:60s] [--gap:1.5rem]">
             {testimonials.map((testimonial) => (
-              <Card key={testimonial.id} className="group relative bg-muted/50">
+              <Card key={testimonial.id} className="group relative bg-muted/50 w-80">
                 {isAuthenticated && (
                   <div className="absolute top-2 right-2 z-10">
                     <AdminActions
@@ -75,7 +80,7 @@ export function TestimonialsSection({ isAuthenticated }: TestimonialsSectionProp
                   </div>
                 )}
                 <CardContent className="pt-6 flex flex-col gap-4">
-                  {testimonial.photoUrl && (
+                  {testimonial.photoUrl ? (
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full overflow-hidden shrink-0">
                         <SafeImage
@@ -91,8 +96,7 @@ export function TestimonialsSection({ isAuthenticated }: TestimonialsSectionProp
                         )}
                       </div>
                     </div>
-                  )}
-                  {!testimonial.photoUrl && (
+                  ) : (
                     <div>
                       <p className="font-medium text-foreground">{testimonial.name}</p>
                       {testimonial.role && (
@@ -106,7 +110,7 @@ export function TestimonialsSection({ isAuthenticated }: TestimonialsSectionProp
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </Marquee>
         ) : (
           <EmptyState title="Nenhum depoimento cadastrado." />
         )}

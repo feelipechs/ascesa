@@ -7,7 +7,8 @@ import { createAnimalAgeRangeSchema, updateAnimalAgeRangeSchema } from '@/schema
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAnimalAgeRangeMutations, useAnimalAgeRangeById } from '@/hooks/animal-age-ranges/queries'
+import { useAnimalAgeRangeMutations, animalAgeRangeByIdQueryOptions } from '@/hooks/animal-age-ranges/queries'
+import { useQuery } from '@tanstack/react-query'
 
 type AnimalAgeRangeFormProps = {
   rangeId?: string
@@ -17,7 +18,7 @@ type AnimalAgeRangeFormProps = {
 
 export function AnimalAgeRangeForm({ rangeId, onSuccess, onCancel }: AnimalAgeRangeFormProps) {
   const isEditing = !!rangeId
-  const { data: range } = useAnimalAgeRangeById(rangeId ?? '')
+  const { data: range } = useQuery(animalAgeRangeByIdQueryOptions(rangeId))
   const { create, update, isPending } = useAnimalAgeRangeMutations()
 
   const form = useForm({

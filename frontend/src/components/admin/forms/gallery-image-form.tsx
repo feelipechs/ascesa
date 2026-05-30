@@ -14,12 +14,13 @@ import type { GalleryContext } from '@/generated/prisma/enums'
 type GalleryImageFormProps = {
   context: GalleryContext
   projectId?: string | null
+  animalId?: string | null
   imageId?: string
   onSuccess: () => void
   onCancel: () => void
 }
 
-export function GalleryImageForm({ context, projectId, imageId, onSuccess, onCancel }: GalleryImageFormProps) {
+export function GalleryImageForm({ context, projectId, animalId, imageId, onSuccess, onCancel }: GalleryImageFormProps) {
   const isEditing = !!imageId
   const { data: imageData } = useQuery(galleryImageQueryOptions(imageId))
   const { create, update, isPending } = useGalleryImageMutations()
@@ -32,6 +33,7 @@ export function GalleryImageForm({ context, projectId, imageId, onSuccess, onCan
       order: 0,
       context: context,
       projectId: projectId ?? null,
+      animalId: animalId ?? null,
     },
   })
 
@@ -43,8 +45,9 @@ export function GalleryImageForm({ context, projectId, imageId, onSuccess, onCan
       order: imageData.order ?? 0,
       context: imageData.context ?? context,
       projectId: imageData.projectId ?? projectId ?? null,
+      animalId: imageData.animalId ?? animalId ?? null,
     })
-  }, [imageData, form, context, projectId])
+  }, [imageData, form, context, projectId, animalId])
 
   function handleSubmit(data: Record<string, unknown>) {
     const payload = { ...data, caption: (data.caption as string) || undefined }
@@ -77,6 +80,7 @@ export function GalleryImageForm({ context, projectId, imageId, onSuccess, onCan
 
       <input type="hidden" {...form.register('context')} />
       <input type="hidden" {...form.register('projectId')} />
+      <input type="hidden" {...form.register('animalId')} />
 
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>

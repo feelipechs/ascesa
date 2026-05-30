@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { useTestimonialMutations, testimonialQueryOptions } from '@/hooks/testimonials/queries'
 import { useQuery } from '@tanstack/react-query'
 
@@ -30,7 +29,6 @@ export function TestimonialForm({ testimonialId, onSuccess, onCancel }: Testimon
       role: '',
       message: '',
       photoUrl: '',
-      featured: false,
     },
   })
 
@@ -41,7 +39,6 @@ export function TestimonialForm({ testimonialId, onSuccess, onCancel }: Testimon
       role: testimonialData.role ?? '',
       message: testimonialData.message ?? '',
       photoUrl: testimonialData.photoUrl ?? '',
-      featured: testimonialData.featured ?? false,
     })
   }, [testimonialData, form])
 
@@ -86,14 +83,7 @@ export function TestimonialForm({ testimonialId, onSuccess, onCancel }: Testimon
         <Input id="photoUrl" {...form.register('photoUrl')} placeholder="https://..." />
       </div>
 
-      <div className="flex items-center gap-2">
-        <Switch
-          id="featured"
-          checked={form.watch('featured')}
-          onCheckedChange={(val) => form.setValue('featured', val)}
-        />
-        <Label htmlFor="featured">Depoimento em destaque</Label>
-      </div>
+
 
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>

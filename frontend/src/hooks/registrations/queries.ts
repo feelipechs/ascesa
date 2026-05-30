@@ -1,8 +1,11 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { RegistrationsApi } from '@/lib/api/registrations'
 import { getErrorMessage } from '@/lib/utils'
 import type { RegistrationFilters } from '@/types'
+import { volunteerKeys } from '@/hooks/volunteers/queries'
 
 export const registrationKeys = {
   all: ['registrations'] as const,
@@ -29,10 +32,6 @@ export function useRegistrations(filters?: RegistrationFilters) {
   return useQuery(registrationsQueryOptions(filters))
 }
 
-export function useRegistration(id: string) {
-  return useQuery(registrationQueryOptions(id))
-}
-
 export function useRegistrationMutations() {
   const queryClient = useQueryClient()
 
@@ -47,8 +46,18 @@ export function useRegistrationMutations() {
 
   const updateStatus = useMutation({
     mutationFn: ({ id, data }: { id: string; data: unknown }) => RegistrationsApi.updateStatus(id, data),
-    onSuccess: () => onSuccess('Inscrição atualizada!'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: registrationKeys.all })
+      queryClient.invalidateQueries({ queryKey: volunteerKeys.all })
+      toast.success('Inscrição atualizada!')
+    },
     onError: (e) => onError(e, 'atualizar inscrição'),
+  })
+
+  const publicRegister = useMutation({
+    mutationFn: RegistrationsApi.publicRegister,
+    onSuccess: () => onSuccess('Inscrição realizada com sucesso!'),
+    onError: (e) => onError(e, 'realizar inscrição'),
   })
 
   const remove = useMutation({
@@ -59,7 +68,8 @@ export function useRegistrationMutations() {
 
   return {
     updateStatus,
+    publicRegister,
     remove,
-    isPending: updateStatus.isPending || remove.isPending,
+    isPending: updateStatus.isPending || publicRegister.isPending || remove.isPending,
   }
 }

@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
 export const createVolunteerSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
+  name: z.string().min(1, 'Nome obrigatório'),
+  email: z.string().email('Email inválido'),
   phone: z.string().optional(),
-  birthDate: z.string().datetime().nullable().optional(),
+  birthDate: z.string().datetime({ offset: true }).nullable().optional(),
 })
 
 export const updateVolunteerSchema = createVolunteerSchema.partial()

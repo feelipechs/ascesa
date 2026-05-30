@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next'
 
+// Rotas em português para SEO/UX, pastas em inglês para organização do código.
+// Ex: /projetos → src/app/(public)/projects/, /animais → src/app/(public)/animals/
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
@@ -45,6 +47,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'api.dicebear.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
       },
     ],
   },

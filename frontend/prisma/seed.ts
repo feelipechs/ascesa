@@ -10,8 +10,13 @@ async function main() {
   console.log('🌱 Seed essencial — Ascesa')
 
   // Admin user
-  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@ascesa.org'
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin123'
+  const adminEmail = process.env.ADMIN_EMAIL
+  const adminPassword = process.env.ADMIN_PASSWORD
+
+  if (!adminEmail || !adminPassword) {
+    console.error('❌ ADMIN_EMAIL e ADMIN_PASSWORD devem ser definidos no .env')
+    process.exit(1)
+  }
 
   const existing = await prisma.user.findUnique({ where: { email: adminEmail } })
   if (!existing) {

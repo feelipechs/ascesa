@@ -68,7 +68,7 @@ export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps
     const payload = {
       ...data,
       publishedAt: nowISO(),
-      eventDate: data.eventDate ? new Date(data.eventDate as string).toISOString() : null,
+      eventDate: data.eventDate ? data.eventDate : null,
       vacancies: data.vacancies ? Number(data.vacancies) : null,
     }
     if (isEditing && projectId) {

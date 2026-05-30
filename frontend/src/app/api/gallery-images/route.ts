@@ -8,8 +8,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const context = searchParams.get('context') ?? undefined
     const projectId = searchParams.get('projectId') ?? undefined
+    const animalId = searchParams.get('animalId') ?? undefined
 
-    const images = await getGalleryImages({ context, projectId })
+    const images = await getGalleryImages({ context, projectId, animalId })
     return NextResponse.json({ data: images })
   })
 }

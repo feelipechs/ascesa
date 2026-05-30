@@ -1,3 +1,5 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { GalleryImagesApi } from '@/lib/api/gallery-images'
@@ -27,10 +29,6 @@ export const galleryImageQueryOptions = (id: string | undefined) =>
 
 export function useGalleryImages(filters?: GalleryImageFilters) {
   return useQuery(galleryImagesQueryOptions(filters))
-}
-
-export function useGalleryImage(id: string) {
-  return useQuery(galleryImageQueryOptions(id))
 }
 
 export function useGalleryImageMutations() {

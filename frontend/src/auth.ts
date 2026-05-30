@@ -62,9 +62,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({ where: { email } })
 
-        // Mantém proteção contra timing attack que você já tinha
         const dummyHash =
-          '$argon2id$v=19$m=65536,t=3,p=4$dummydummydummy$dummydummydummydummydummydummydummydummy'
+          '$argon2id$v=19$m=65536,t=2,p=1$cHVycG9zZWx5LWZha2UtaGFzaC1zYWx0ZWQ$ZHVtbXlkdW1teWR1bW15ZHVtbXlkdW1teWR1bW15ZHVtbXk'
 
         const isValid = user
           ? await argon2.verify(user.password, password)

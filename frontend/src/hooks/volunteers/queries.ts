@@ -1,3 +1,5 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { VolunteersApi } from '@/lib/api/volunteers'
@@ -27,10 +29,6 @@ export const volunteerQueryOptions = (id: string | undefined) =>
 
 export function useVolunteers(filters?: VolunteerFilters) {
   return useQuery(volunteersQueryOptions(filters))
-}
-
-export function useVolunteer(id: string) {
-  return useQuery(volunteerQueryOptions(id))
 }
 
 export function useVolunteerMutations() {

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/r
 import { toast } from 'sonner'
 import { AnimalAgeRangesApi } from '@/lib/api/animal-age-ranges'
 import { getErrorMessage } from '@/lib/utils'
+import { animalReferencesKeys } from '@/hooks/animal-references/queries'
 
 export const animalAgeRangeKeys = {
   all: ['animal-age-ranges'] as const,
@@ -30,15 +31,12 @@ export function useAnimalAgeRanges() {
   return useQuery(animalAgeRangesQueryOptions())
 }
 
-export function useAnimalAgeRangeById(id: string) {
-  return useQuery(animalAgeRangeByIdQueryOptions(id))
-}
-
 export function useAnimalAgeRangeMutations() {
   const queryClient = useQueryClient()
 
   const onSuccess = (message: string) => {
     queryClient.invalidateQueries({ queryKey: animalAgeRangeKeys.all })
+    queryClient.invalidateQueries({ queryKey: animalReferencesKeys.all })
     toast.success(message)
   }
 

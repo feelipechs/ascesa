@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const createAnimalSizeSchema = z.object({
   label: z.string().min(1, 'Label obrigatório'),
   description: z.string().optional().nullable(),
-  order: z.number().int().optional(),
+  order: z.coerce.number().int().optional(),
 })
 
 export const updateAnimalSizeSchema = createAnimalSizeSchema.partial()

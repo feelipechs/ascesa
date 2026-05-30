@@ -10,24 +10,25 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useAnimalMutations } from '@/hooks/animals/queries'
-import { useAnimalSpecies } from '@/hooks/animal-species/queries'
-import { useAnimalSizes } from '@/hooks/animal-sizes/queries'
-import { useAnimalAgeRanges } from '@/hooks/animal-age-ranges/queries'
+import { useAnimalMutations, animalQueryOptions } from '@/hooks/animals/queries'
+import { useQuery } from '@tanstack/react-query'
+import { useAnimalReferences } from '@/hooks/animal-references/queries'
 import { AnimalGender, AnimalStatus } from '@/generated/prisma/enums'
 
 type AnimalFormProps = {
-  animal?: Record<string, unknown>
+  animalSlug?: string
   onSuccess: () => void
   onCancel: () => void
 }
 
-export function AnimalForm({ animal, onSuccess, onCancel }: AnimalFormProps) {
-  const isEditing = !!animal
+export function AnimalForm({ animalSlug, onSuccess, onCancel }: AnimalFormProps) {
+  const isEditing = !!animalSlug
   const { create, update, isPending } = useAnimalMutations()
-  const { data: species } = useAnimalSpecies()
-  const { data: sizes } = useAnimalSizes()
-  const { data: ageRanges } = useAnimalAgeRanges()
+  const { data: animalData } = useQuery(animalQueryOptions(animalSlug))
+  const { data: references } = useAnimalReferences()
+  const species = references?.species ?? []
+  const sizes = references?.sizes ?? []
+  const ageRanges = references?.ageRanges ?? []
 
   const form = useForm({
     resolver: zodResolver(createAnimalSchema),
@@ -38,11 +39,9 @@ export function AnimalForm({ animal, onSuccess, onCancel }: AnimalFormProps) {
       breed: '',
       gender: AnimalGender.MALE as 'MALE' | 'FEMALE',
       sizeId: '',
-      birthDate: '',
       ageRangeId: '',
       description: '',
       content: '',
-      coverUrl: '',
       status: AnimalStatus.AVAILABLE as 'AVAILABLE' | 'ADOPTED' | 'FOSTERED',
       featured: false,
       publishedAt: '',
@@ -50,24 +49,24 @@ export function AnimalForm({ animal, onSuccess, onCancel }: AnimalFormProps) {
   })
 
   useEffect(() => {
-    if (!animal) return
+    if (!animalData) return
     form.reset({
-      name: (animal.name as string) ?? '',
-      slug: (animal.slug as string) ?? '',
-      speciesId: (animal.speciesId as string) ?? '',
-      breed: (animal.breed as string) ?? '',
-      gender: ((animal.gender as string) || 'MALE') as 'MALE' | 'FEMALE',
-      sizeId: (animal.sizeId as string) ?? '',
-      birthDate: animal.birthDate ? new Date(animal.birthDate as string).toISOString().split('T')[0] : '',
-      ageRangeId: (animal.ageRangeId as string) ?? '',
-      description: (animal.description as string) ?? '',
-      content: (animal.content as string) ?? '',
-      coverUrl: (animal.coverUrl as string) ?? '',
-      status: ((animal.status as string) || 'AVAILABLE') as 'AVAILABLE' | 'ADOPTED' | 'FOSTERED',
-      featured: (animal.featured as boolean) ?? false,
-      publishedAt: animal.publishedAt ? new Date(animal.publishedAt as string).toISOString() : '',
+      name: animalData.name ?? '',
+      slug: animalData.slug ?? '',
+      speciesId: animalData.speciesId ?? '',
+      breed: animalData.breed ?? '',
+      gender: (animalData.gender || 'MALE') as 'MALE' | 'FEMALE',
+      sizeId: animalData.sizeId ?? '',
+      birthDate: animalData.birthDate ? new Date(animalData.birthDate).toISOString().split('T')[0] : undefined,
+      ageRangeId: animalData.ageRangeId ?? '',
+      description: animalData.description ?? '',
+      content: animalData.content ?? '',
+      coverUrl: animalData.coverUrl ?? undefined,
+      status: (animalData.status || 'AVAILABLE') as 'AVAILABLE' | 'ADOPTED' | 'FOSTERED',
+      featured: animalData.featured ?? false,
+      publishedAt: animalData.publishedAt ? new Date(animalData.publishedAt).toISOString() : '',
     })
-  }, [animal, form])
+  }, [animalData, form])
 
   function autoSlug(name: string) {
     if (!isEditing) form.setValue('slug', name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))
@@ -84,8 +83,8 @@ export function AnimalForm({ animal, onSuccess, onCancel }: AnimalFormProps) {
         payload[key] = value
       }
     })
-    if (isEditing && animal) {
-      update.mutate({ slug: animal.slug as string, data: payload }, { onSuccess })
+    if (isEditing && animalSlug) {
+      update.mutate({ slug: animalSlug, data: payload }, { onSuccess })
     } else {
       create.mutate(payload, { onSuccess })
     }

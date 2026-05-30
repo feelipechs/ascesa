@@ -1,16 +1,25 @@
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import { AnimalService } from '@/services/animal.service'
 import { SafeImage } from '@/components/safe-image'
 import { ImagePlaceholder } from '@/components/image-placeholder'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, MapPin, Heart, ArrowLeft } from 'lucide-react'
+import { Calendar, Heart, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { routes } from '@/lib/routes'
+import { prisma } from '@/lib/prisma'
+import { auth } from '@/auth'
+import { AnimalGallerySection } from './_sections/animal-gallery-section'
 
-const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
+const getCachedAnimal = cache((slug: string) => AnimalService.findBySlug(slug))
+
+const statusConfig: Record<
+  string,
+  { label: string; variant: 'default' | 'secondary' | 'outline' }
+> = {
   AVAILABLE: { label: 'Disponível para adoção', variant: 'default' },
   ADOPTED: { label: 'Adotado', variant: 'secondary' },
   FOSTERED: { label: 'Lar Temporário', variant: 'outline' },
@@ -20,7 +29,7 @@ const genderLabel: Record<string, string> = { MALE: 'Macho', FEMALE: 'Fêmea' }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const animal = await AnimalService.findBySlug(slug)
+  const animal = await getCachedAnimal(slug)
   if (!animal) return { title: 'Animal não encontrado — Ascesa' }
   return {
     title: `${animal.name} — Ascesa`,
@@ -30,11 +39,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function AnimalPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const animal = await AnimalService.findBySlug(slug)
+  const session = await auth()
+  const isAuthenticated = !!session
+  const [animal, settings] = await Promise.all([
+    getCachedAnimal(slug),
+    prisma.siteSettings.findUnique({ where: { id: 'main' } }),
+  ])
 
   if (!animal) notFound()
 
-  const status = statusConfig[animal.status] ?? { label: animal.status, variant: 'outline' as const }
+  const status = statusConfig[animal.status] ?? {
+    label: animal.status,
+    variant: 'outline' as const,
+  }
 
   return (
     <main className="min-h-screen bg-background pt-17.5">
@@ -81,36 +98,46 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
                 <Calendar className="h-4 w-4 text-primary" />
                 <div>
                   <p className="text-xs text-muted-foreground">Nascimento</p>
-                  <p className="font-medium">{animal.birthDate ? format(animal.birthDate, 'dd/MM/yyyy') : 'Não informado'}</p>
+                  <p className="font-medium">
+                    {animal.birthDate ? format(animal.birthDate, 'dd/MM/yyyy') : 'Não informado'}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-sm bg-muted/50 rounded-lg p-3">
                 <Heart className="h-4 w-4 text-primary" />
                 <div>
                   <p className="text-xs text-muted-foreground">No abrigo desde</p>
-                  <p className="font-medium">{format(animal.shelterSince, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
+                  <p className="font-medium">
+                    {format(animal.shelterSince, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {animal.description && (
-              <p className="text-muted-foreground">{animal.description}</p>
-            )}
+            {animal.description && <p className="text-muted-foreground">{animal.description}</p>}
 
             {animal.content && (
               <div className="prose max-w-none">
                 {animal.content.split('\n\n').map((paragraph, i) => (
-                  <p key={i} className="text-muted-foreground leading-relaxed">{paragraph}</p>
+                  <p key={i} className="text-muted-foreground leading-relaxed">
+                    {paragraph}
+                  </p>
                 ))}
               </div>
             )}
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Button asChild size="lg" className="flex-1">
-                <a href={`https://wa.me/5511999999999?text=Olá! Tenho interesse em adotar o ${animal.name}`} target="_blank" rel="noopener noreferrer">
-                  Quero Adotar
-                </a>
-              </Button>
+              {settings?.socialWhatsapp && (
+                <Button asChild size="lg" className="flex-1">
+                  <a
+                    href={`https://wa.me/${settings.socialWhatsapp}?text=Olá! Tenho interesse em adotar o ${animal.name}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Quero Adotar
+                  </a>
+                </Button>
+              )}
               <Button asChild variant="outline" size="lg" className="flex-1">
                 <Link href={routes.donate}>Apadrinhar</Link>
               </Button>
@@ -118,23 +145,9 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
           </div>
         </div>
 
-        {animal.gallery && animal.gallery.length > 0 && (
-          <section className="mt-12">
-            <h2 className="text-2xl font-semibold mb-6">Galeria</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {animal.gallery.map((img) => (
-                <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden">
-                  <SafeImage
-                    src={img.url}
-                    alt={img.caption ?? `Foto de ${animal.name}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <div className="mt-12">
+          <AnimalGallerySection animalId={animal.id} isAuthenticated={isAuthenticated} />
+        </div>
       </div>
     </main>
   )

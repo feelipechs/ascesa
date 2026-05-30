@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { AnimalForm } from '@/components/admin/forms/animal-form'
-import { useAnimal, useAnimalMutations } from '@/hooks/animals/queries'
+import { animalQueryOptions, useAnimalMutations } from '@/hooks/animals/queries'
+import { useQuery } from '@tanstack/react-query'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { AnimalStatus } from '@/generated/prisma/enums'
 import { SafeImage } from '@/components/safe-image'
@@ -24,7 +25,7 @@ const statusLabels: Record<string, string> = {
 export default function AdminAnimalDetailPage({ params }: Props) {
   const { slug } = use(params)
   const router = useRouter()
-  const { data: animal, isLoading } = useAnimal(slug)
+  const { data: animal, isLoading } = useQuery(animalQueryOptions(slug))
   const { update, remove, isPending } = useAnimalMutations()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -125,7 +126,7 @@ export default function AdminAnimalDetailPage({ params }: Props) {
       )}
 
       <AdminSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Editar animal">
-        <AnimalForm animal={animal} onSuccess={() => setSheetOpen(false)} onCancel={() => setSheetOpen(false)} />
+        <AnimalForm animalSlug={slug} onSuccess={() => setSheetOpen(false)} onCancel={() => setSheetOpen(false)} />
       </AdminSheet>
 
       <DeleteDialog

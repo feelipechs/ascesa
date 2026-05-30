@@ -1,11 +1,8 @@
-import type { Testimonial, TestimonialFilters } from '@/types'
+import type { Testimonial } from '@/types'
 
 export const TestimonialsApi = {
-  async findAll(filters?: TestimonialFilters): Promise<Testimonial[]> {
-    const params = new URLSearchParams()
-    if (filters?.featured) params.set('featured', 'true')
-    const query = params.toString()
-    const res = await fetch(`/api/testimonials${query ? `?${query}` : ''}`)
+  async findAll(): Promise<Testimonial[]> {
+    const res = await fetch('/api/testimonials')
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
       throw new Error(body.error || 'Falha ao carregar depoimentos')

@@ -24,10 +24,6 @@ export const VolunteerService = {
     })
   },
 
-  async findByEmail(email: string) {
-    return prisma.volunteer.findUnique({ where: { email } })
-  },
-
   async upsertByEmail(data: CreateVolunteerInput) {
     return prisma.volunteer.upsert({
       where: { email: data.email },

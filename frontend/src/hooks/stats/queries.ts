@@ -1,3 +1,5 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { StatsApi } from '@/lib/api/stats'
@@ -26,10 +28,6 @@ export const statQueryOptions = (id: string | undefined) =>
 
 export function useStats() {
   return useQuery(statsQueryOptions())
-}
-
-export function useStat(id: string) {
-  return useQuery(statQueryOptions(id))
 }
 
 export function useStatMutations() {

@@ -20,10 +20,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const body = await req.json()
     const parsed = updateFiscalNoteSchema.safeParse(body)
     if (!parsed.success) return validationError(parsed.error)
-    const data: Record<string, unknown> = { ...parsed.data }
-    if (data.emissionDate !== undefined) data.emissionDate = data.emissionDate ? new Date(data.emissionDate as string) : null
-    if (data.amount !== undefined) data.amount = Number(data.amount)
-    const note = await FiscalNoteService.update(id, data)
+    const note = await FiscalNoteService.update(id, parsed.data)
     return NextResponse.json(note)
   })
 }

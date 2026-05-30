@@ -1,13 +1,13 @@
 import { z } from 'zod'
 
 export const createPostSchema = z.object({
-  title: z.string().min(1),
-  slug: z.string().min(1),
+  title: z.string().min(1, 'Título obrigatório'),
+  slug: z.string().min(1, 'Slug obrigatório'),
   excerpt: z.string().optional(),
   content: z.string().optional(),
-  coverUrl: z.string().optional(),
+  coverUrl: z.string().url('URL inválida').optional().or(z.literal('')),
   author: z.string().optional(),
-  publishedAt: z.string().datetime().nullable().optional(),
+  publishedAt: z.string().datetime({ offset: true }).nullable().optional(),
 })
 
 export const updatePostSchema = createPostSchema.partial()

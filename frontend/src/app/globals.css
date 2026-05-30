@@ -47,22 +47,22 @@
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-divider: var(--divider);
-  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee: marquee var(--duration, 40s) infinite linear;
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
   @keyframes marquee {
-  from {
-    transform: translateX(0);
+    from {
+      transform: translateX(0);
     }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
     }
   }
   @keyframes marquee-vertical {
-  from {
-    transform: translateY(0);
+    from {
+      transform: translateY(0);
     }
-  to {
-    transform: translateY(calc(-100% - var(--gap)));
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
     }
   }
 }
@@ -180,22 +180,4 @@ body::before {
 }
 .dark body::before {
   background-image: none;
-}
-/* Marquee Animation */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-.marquee-container {
-  width: max-content;
-}
-.marquee-container:hover .animate-marquee {
-  animation-play-state: paused;
 }

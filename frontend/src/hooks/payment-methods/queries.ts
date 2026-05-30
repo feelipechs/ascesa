@@ -13,23 +13,21 @@ export const paymentMethodKeys = {
   detail: (id: string) => [...paymentMethodKeys.details(), id] as const,
 }
 
-export function usePaymentMethods(activeOnly?: boolean) {
-  return useQuery(
-    queryOptions({
-      queryKey: paymentMethodKeys.list(activeOnly),
-      queryFn: () => PaymentMethodsApi.findAll(activeOnly),
-    })
-  )
-}
+export const paymentMethodsQueryOptions = (activeOnly?: boolean) =>
+  queryOptions({
+    queryKey: paymentMethodKeys.list(activeOnly),
+    queryFn: () => PaymentMethodsApi.findAll(activeOnly),
+  })
 
-export function usePaymentMethod(id: string) {
-  return useQuery(
-    queryOptions({
-      queryKey: paymentMethodKeys.detail(id),
-      queryFn: () => PaymentMethodsApi.findById(id),
-      enabled: !!id,
-    })
-  )
+export const paymentMethodQueryOptions = (id: string | undefined) =>
+  queryOptions({
+    queryKey: paymentMethodKeys.detail(id ?? ''),
+    queryFn: () => PaymentMethodsApi.findById(id!),
+    enabled: !!id,
+  })
+
+export function usePaymentMethods(activeOnly?: boolean) {
+  return useQuery(paymentMethodsQueryOptions(activeOnly))
 }
 
 export function usePaymentMethodMutations() {

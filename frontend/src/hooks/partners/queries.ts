@@ -1,3 +1,5 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { PartnersApi } from '@/lib/api/partners'
@@ -26,10 +28,6 @@ export const partnerQueryOptions = (id: string | undefined) =>
 
 export function usePartners() {
   return useQuery(partnersQueryOptions())
-}
-
-export function usePartner(id: string) {
-  return useQuery(partnerQueryOptions(id))
 }
 
 export function usePartnerMutations() {

@@ -1,3 +1,5 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { PostsApi } from '@/lib/api/posts'
@@ -27,10 +29,6 @@ export const postQueryOptions = (id: string | undefined) =>
 
 export function usePosts(filters?: PostFilters) {
   return useQuery(postsQueryOptions(filters))
-}
-
-export function usePost(id: string) {
-  return useQuery(postQueryOptions(id))
 }
 
 export function usePostMutations() {

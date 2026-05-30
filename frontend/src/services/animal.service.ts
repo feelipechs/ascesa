@@ -1,3 +1,8 @@
+// Diferente de posts e projetos, animais com publishedAt: null aparecem
+// na listagem pública. Isso é intencional — todos os animais cadastrados
+// devem estar visíveis para adoção. Se mudar esse comportamento no futuro,
+// adicione: where: { publishedAt: { not: null } } no findAll.
+
 import { prisma } from '@/lib/prisma'
 import type { Prisma } from '@/generated/prisma/client'
 import type { AnimalGender, AnimalStatus } from '@/generated/prisma/enums'

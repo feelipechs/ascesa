@@ -1,6 +1,6 @@
 "use client"
 
-import { IconLogout, IconUserCircle } from "@tabler/icons-react"
+import { LogOut, UserCircle } from "lucide-react"
 import Link from "next/link"
 
 import {
@@ -78,13 +78,13 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/admin/profile">
-                <IconUserCircle />
+                <UserCircle />
                 Perfil
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut({ redirectTo: '/' })}>
-              <IconLogout />
+              <LogOut />
               Sair
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
 import { hashPassword } from '@/lib/utils-server'
-import { z } from 'zod'
+import { updateMeSchema } from '@/schemas/me.schema'
 
 const userSelect = {
   id: true,
@@ -12,12 +12,6 @@ const userSelect = {
   createdAt: true,
   updatedAt: true,
 } as const
-
-const updateMeSchema = z.object({
-  name: z.string().optional(),
-  email: z.string().email().optional(),
-  password: z.string().min(6).optional(),
-})
 
 export async function GET() {
   return protectedApiHandler(async (session) => {

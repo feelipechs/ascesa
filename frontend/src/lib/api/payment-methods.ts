@@ -36,4 +36,13 @@ export const PaymentMethodsApi = {
     const res = await fetch(`/api/payment-methods/${id}`, { method: 'DELETE' })
     if (!res.ok) throw new Error('Falha ao remover método de pagamento')
   },
+
+  async reorder(items: { id: string; displayOrder: number }[]): Promise<void> {
+    const res = await fetch('/api/payment-methods/reorder', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items }),
+    })
+    if (!res.ok) throw new Error('Falha ao reordenar métodos de pagamento')
+  },
 }

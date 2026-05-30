@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/r
 import { toast } from 'sonner'
 import { AnimalSizesApi } from '@/lib/api/animal-sizes'
 import { getErrorMessage } from '@/lib/utils'
+import { animalReferencesKeys } from '@/hooks/animal-references/queries'
 
 export const animalSizeKeys = {
   all: ['animal-sizes'] as const,
@@ -30,15 +31,12 @@ export function useAnimalSizes() {
   return useQuery(animalSizesQueryOptions())
 }
 
-export function useAnimalSizeById(id: string) {
-  return useQuery(animalSizeByIdQueryOptions(id))
-}
-
 export function useAnimalSizeMutations() {
   const queryClient = useQueryClient()
 
   const onSuccess = (message: string) => {
     queryClient.invalidateQueries({ queryKey: animalSizeKeys.all })
+    queryClient.invalidateQueries({ queryKey: animalReferencesKeys.all })
     toast.success(message)
   }
 

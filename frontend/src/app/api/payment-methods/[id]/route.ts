@@ -20,7 +20,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const body = await req.json()
     const parsed = updatePaymentMethodSchema.safeParse(body)
     if (!parsed.success) return validationError(parsed.error)
-    const method = await PaymentMethodService.update(id, parsed.data as never)
+    const method = await PaymentMethodService.update(id, parsed.data)
     return NextResponse.json(method)
   })
 }

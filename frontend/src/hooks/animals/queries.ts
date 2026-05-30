@@ -13,23 +13,21 @@ export const animalKeys = {
   detail: (slug: string) => [...animalKeys.details(), slug] as const,
 }
 
-export function useAnimals(filters?: Record<string, string | undefined>) {
-  return useQuery(
-    queryOptions({
-      queryKey: animalKeys.list(filters),
-      queryFn: () => AnimalsApi.findAll(filters),
-    })
-  )
-}
+export const animalsQueryOptions = (filters?: Record<string, string | undefined>) =>
+  queryOptions({
+    queryKey: animalKeys.list(filters),
+    queryFn: () => AnimalsApi.findAll(filters),
+  })
 
-export function useAnimal(slug: string) {
-  return useQuery(
-    queryOptions({
-      queryKey: animalKeys.detail(slug),
-      queryFn: () => AnimalsApi.findBySlug(slug),
-      enabled: !!slug,
-    })
-  )
+export const animalQueryOptions = (slug: string | undefined) =>
+  queryOptions({
+    queryKey: animalKeys.detail(slug ?? ''),
+    queryFn: () => AnimalsApi.findBySlug(slug!),
+    enabled: !!slug,
+  })
+
+export function useAnimals(filters?: Record<string, string | undefined>) {
+  return useQuery(animalsQueryOptions(filters))
 }
 
 export function useAnimalMutations() {

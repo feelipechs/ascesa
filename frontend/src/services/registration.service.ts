@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import type { UpdateRegistrationInput, PublicRegistrationInput } from '@/schemas/registration.schema'
+import { VolunteerService } from './volunteer.service'
 
 export const RegistrationService = {
   async findAll(filters?: { projectId?: string; volunteerId?: string; status?: string }) {
@@ -29,10 +30,10 @@ export const RegistrationService = {
   },
 
   async publicRegister(data: PublicRegistrationInput) {
-    const volunteer = await prisma.volunteer.upsert({
-      where: { email: data.email },
-      update: { name: data.name, phone: data.phone ?? undefined },
-      create: { name: data.name, email: data.email, phone: data.phone },
+    const volunteer = await VolunteerService.upsertByEmail({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
     })
 
     return prisma.registration.create({

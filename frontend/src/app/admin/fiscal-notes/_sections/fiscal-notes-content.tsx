@@ -1,39 +1,39 @@
 'use client'
 
 import { useState } from 'react'
+import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { AdminSheet } from '@/components/admin/admin-sheet'
-import { PaymentMethodForm } from '@/components/admin/forms/payment-method-form'
-import { usePaymentMethods, usePaymentMethodMutations } from '@/hooks/payment-methods/queries'
+import { FiscalNoteForm } from '@/components/admin/forms/fiscal-note-form'
+import { useFiscalNotes, useFiscalNoteMutations } from '@/hooks/fiscal-notes/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
+import type { FiscalNote } from '@/types'
 
 const typeLabels: Record<string, string> = {
-  PIX: 'PIX',
-  BANK_TRANSFER: 'Transferência',
-  CASH: 'Dinheiro',
+  DETAILED: 'Nota Detalhada',
+  ACCESS_KEY: 'Chave de Acesso',
 }
 
-export default function AdminPaymentMethodsPage() {
-  const { data, isLoading } = usePaymentMethods()
-  const { remove, isPending } = usePaymentMethodMutations()
+export function FiscalNotesContent() {
+  const { data: response } = useFiscalNotes()
+  const notes = (response as { data: FiscalNote[] } | undefined)?.data ?? []
+  const { remove, isPending } = useFiscalNoteMutations()
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [editing, setEditing] = useState<Record<string, unknown> | null>(null)
+  const [editing, setEditing] = useState<FiscalNote | null>(null)
   const [deletingId, setDeletingId] = useState<null | string>(null)
-
-  const methods = (data as { data?: Record<string, unknown>[] } | undefined)?.data ?? []
 
   function handleNew() {
     setEditing(null)
     setSheetOpen(true)
   }
 
-  function handleEdit(method: Record<string, unknown>) {
-    setEditing(method)
+  function handleEdit(note: FiscalNote) {
+    setEditing(note)
     setSheetOpen(true)
   }
 
@@ -45,46 +45,46 @@ export default function AdminPaymentMethodsPage() {
   return (
     <div className="px-4 lg:px-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Métodos de Pagamento</h1>
+        <h1 className="text-2xl font-semibold">Notas Fiscais</h1>
         <Button onClick={handleNew}>
           <Plus className="h-4 w-4 mr-2" />
-          Novo Método
+          Nova Nota Fiscal
         </Button>
       </div>
 
-      {isLoading ? (
+      {!response ? (
         <div className="space-y-4">
           <Skeleton className="h-10 w-full rounded-lg" />
           <Skeleton className="h-10 w-full rounded-lg" />
         </div>
-      ) : methods.length === 0 ? (
-        <EmptyState title="Nenhum método de pagamento cadastrado." />
+      ) : notes.length === 0 ? (
+        <EmptyState title="Nenhuma nota fiscal cadastrada." />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ordem</TableHead>
-              <TableHead>Label</TableHead>
               <TableHead>Tipo</TableHead>
-              <TableHead>Ativo</TableHead>
+              <TableHead>CNPJ / Chave</TableHead>
+              <TableHead>Data</TableHead>
+              <TableHead>Valor</TableHead>
               <TableHead className="w-20">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {methods.map((m: Record<string, unknown>) => (
-              <TableRow key={m.id as string}>
-                <TableCell className="text-muted-foreground text-sm">{m.displayOrder as number}</TableCell>
-                <TableCell className="font-medium">{m.label as string}</TableCell>
+            {notes.map((n: FiscalNote) => (
+              <TableRow key={n.id}>
                 <TableCell>
-                  <Badge variant="outline">{typeLabels[m.type as string] ?? (m.type as string)}</Badge>
+                  <Badge variant="outline">{typeLabels[n.type] ?? n.type}</Badge>
                 </TableCell>
-                <TableCell>{m.isActive ? 'Sim' : 'Não'}</TableCell>
+                <TableCell className="font-mono text-xs">{n.type === 'ACCESS_KEY' ? n.accessKey ?? '—' : n.cnpj ?? '—'}</TableCell>
+                <TableCell>{n.emissionDate ? format(new Date(n.emissionDate), "dd/MM/yyyy") : '—'}</TableCell>
+                <TableCell>{n.amount ? `R$ ${Number(n.amount).toFixed(2)}` : '—'}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => handleEdit(m)} className="h-8 w-8">
+                    <Button size="icon" variant="ghost" onClick={() => handleEdit(n)} className="h-8 w-8">
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDeletingId(m.id as string)} className="h-8 w-8 text-destructive">
+                    <Button size="icon" variant="ghost" onClick={() => setDeletingId(n.id)} className="h-8 w-8 text-destructive">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -95,8 +95,8 @@ export default function AdminPaymentMethodsPage() {
         </Table>
       )}
 
-      <AdminSheet open={sheetOpen} onClose={handleSheetClose} title={editing ? 'Editar método' : 'Novo método'}>
-        <PaymentMethodForm method={editing ?? undefined} onSuccess={handleSheetClose} onCancel={handleSheetClose} />
+      <AdminSheet open={sheetOpen} onClose={handleSheetClose} title={editing ? 'Editar nota fiscal' : 'Nova nota fiscal'}>
+        <FiscalNoteForm note={editing ?? undefined} onSuccess={handleSheetClose} onCancel={handleSheetClose} />
       </AdminSheet>
 
       <DeleteDialog
@@ -106,7 +106,7 @@ export default function AdminPaymentMethodsPage() {
           if (deletingId) remove.mutate(deletingId, { onSuccess: () => setDeletingId(null) })
         }}
         isPending={isPending}
-        entity="método de pagamento"
+        entity="nota fiscal"
       />
     </div>
   )

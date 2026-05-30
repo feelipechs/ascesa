@@ -1,10 +1,7 @@
 import { prisma } from '@/lib/prisma'
 
-export async function getTestimonials(params?: { featuredOnly?: boolean }) {
-  const where = params?.featuredOnly ? { featured: true } : {}
-
+export async function getTestimonials() {
   return prisma.testimonial.findMany({
-    where,
     orderBy: { createdAt: 'desc' },
   })
 }
@@ -20,7 +17,6 @@ export async function createTestimonial(data: {
   role?: string
   message: string
   photoUrl?: string | null
-  featured?: boolean
   publishedAt?: Date | null
 }) {
   return prisma.testimonial.create({ data })
@@ -33,7 +29,6 @@ export async function updateTestimonial(
     role?: string
     message?: string
     photoUrl?: string | null
-    featured?: boolean
     publishedAt?: Date | null
   }
 ) {

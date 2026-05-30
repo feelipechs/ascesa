@@ -9,19 +9,9 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { useSession } from 'next-auth/react'
-import { UserMenu } from '@/components/user-menu'
+import { UserMenu } from './user-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-
-const navigationData = [
-  { title: 'Início', href: '/' },
-  { title: 'Sobre', href: '/sobre' },
-  { title: 'Projetos', href: '/projetos' },
-  { title: 'Animais', href: '/animais' },
-  { title: 'Áreas de Atuação', href: '/areas' },
-  { title: 'Transparência', href: '/transparencia' },
-  { title: 'Doações', href: '/doacoes' },
-  { title: 'Contato', href: '/contato' },
-]
+import { mainNavigation as navigationData } from '@/lib/navigation'
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)

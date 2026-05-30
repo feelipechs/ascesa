@@ -1,8 +1,12 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions, keepPreviousData } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ProjectsApi } from '@/lib/api/projects'
 import { getErrorMessage } from '@/lib/utils'
-import type { ProjectFilters, ProjectWithArea } from '@/types'
+import type { ProjectFilters } from '@/types'
+import { registrationKeys } from '@/hooks/registrations/queries'
+import { galleryImageKeys } from '@/hooks/gallery-images/queries'
 
 export const projectKeys = {
   all: ['projects'] as const,
@@ -10,6 +14,7 @@ export const projectKeys = {
   list: (filters?: ProjectFilters) => [...projectKeys.lists(), filters] as const,
   details: () => [...projectKeys.all, 'detail'] as const,
   detail: (id: string) => [...projectKeys.details(), id] as const,
+  withVolunteers: () => [...projectKeys.all, 'with-volunteers'] as const,
 }
 
 export const projectsQueryOptions = (filters?: ProjectFilters) =>
@@ -26,12 +31,14 @@ export const projectQueryOptions = (id: string | undefined) =>
     enabled: !!id,
   })
 
+export const projectsWithVolunteersQueryOptions = () =>
+  queryOptions({
+    queryKey: projectKeys.withVolunteers(),
+    queryFn: () => ProjectsApi.findWithVolunteers(),
+  })
+
 export function useProjects(filters?: ProjectFilters) {
   return useQuery(projectsQueryOptions(filters))
-}
-
-export function useProject(id: string) {
-  return useQuery(projectQueryOptions(id))
 }
 
 export function useProjectMutations() {
@@ -62,7 +69,12 @@ export function useProjectMutations() {
 
   const remove = useMutation({
     mutationFn: ProjectsApi.delete,
-    onSuccess: () => onSuccess('Projeto removido.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      queryClient.invalidateQueries({ queryKey: registrationKeys.all })
+      queryClient.invalidateQueries({ queryKey: galleryImageKeys.all })
+      toast.success('Projeto removido.')
+    },
     onError: (e) => onError(e, 'remover projeto'),
   })
 

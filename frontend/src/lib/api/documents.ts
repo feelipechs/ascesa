@@ -1,4 +1,4 @@
-import type { DocumentWithCategory, DocumentFilters, PaginatedResponse, OngDocument } from '@/types'
+import type { DocumentWithCategory, DocumentFilters, PaginatedResponse } from '@/types'
 
 export const DocumentsApi = {
   async findAll(filters?: DocumentFilters): Promise<PaginatedResponse<DocumentWithCategory>> {

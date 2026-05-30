@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = createPaymentMethodSchema.safeParse(body)
     if (!parsed.success) return validationError(parsed.error)
-    const method = await PaymentMethodService.create(parsed.data as never)
+    const method = await PaymentMethodService.create(parsed.data)
     return NextResponse.json(method, { status: 201 })
   })
 }

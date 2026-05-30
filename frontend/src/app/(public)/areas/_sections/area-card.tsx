@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AdminActions } from '@/components/admin/admin-actions'
-import { AreaIcon } from '@/components/area-icon'
+import { AreaIcon } from './area-icon'
 import type { AreaListItem } from '@/types'
 
 type AreaCardProps = {

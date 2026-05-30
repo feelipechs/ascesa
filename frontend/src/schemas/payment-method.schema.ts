@@ -5,7 +5,7 @@ export const createPaymentMethodSchema = z.object({
   label: z.string().min(1, 'Label obrigatório'),
   instructions: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
-  displayOrder: z.number().int().default(0),
+  displayOrder: z.coerce.number().int().default(0),
   key: z.string().optional(),
   receiverName: z.string().optional(),
   receiverCity: z.string().optional(),
@@ -17,5 +17,10 @@ export const createPaymentMethodSchema = z.object({
 
 export const updatePaymentMethodSchema = createPaymentMethodSchema.partial()
 
+export const reorderPaymentMethodSchema = z.object({
+  items: z.array(z.object({ id: z.string(), displayOrder: z.coerce.number().int() })),
+})
+
 export type CreatePaymentMethodInput = z.infer<typeof createPaymentMethodSchema>
 export type UpdatePaymentMethodInput = z.infer<typeof updatePaymentMethodSchema>
+export type ReorderPaymentMethodInput = z.infer<typeof reorderPaymentMethodSchema>

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { cache } from 'react'
 import { SafeImage } from '@/components/safe-image'
 import { ImagePlaceholder } from '@/components/image-placeholder'
 import { format } from 'date-fns'
@@ -13,9 +14,11 @@ import { routes } from '@/lib/routes'
 import { GallerySection } from '../_sections'
 import { VolunteerButton } from './_sections/volunteer-button'
 
+const getCachedProject = cache((slug: string) => getProjectBySlug(slug))
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const project = await getProjectBySlug(slug)
+  const project = await getCachedProject(slug)
 
   if (!project) return { title: 'Projeto não encontrado - Ascesa' }
 
@@ -29,7 +32,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params
   const session = await auth()
   const isAuthenticated = !!session
-  const project = await getProjectBySlug(slug)
+  const project = await getCachedProject(slug)
 
   if (!project) notFound()
 
@@ -165,20 +168,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   )}
                 </div>
               </CardContent>
-            </Card>
+        </Card>
 
-            <Card className="bg-accent/10 border-accent/20">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg text-foreground mb-2">
-                  Quer nos ajudar?
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Inscreva-se como voluntário e faça a diferença na vida dos animais.
-                </p>
-                <VolunteerButton projectId={project.id} projectTitle={project.title} />
-              </CardContent>
-            </Card>
-          </aside>
+        <VolunteerButton projectId={project.id} projectTitle={project.title} />
+      </aside>
         </div>
       </div>
     </main>

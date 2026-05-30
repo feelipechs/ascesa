@@ -51,7 +51,6 @@ export function DashboardCharts({
         <CardContent>
           <ChartContainer
             config={{
-              count: { label: 'Inscrições' },
               PENDING: { label: 'Pendente', color: 'var(--chart-2)' },
               APPROVED: { label: 'Aprovado', color: 'var(--chart-3)' },
               REJECTED: { label: 'Rejeitado', color: 'var(--chart-4)' },
@@ -62,13 +61,15 @@ export function DashboardCharts({
               <PieChart>
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Pie
-                  data={registrationsByStatus}
+                  data={registrationsByStatus.map((item) => ({
+                    ...item,
+                    fill: `var(--color-${item.status})`,
+                  }))}
                   dataKey="count"
                   nameKey="status"
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
-                  fill="var(--color-count)"
                 />
               </PieChart>
             </ResponsiveContainer>

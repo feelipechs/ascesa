@@ -1,21 +1,22 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { TestimonialsApi } from '@/lib/api/testimonials'
 import { getErrorMessage } from '@/lib/utils'
-import type { TestimonialFilters } from '@/types'
 
 export const testimonialKeys = {
   all: ['testimonials'] as const,
   lists: () => [...testimonialKeys.all, 'list'] as const,
-  list: (filters?: TestimonialFilters) => [...testimonialKeys.lists(), filters] as const,
+  list: () => [...testimonialKeys.lists()] as const,
   details: () => [...testimonialKeys.all, 'detail'] as const,
   detail: (id: string) => [...testimonialKeys.details(), id] as const,
 }
 
-export const testimonialsQueryOptions = (filters?: TestimonialFilters) =>
+export const testimonialsQueryOptions = () =>
   queryOptions({
-    queryKey: testimonialKeys.list(filters),
-    queryFn: () => TestimonialsApi.findAll(filters),
+    queryKey: testimonialKeys.list(),
+    queryFn: () => TestimonialsApi.findAll(),
   })
 
 export const testimonialQueryOptions = (id: string | undefined) =>
@@ -25,12 +26,8 @@ export const testimonialQueryOptions = (id: string | undefined) =>
     enabled: !!id,
   })
 
-export function useTestimonials(filters?: TestimonialFilters) {
-  return useQuery(testimonialsQueryOptions(filters))
-}
-
-export function useTestimonial(id: string) {
-  return useQuery(testimonialQueryOptions(id))
+export function useTestimonials() {
+  return useQuery(testimonialsQueryOptions())
 }
 
 export function useTestimonialMutations() {

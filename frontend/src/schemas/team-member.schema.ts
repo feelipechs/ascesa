@@ -4,19 +4,19 @@ export const createTeamMemberSchema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
   role: z.string().min(1, 'Cargo obrigatório'),
   bio: z.string().optional(),
-  photoUrl: z.string().optional(),
+  photoUrl: z.string().url('URL inválida').optional().or(z.literal('')),
   order: z.coerce.number().int().default(0),
-  publishedAt: z.string().datetime().optional(),
+  publishedAt: z.string().datetime({ offset: true }).optional(),
   areaIds: z.array(z.string()).default([]),
 })
 
 export const updateTeamMemberSchema = z.object({
-  name: z.string().min(1).optional(),
-  role: z.string().min(1).optional(),
+  name: z.string().min(1, 'Nome obrigatório').optional(),
+  role: z.string().min(1, 'Cargo obrigatório').optional(),
   bio: z.string().optional(),
-  photoUrl: z.string().optional(),
+  photoUrl: z.string().url('URL inválida').optional().or(z.literal('')),
   order: z.coerce.number().int().optional(),
-  publishedAt: z.string().datetime().nullable().optional(),
+  publishedAt: z.string().datetime({ offset: true }).nullable().optional(),
   areaIds: z.array(z.string()).optional(),
 })
 

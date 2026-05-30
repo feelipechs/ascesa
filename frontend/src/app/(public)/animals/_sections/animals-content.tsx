@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageSection } from '@/components/page-section'
 import { AnimalCard } from './animal-card'
@@ -9,11 +9,11 @@ import { AnimalsFilters } from './animals-filters'
 import { SharedPagination } from '@/components/pagination'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { AnimalForm } from '@/components/admin/forms/animal-form'
-import { AdminActions } from '@/components/admin/admin-actions'
 import { useAnimals, useAnimalMutations } from '@/hooks/animals/queries'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/empty-state'
 import { DeleteDialog } from '@/components/delete-dialog'
+import { AnimalSettingsSheet } from './animal-settings-sheet'
 import { getPageNumbers } from '@/lib/utils'
 
 type AnimalsContentProps = {
@@ -29,6 +29,7 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingAnimal, setEditingAnimal] = useState<null | { slug: string }>(null)
   const [deletingAnimal, setDeletingAnimal] = useState<null | { slug: string }>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const filters: Record<string, string | undefined> = {
     ...(searchQuery && { search: searchQuery }),
@@ -67,12 +68,16 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
       <PageSection padding="compact">
         <div className="space-y-6">
           {isAuthenticated && (
-            <div className="flex justify-end">
-              <Button size="sm" onClick={handleNew}>
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar
-              </Button>
-            </div>
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configurações
+                  </Button>
+                  <Button size="sm" onClick={handleNew}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar
+                  </Button>
+                </div>
           )}
 
           <AnimalsFilters
@@ -102,27 +107,25 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
             <>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {animals.map((animal) => (
-                  <div key={animal.id} className="group relative">
-                    {isAuthenticated && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <AdminActions
-                          onEdit={() => handleEdit({ slug: animal.slug })}
-                          onDelete={() => setDeletingAnimal({ slug: animal.slug })}
-                        />
-                      </div>
-                    )}
-                    <AnimalCard animal={animal} />
-                  </div>
+                  <AnimalCard
+                    key={animal.id}
+                    animal={animal}
+                    isAuthenticated={isAuthenticated}
+                    onEdit={() => handleEdit({ slug: animal.slug })}
+                    onDelete={() => setDeletingAnimal({ slug: animal.slug })}
+                  />
                 ))}
               </div>
 
               {totalPages > 1 && (
+                <div className="mt-8">
                 <SharedPagination
                   currentPage={currentPage}
                   totalPages={totalPages}
                   pageNumbers={getPageNumbers(currentPage, totalPages)}
-                  onPageChange={setCurrentPage}
+                    onPageChange={setCurrentPage}
                 />
+                </div>
               )}
             </>
           )}
@@ -136,23 +139,28 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
           title={editingAnimal ? 'Editar animal' : 'Novo animal'}
         >
           <AnimalForm
-            animal={editingAnimal as Record<string, unknown> | undefined}
+            animalSlug={editingAnimal?.slug}
             onSuccess={handleSheetClose}
             onCancel={handleSheetClose}
           />
         </AdminSheet>
       )}
 
-      <DeleteDialog
-        open={!!deletingAnimal}
-        onClose={() => setDeletingAnimal(null)}
-        onConfirm={() => {
-          if (deletingAnimal)
-            remove.mutate(deletingAnimal.slug, { onSuccess: () => setDeletingAnimal(null) })
-        }}
-        isPending={isPending}
-        entity="animal"
-      />
+        <DeleteDialog
+          open={!!deletingAnimal}
+          onClose={() => setDeletingAnimal(null)}
+          onConfirm={() => {
+            if (deletingAnimal)
+              remove.mutate(deletingAnimal.slug, { onSuccess: () => setDeletingAnimal(null) })
+          }}
+          isPending={isPending}
+          entity="animal"
+        />
+
+        <AnimalSettingsSheet
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+        />
     </>
   )
 }

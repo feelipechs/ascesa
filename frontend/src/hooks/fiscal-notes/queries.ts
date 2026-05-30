@@ -13,23 +13,21 @@ export const fiscalNoteKeys = {
   detail: (id: string) => [...fiscalNoteKeys.details(), id] as const,
 }
 
-export function useFiscalNotes() {
-  return useQuery(
-    queryOptions({
-      queryKey: fiscalNoteKeys.list(),
-      queryFn: () => FiscalNotesApi.findAll(),
-    })
-  )
-}
+export const fiscalNotesQueryOptions = () =>
+  queryOptions({
+    queryKey: fiscalNoteKeys.list(),
+    queryFn: () => FiscalNotesApi.findAll(),
+  })
 
-export function useFiscalNote(id: string) {
-  return useQuery(
-    queryOptions({
-      queryKey: fiscalNoteKeys.detail(id),
-      queryFn: () => FiscalNotesApi.findById(id),
-      enabled: !!id,
-    })
-  )
+export const fiscalNoteQueryOptions = (id: string | undefined) =>
+  queryOptions({
+    queryKey: fiscalNoteKeys.detail(id ?? ''),
+    queryFn: () => FiscalNotesApi.findById(id!),
+    enabled: !!id,
+  })
+
+export function useFiscalNotes() {
+  return useQuery(fiscalNotesQueryOptions())
 }
 
 export function useFiscalNoteMutations() {

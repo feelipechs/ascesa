@@ -1,8 +1,11 @@
+'use client'
+
 import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { AreasApi } from '@/lib/api/areas'
 import { getErrorMessage } from '@/lib/utils'
-import type { Area } from '@/types'
+import { teamMemberKeys } from '@/hooks/team-members/queries'
+import { projectKeys } from '@/hooks/projects/queries'
 
 export const areaKeys = {
   all: ['areas'] as const,
@@ -29,15 +32,13 @@ export function useAreas() {
   return useQuery(areasQueryOptions())
 }
 
-export function useArea(id: string) {
-  return useQuery(areaQueryOptions(id))
-}
-
 export function useAreaMutations() {
   const queryClient = useQueryClient()
 
   const onSuccess = (message: string) => {
     queryClient.invalidateQueries({ queryKey: areaKeys.all })
+    queryClient.invalidateQueries({ queryKey: teamMemberKeys.all })
+    queryClient.invalidateQueries({ queryKey: projectKeys.all })
     toast.success(message)
   }
 

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const updateSiteSettingsSchema = z.object({
-  email: z.string().email().optional(),
+  email: z.string().email('Email inválido').optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
   cnpj: z.string().optional(),
@@ -16,6 +16,7 @@ export const updateSiteSettingsSchema = z.object({
   socialYoutube: z.string().optional(),
   socialWhatsapp: z.string().optional(),
   socialLinkedin: z.string().optional(),
+  googleMapsEmbedUrl: z.string().optional(),
 })
 
 export type UpdateSiteSettingsInput = z.infer<typeof updateSiteSettingsSchema>

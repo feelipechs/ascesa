@@ -1,9 +1,7 @@
 'use client'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -16,18 +14,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { RegistrationsApi } from '@/lib/api/registrations'
-import { getErrorMessage } from '@/lib/utils'
+import { publicRegistrationSchema, type PublicRegistrationInput } from '@/schemas/registration.schema'
+import { useRegistrationMutations } from '@/hooks/registrations/queries'
 import { Loader2 } from 'lucide-react'
-
-const formSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  email: z.string().email('Email inválido'),
-  phone: z.string().optional(),
-  message: z.string().optional(),
-})
-
-type FormData = z.infer<typeof formSchema>
 
 type VolunteerModalProps = {
   projectId: string
@@ -38,8 +27,8 @@ type VolunteerModalProps = {
 }
 
 export function VolunteerModal({ projectId, projectTitle, children, open, onOpenChange }: VolunteerModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [internalOpen, setInternalOpen] = useState(false)
+  const { publicRegister, isPending } = useRegistrationMutations()
 
   const isControlled = open !== undefined
   const isOpen = isControlled ? open : internalOpen
@@ -50,27 +39,18 @@ export function VolunteerModal({ projectId, projectTitle, children, open, onOpen
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  } = useForm<PublicRegistrationInput>({
+    resolver: zodResolver(publicRegistrationSchema),
+    defaultValues: { projectId },
   })
 
-  async function onSubmit(data: FormData) {
-    setIsSubmitting(true)
-    try {
-      await RegistrationsApi.publicRegister({
-        ...data,
-        projectId,
-      })
-      toast.success('Inscrição realizada com sucesso!')
-      reset()
-      setIsOpen(false)
-    } catch (error) {
-      toast.error('Falha ao realizar inscrição', {
-        description: getErrorMessage(error),
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
+  function onSubmit(data: PublicRegistrationInput) {
+    publicRegister.mutate(data, {
+      onSuccess: () => {
+        reset()
+        setIsOpen(false)
+      },
+    })
   }
 
   return (
@@ -85,6 +65,8 @@ export function VolunteerModal({ projectId, projectTitle, children, open, onOpen
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input type="hidden" {...register('projectId')} />
+
           <div className="space-y-2">
             <Label htmlFor="name">Nome *</Label>
             <Input id="name" placeholder="Seu nome completo" {...register('name')} />
@@ -107,9 +89,9 @@ export function VolunteerModal({ projectId, projectTitle, children, open, onOpen
             <Textarea id="message" placeholder="Conte um pouco sobre você..." {...register('message')} />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSubmitting ? 'Enviando...' : 'Quero ser voluntário'}
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPending ? 'Enviando...' : 'Quero ser voluntário'}
           </Button>
         </form>
       </DialogContent>

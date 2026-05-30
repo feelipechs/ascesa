@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import type { CreatePaymentMethodInput, UpdatePaymentMethodInput } from '@/schemas/payment-method.schema'
 
 type PaymentMethodWithConfig = {
   id: string
@@ -30,38 +31,37 @@ export const PaymentMethodService = {
     }) as Promise<PaymentMethodWithConfig | null>
   },
 
-  async create(data: Record<string, unknown>) {
+  async create(data: CreatePaymentMethodInput) {
     const { key, receiverName, receiverCity, bankName, agency, account, accountType, ...rest } = data
-    const type = data.type as string
 
     return prisma.$transaction(async (tx) => {
       const method = await tx.paymentMethod.create({
         data: {
-          type: type as 'PIX' | 'BANK_TRANSFER' | 'CASH',
-          label: rest.label as string,
-          instructions: (rest.instructions as string) ?? null,
-          isActive: (rest.isActive as boolean) ?? true,
-          displayOrder: (rest.displayOrder as number) ?? 0,
+          type: rest.type,
+          label: rest.label,
+          instructions: rest.instructions ?? null,
+          isActive: rest.isActive ?? true,
+          displayOrder: rest.displayOrder ?? 0,
         },
       })
 
-      if (type === 'PIX') {
+      if (rest.type === 'PIX') {
         await tx.pixConfig.create({
           data: {
             id: method.id,
-            key: key as string,
-            receiverName: receiverName as string,
-            receiverCity: receiverCity as string,
+            key: key!,
+            receiverName: receiverName!,
+            receiverCity: receiverCity!,
           },
         })
-      } else if (type === 'BANK_TRANSFER') {
+      } else if (rest.type === 'BANK_TRANSFER') {
         await tx.bankConfig.create({
           data: {
             id: method.id,
-            bankName: bankName as string,
-            agency: agency as string,
-            account: account as string,
-            accountType: (accountType as string) ?? null,
+            bankName: bankName!,
+            agency: agency!,
+            account: account!,
+            accountType: accountType ?? null,
           },
         })
       }
@@ -70,9 +70,8 @@ export const PaymentMethodService = {
     })
   },
 
-  async update(id: string, data: Record<string, unknown>) {
+  async update(id: string, data: UpdatePaymentMethodInput) {
     const { key, receiverName, receiverCity, bankName, agency, account, accountType, ...rest } = data
-    const type = data.type as string | undefined
 
     return prisma.$transaction(async (tx) => {
       const updateData: Record<string, unknown> = {}
@@ -80,28 +79,28 @@ export const PaymentMethodService = {
       if (rest.instructions !== undefined) updateData.instructions = rest.instructions
       if (rest.isActive !== undefined) updateData.isActive = rest.isActive
       if (rest.displayOrder !== undefined) updateData.displayOrder = rest.displayOrder
-      if (type !== undefined) updateData.type = type
+      if (rest.type !== undefined) updateData.type = rest.type
 
       const method = await tx.paymentMethod.update({
         where: { id },
-        data: updateData as never,
+        data: updateData,
       })
 
-      if (type === 'PIX') {
+      if (rest.type === 'PIX') {
         await tx.pixConfig.upsert({
           where: { id },
-          update: { key: key as string, receiverName: receiverName as string, receiverCity: receiverCity as string },
-          create: { id, key: key as string, receiverName: receiverName as string, receiverCity: receiverCity as string },
+          update: { key: key!, receiverName: receiverName!, receiverCity: receiverCity! },
+          create: { id, key: key!, receiverName: receiverName!, receiverCity: receiverCity! },
         })
         await tx.bankConfig.deleteMany({ where: { id } })
-      } else if (type === 'BANK_TRANSFER') {
+      } else if (rest.type === 'BANK_TRANSFER') {
         await tx.bankConfig.upsert({
           where: { id },
-          update: { bankName: bankName as string, agency: agency as string, account: account as string, accountType: (accountType as string) ?? null },
-          create: { id, bankName: bankName as string, agency: agency as string, account: account as string, accountType: (accountType as string) ?? null },
+          update: { bankName: bankName!, agency: agency!, account: account!, accountType: accountType ?? null },
+          create: { id, bankName: bankName!, agency: agency!, account: account!, accountType: accountType ?? null },
         })
         await tx.pixConfig.deleteMany({ where: { id } })
-      } else if (type === 'CASH') {
+      } else if (rest.type === 'CASH') {
         await tx.pixConfig.deleteMany({ where: { id } })
         await tx.bankConfig.deleteMany({ where: { id } })
       }
@@ -112,6 +111,17 @@ export const PaymentMethodService = {
 
   async delete(id: string) {
     return prisma.paymentMethod.delete({ where: { id } })
+  },
+
+  async reorder(items: { id: string; displayOrder: number }[]) {
+    return prisma.$transaction(
+      items.map((item) =>
+        prisma.paymentMethod.update({
+          where: { id: item.id },
+          data: { displayOrder: item.displayOrder },
+        })
+      )
+    )
   },
 }
 

@@ -4,7 +4,7 @@ export const createAnimalAgeRangeSchema = z.object({
   label: z.string().min(1, 'Label obrigatório'),
   minAge: z.number().int().optional().nullable(),
   maxAge: z.number().int().optional().nullable(),
-  order: z.number().int().optional(),
+  order: z.coerce.number().int().optional(),
 })
 
 export const updateAnimalAgeRangeSchema = createAnimalAgeRangeSchema.partial()

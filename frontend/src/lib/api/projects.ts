@@ -1,4 +1,4 @@
-import type { ProjectListItem, ProjectWithArea, ProjectFilters, PaginatedResponse } from '@/types'
+import type { ProjectWithArea, ProjectFilters, PaginatedResponse } from '@/types'
 
 export const ProjectsApi = {
   async findAll(filters?: ProjectFilters): Promise<PaginatedResponse<ProjectWithArea>> {
@@ -58,5 +58,24 @@ export const ProjectsApi = {
       const body = await res.json().catch(() => ({}))
       throw new Error(body.error || 'Falha ao remover projeto')
     }
+  },
+
+  async findWithVolunteers(): Promise<{
+    id: string
+    title: string
+    slug: string
+    eventDate: string | null
+    location: string | null
+    vacancies: number | null
+    registrations: {
+      id: string
+      status: string
+      volunteer: { id: string; name: string; email: string; phone: string | null }
+    }[]
+  }[]> {
+    const res = await fetch('/api/projects/with-volunteers')
+    if (!res.ok) throw new Error('Falha ao carregar projetos com voluntários')
+    const json = await res.json()
+    return json.data
   },
 }

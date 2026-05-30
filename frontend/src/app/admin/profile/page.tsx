@@ -35,7 +35,7 @@ export default function ProfilePage() {
       if (currentPassword && newPassword) {
         body.currentPassword = currentPassword
         body.password = newPassword
-}
+      }
 
       const res = await fetch('/api/me', {
         method: 'PUT',
@@ -78,11 +78,11 @@ export default function ProfilePage() {
               <>
                 <div className="flex flex-col gap-2">
                   <Label>Nome</Label>
-                  <p className="font-medium">{name}</p>
+                  <p>{name}</p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label>Email</Label>
-                  <p className="font-medium">{email}</p>
+                  <p>{email}</p>
                 </div>
                 <Button type="button" onClick={() => setIsEditing(true)}>
                   Editar
@@ -96,7 +96,12 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div className="flex gap-2">
                   <Button type="submit" disabled={isSaving}>
@@ -121,11 +126,22 @@ export default function ProfilePage() {
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="currentPassword">Senha atual</Label>
-              <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+              <Input
+                id="currentPassword"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="newPassword">Nova senha</Label>
-              <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={6} />
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={6}
+              />
             </div>
             {isEditing && (
               <Button type="submit" disabled={isSaving}>

@@ -1,45 +1,46 @@
 'use client'
 
 import { useState } from 'react'
+import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { AdminSheet } from '@/components/admin/admin-sheet'
-import { AnimalSizeForm } from '@/components/admin/forms/animal-size-form'
-import { useAnimalSizes, useAnimalSizeMutations } from '@/hooks/animal-sizes/queries'
+import { PostForm } from '@/components/admin/forms/post-form'
+import { usePosts, usePostMutations } from '@/hooks/posts/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
 
-export default function AdminAnimalSizesPage() {
-  const { data: sizes, isLoading } = useAnimalSizes()
-  const { remove, isPending } = useAnimalSizeMutations()
+export function PostsContent() {
+  const { data: posts, isLoading } = usePosts()
+  const { remove, isPending } = usePostMutations()
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [editingId, setEditingId] = useState<null | string>(null)
-  const [deletingId, setDeletingId] = useState<null | string>(null)
+  const [editingPost, setEditingPost] = useState<null | { id: string }>(null)
+  const [deletingPost, setDeletingPost] = useState<null | { id: string }>(null)
 
   function handleNew() {
-    setEditingId(null)
+    setEditingPost(null)
     setSheetOpen(true)
   }
 
-  function handleEdit(id: string) {
-    setEditingId(id)
+  function handleEdit(post: { id: string }) {
+    setEditingPost(post)
     setSheetOpen(true)
   }
 
   function handleSheetClose() {
     setSheetOpen(false)
-    setEditingId(null)
+    setEditingPost(null)
   }
 
   return (
     <div className="px-4 lg:px-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Portes</h1>
+        <h1 className="text-2xl font-semibold">Blog</h1>
         <Button onClick={handleNew}>
           <Plus className="h-4 w-4 mr-2" />
-          Novo Porte
+          Novo Post
         </Button>
       </div>
 
@@ -47,31 +48,34 @@ export default function AdminAnimalSizesPage() {
         <div className="space-y-4">
           <Skeleton className="h-10 w-full rounded-lg" />
           <Skeleton className="h-10 w-full rounded-lg" />
+          <Skeleton className="h-10 w-full rounded-lg" />
         </div>
-      ) : !sizes || sizes.length === 0 ? (
-        <EmptyState title="Nenhum porte cadastrado." />
+      ) : !posts || posts.length === 0 ? (
+        <EmptyState title="Nenhum post encontrado." />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">Ordem</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Descrição</TableHead>
+              <TableHead>Título</TableHead>
+              <TableHead>Autor</TableHead>
+              <TableHead>Publicado em</TableHead>
               <TableHead className="w-20">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sizes.map((s) => (
-              <TableRow key={s.id}>
-                <TableCell className="text-muted-foreground text-sm">{s.order}</TableCell>
-                <TableCell className="font-medium">{s.label}</TableCell>
-                <TableCell className="text-muted-foreground">{s.description}</TableCell>
+            {posts.map((post) => (
+              <TableRow key={post.id}>
+                <TableCell className="font-medium">{post.title}</TableCell>
+                <TableCell className="text-muted-foreground">{post.author ?? '—'}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {post.publishedAt ? format(post.publishedAt, 'dd/MM/yyyy') : 'Não publicado'}
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => handleEdit(s.id)} className="h-8 w-8">
+                    <Button size="icon" variant="ghost" onClick={() => handleEdit(post)} className="h-8 w-8">
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDeletingId(s.id)} className="h-8 w-8 text-destructive">
+                    <Button size="icon" variant="ghost" onClick={() => setDeletingPost({ id: post.id })} className="h-8 w-8 text-destructive hover:text-destructive">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -85,23 +89,24 @@ export default function AdminAnimalSizesPage() {
       <AdminSheet
         open={sheetOpen}
         onClose={handleSheetClose}
-        title={editingId ? 'Editar porte' : 'Novo porte'}
+        title={editingPost ? 'Editar post' : 'Novo post'}
       >
-        <AnimalSizeForm
-          sizeId={editingId ?? undefined}
+        <PostForm
+          postId={editingPost?.id}
           onSuccess={handleSheetClose}
           onCancel={handleSheetClose}
         />
       </AdminSheet>
 
       <DeleteDialog
-        open={!!deletingId}
-        onClose={() => setDeletingId(null)}
+        open={!!deletingPost}
+        onClose={() => setDeletingPost(null)}
         onConfirm={() => {
-          if (deletingId) remove.mutate(deletingId, { onSuccess: () => setDeletingId(null) })
+          if (deletingPost)
+            remove.mutate(deletingPost.id, { onSuccess: () => setDeletingPost(null) })
         }}
         isPending={isPending}
-        entity="porte"
+        entity="post"
       />
     </div>
   )

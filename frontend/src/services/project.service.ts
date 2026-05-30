@@ -67,3 +67,17 @@ export async function updateProject(id: string, data: Prisma.ProjectUpdateInput)
 export async function deleteProject(id: string) {
   return prisma.project.delete({ where: { id } })
 }
+
+export async function getProjectsWithVolunteers() {
+  return prisma.project.findMany({
+    where: { eventDate: { not: null } },
+    orderBy: { eventDate: 'desc' },
+    include: {
+      registrations: {
+        include: {
+          volunteer: { select: { id: true, name: true, email: true, phone: true } },
+        },
+      },
+    },
+  })
+}

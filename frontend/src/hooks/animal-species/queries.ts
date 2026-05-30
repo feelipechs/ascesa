@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/r
 import { toast } from 'sonner'
 import { AnimalSpeciesApi } from '@/lib/api/animal-species'
 import { getErrorMessage } from '@/lib/utils'
+import { animalReferencesKeys } from '@/hooks/animal-references/queries'
 
 export const animalSpeciesKeys = {
   all: ['animal-species'] as const,
@@ -30,15 +31,12 @@ export function useAnimalSpecies() {
   return useQuery(animalSpeciesQueryOptions())
 }
 
-export function useAnimalSpeciesById(id: string) {
-  return useQuery(animalSpeciesByIdQueryOptions(id))
-}
-
 export function useAnimalSpeciesMutations() {
   const queryClient = useQueryClient()
 
   const onSuccess = (message: string) => {
     queryClient.invalidateQueries({ queryKey: animalSpeciesKeys.all })
+    queryClient.invalidateQueries({ queryKey: animalReferencesKeys.all })
     toast.success(message)
   }
 

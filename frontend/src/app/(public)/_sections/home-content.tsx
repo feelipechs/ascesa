@@ -19,7 +19,7 @@ export function HomeContent({ isAuthenticated }: HomeContentProps) {
   return (
     <main className="flex flex-col">
       <Hero />
-      <StatsSection />
+      <StatsSection isAuthenticated={isAuthenticated} />
       <ProjectsCarousel projects={projects.slice(0, 6)} />
       <ImpactBanner />
       <TestimonialsSection isAuthenticated={isAuthenticated} />

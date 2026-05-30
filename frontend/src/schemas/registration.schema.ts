@@ -2,12 +2,12 @@ import { z } from 'zod'
 
 export const createRegistrationSchema = z.object({
   message: z.string().optional(),
-  volunteerId: z.string().min(1),
-  projectId: z.string().min(1),
+  volunteerId: z.string().min(1, 'Voluntário obrigatório'),
+  projectId: z.string().min(1, 'Projeto obrigatório'),
 })
 
 export const updateRegistrationSchema = z.object({
-  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED'], { message: 'Status inválido' }),
   message: z.string().optional(),
 })
 
