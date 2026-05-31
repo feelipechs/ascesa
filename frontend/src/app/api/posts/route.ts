@@ -7,8 +7,11 @@ export async function GET(req: NextRequest) {
   return apiHandler(async () => {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get('search') ?? undefined
-    const posts = await PostService.findPublished(search)
-    return NextResponse.json(posts)
+    const page = Number(searchParams.get('page')) || undefined
+    const limit = Number(searchParams.get('limit')) || undefined
+
+    const result = await PostService.findPublished({ search, page, limit })
+    return NextResponse.json(result)
   })
 }
 

@@ -1,14 +1,26 @@
-import type { Post, PostFilters } from '@/types'
+import type { Post, PostFilters, PaginatedResponse } from '@/types'
 
 export const PostsApi = {
-  async findAll(filters?: PostFilters): Promise<Post[]> {
+  async findAll(filters?: PostFilters): Promise<PaginatedResponse<Post>> {
     const params = new URLSearchParams()
     if (filters?.search) params.set('search', filters.search)
+    if (filters?.page) params.set('page', String(filters.page))
+    if (filters?.limit) params.set('limit', String(filters.limit))
+
     const query = params.toString()
     const res = await fetch(`/api/posts${query ? `?${query}` : ''}`)
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
       throw new Error(body.error || 'Falha ao carregar posts')
+    }
+    return res.json()
+  },
+
+  async findBySlug(slug: string): Promise<Post> {
+    const res = await fetch(`/api/posts/slug/${slug}`)
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body.error || 'Falha ao carregar post')
     }
     return res.json()
   },

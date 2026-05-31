@@ -16,7 +16,7 @@ export function HomeContent({ isAuthenticated }: HomeContentProps) {
   const projects = projectsResponse?.data ?? []
 
   return (
-    <main className="flex flex-col">
+    <>
       <Hero />
       <StatsSection isAuthenticated={isAuthenticated} />
       <ProjectsCarousel projects={projects.slice(0, 6)} />
@@ -29,6 +29,6 @@ export function HomeContent({ isAuthenticated }: HomeContentProps) {
         wrapInPageSection
       />
       <PartnersContent isAuthenticated={isAuthenticated} />
-    </main>
+    </>
   )
 }

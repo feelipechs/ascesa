@@ -12,6 +12,7 @@ export const postKeys = {
   list: (filters?: PostFilters) => [...postKeys.lists(), filters] as const,
   details: () => [...postKeys.all, 'detail'] as const,
   detail: (id: string) => [...postKeys.details(), id] as const,
+  slug: (slug: string) => [...postKeys.all, 'slug', slug] as const,
 }
 
 export const postsQueryOptions = (filters?: PostFilters) =>
@@ -27,8 +28,19 @@ export const postQueryOptions = (id: string | undefined) =>
     enabled: !!id,
   })
 
+export const postBySlugQueryOptions = (slug: string | undefined) =>
+  queryOptions({
+    queryKey: postKeys.slug(slug ?? ''),
+    queryFn: () => PostsApi.findBySlug(slug!),
+    enabled: !!slug,
+  })
+
 export function usePosts(filters?: PostFilters) {
   return useQuery(postsQueryOptions(filters))
+}
+
+export function usePostBySlug(slug: string | undefined) {
+  return useQuery(postBySlugQueryOptions(slug))
 }
 
 export function usePostMutations() {
@@ -61,10 +73,5 @@ export function usePostMutations() {
     onError: (e) => onError(e, 'remover post'),
   })
 
-  return {
-    create,
-    update,
-    remove,
-    isPending: create.isPending || update.isPending || remove.isPending,
-  }
+  return { create, update, remove, isPending: create.isPending || update.isPending || remove.isPending }
 }

@@ -4,6 +4,7 @@ export const mainNavigation = [
   { title: 'Projetos', href: '/projetos' },
   { title: 'Animais', href: '/animais' },
   { title: 'Áreas de Atuação', href: '/areas' },
+  { title: 'Blog', href: '/blog' },
   { title: 'Transparência', href: '/transparencia' },
   { title: 'Doações', href: '/doacoes' },
   { title: 'Contato', href: '/contato' },

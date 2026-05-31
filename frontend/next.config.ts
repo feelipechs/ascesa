@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       { source: '/doacoes', destination: '/donations' },
       { source: '/animais', destination: '/animals' },
       { source: '/animais/:path*', destination: '/animals/:path*' },
+      { source: '/blog', destination: '/blog' },
+      { source: '/blog/:path*', destination: '/blog/:path*' },
     ]
   },
   images: {
@@ -48,10 +50,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'api.dicebear.com',
       },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
+        {
+          protocol: 'https',
+          hostname: 'pub-xxxxx.r2.dev',
+        },
+        {
+          protocol: 'https',
+          hostname: 'cdn.ascesa.org',
+        },
     ],
   },
 }

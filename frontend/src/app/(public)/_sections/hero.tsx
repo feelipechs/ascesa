@@ -15,7 +15,7 @@ export function Hero() {
 
   return (
     <section className="relative w-full min-h-dvh bg-background text-foreground flex flex-col overflow-hidden">
-      <div className="relative z-10 flex-1 flex items-center px-6 md:px-12 lg:px-20 min-h-0">
+      <div className="relative z-10 flex-1 flex items-center px-4 min-h-0">
         <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
           <div
             className="flex flex-col gap-7"

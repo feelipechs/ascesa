@@ -223,51 +223,59 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
         </div>
       )}
 
-      <AdminSheet
-        open={docSheetOpen}
-        onClose={handleDocSheetClose}
-        title={editingDoc ? 'Editar documento' : 'Novo documento'}
-      >
-        <DocumentForm
-          documentId={editingDoc?.id}
-          defaultCategoryId={editingDoc?.categoryId ?? addDocCategoryId}
-          onSuccess={handleDocSheetClose}
-          onCancel={handleDocSheetClose}
+      {isAuthenticated && (
+        <AdminSheet
+          open={docSheetOpen}
+          onClose={handleDocSheetClose}
+          title={editingDoc ? 'Editar documento' : 'Novo documento'}
+        >
+          <DocumentForm
+            documentId={editingDoc?.id}
+            defaultCategoryId={editingDoc?.categoryId ?? addDocCategoryId}
+            onSuccess={handleDocSheetClose}
+            onCancel={handleDocSheetClose}
+          />
+        </AdminSheet>
+      )}
+
+      {isAuthenticated && (
+        <AdminSheet
+          open={catSheetOpen}
+          onClose={() => setCatSheetOpen(false)}
+          title={editingCat ? 'Editar categoria' : 'Nova categoria'}
+        >
+          <DocumentCategoryForm
+            categoryId={editingCat?.id}
+            onSuccess={() => setCatSheetOpen(false)}
+            onCancel={() => setCatSheetOpen(false)}
+          />
+        </AdminSheet>
+      )}
+
+      {isAuthenticated && (
+        <DeleteDialog
+          open={!!deletingDoc}
+          onClose={() => setDeletingDoc(null)}
+          onConfirm={() => {
+            if (deletingDoc)
+              removeDoc.mutate(deletingDoc.id, { onSuccess: () => setDeletingDoc(null) })
+          }}
+          isPending={isDeletingDoc}
+          entity="documento"
         />
-      </AdminSheet>
+      )}
 
-      <AdminSheet
-        open={catSheetOpen}
-        onClose={() => setCatSheetOpen(false)}
-        title={editingCat ? 'Editar categoria' : 'Nova categoria'}
-      >
-        <DocumentCategoryForm
-          categoryId={editingCat?.id}
-          onSuccess={() => setCatSheetOpen(false)}
-          onCancel={() => setCatSheetOpen(false)}
+      {isAuthenticated && (
+        <DeleteDialog
+          open={!!deletingCat}
+          onClose={() => setDeletingCat(null)}
+          onConfirm={() => {
+            if (deletingCat)
+              removeCat.mutate(deletingCat.id, { onSuccess: () => setDeletingCat(null) })
+          }}
+          entity="categoria"
         />
-      </AdminSheet>
-
-      <DeleteDialog
-        open={!!deletingDoc}
-        onClose={() => setDeletingDoc(null)}
-        onConfirm={() => {
-          if (deletingDoc)
-            removeDoc.mutate(deletingDoc.id, { onSuccess: () => setDeletingDoc(null) })
-        }}
-        isPending={isDeletingDoc}
-        entity="documento"
-      />
-
-      <DeleteDialog
-        open={!!deletingCat}
-        onClose={() => setDeletingCat(null)}
-        onConfirm={() => {
-          if (deletingCat)
-            removeCat.mutate(deletingCat.id, { onSuccess: () => setDeletingCat(null) })
-        }}
-        entity="categoria"
-      />
+      )}
 
       <div className="mt-16 rounded-lg border bg-muted/30 p-6 text-center">
         <p className="text-sm text-muted-foreground">

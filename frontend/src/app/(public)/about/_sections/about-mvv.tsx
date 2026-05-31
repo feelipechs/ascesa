@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Target, Eye, Heart } from 'lucide-react'
 import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 
 type AboutMvvProps = {
   mission?: string | null
@@ -42,24 +43,22 @@ export function AboutMvv({ mission, vision, values }: AboutMvvProps) {
 
   return (
     <PageSection borderTop className="animate-in fade-in-0 duration-500">
-      <div className="max-w-3xl mx-auto text-center mb-12">
+      <div className="max-w-3xl mx-auto text-center">
         <span className="text-sm font-medium text-primary uppercase tracking-wider">
           Nossos Pilares
         </span>
-        <h2 className="mt-2 text-3xl md:text-4xl font-bold text-foreground">
-          Missão, Visão e Valores
-        </h2>
-        <div className="mt-4 h-1 w-16 bg-primary mx-auto rounded-full" />
-        <p className="mt-6 text-muted-foreground">
-          Conheça os princípios que guiam nossas ações e nosso compromisso com a comunidade.
-        </p>
+        <SectionHeading
+          title="Missão, Visão e Valores"
+          description="Conheça os princípios que guiam nossas ações e nosso compromisso com a comunidade."
+        />
+        <div className="h-1 w-16 bg-primary mx-auto rounded-full" />
       </div>
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {items.map((card) => (
-          <Card
-            key={card.type}
-            className="border-none shadow-lg hover:shadow-xl transition-shadow duration-300"
-          >
+        <Card
+          key={card.type}
+          className="flex h-full flex-col border-none shadow-lg hover:shadow-xl transition-shadow duration-300"
+        >
             <CardHeader className="text-center pb-2">
               <div
                 className={`mx-auto w-14 h-14 ${card.bgColor} rounded-full flex items-center justify-center mb-4`}
@@ -68,7 +67,7 @@ export function AboutMvv({ mission, vision, values }: AboutMvvProps) {
               </div>
               <CardTitle className="text-xl">{card.title}</CardTitle>
             </CardHeader>
-            <CardContent className="text-center">
+            <CardContent className="flex-1 flex flex-col justify-center text-center">
               {card.type === 'values' ? (
                 <div className="flex flex-wrap justify-center gap-2">
                   {valuesList.map((v, idx) => (

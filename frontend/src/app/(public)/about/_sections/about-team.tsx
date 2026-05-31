@@ -36,7 +36,7 @@ export function AboutTeam({
             <SortableItem key={member.id} id={member.id}>
               {({ attributes, listeners, isDragging }) => (
                 <Card
-                  className={`hover:border-primary group relative overflow-hidden py-0 shadow-none transition-colors duration-300 ${isDragging ? 'opacity-50' : ''}`}
+                  className={`hover:border-primary group relative flex h-full flex-col overflow-hidden py-0 shadow-none transition-colors duration-300 ${isDragging ? 'opacity-50' : ''}`}
                 >
                   <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                     <button
@@ -53,7 +53,7 @@ export function AboutTeam({
                       />
                     )}
                   </div>
-                  <CardContent className="px-0">
+                  <CardContent className="flex-1 flex flex-col px-0">
                     {member.photoUrl && (
                       <div className="flex justify-center bg-muted pt-10">
                         <SafeImage
@@ -83,10 +83,10 @@ export function AboutTeam({
     ) : (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-10 xl:grid-cols-4 animate-in fade-in-0 duration-500">
         {teamMembers.map((member) => (
-          <Card
-            key={member.id}
-            className="hover:border-primary group relative overflow-hidden py-0 shadow-none transition-colors duration-300"
-          >
+        <Card
+          key={member.id}
+          className="hover:border-primary group relative flex h-full flex-col overflow-hidden py-0 shadow-none transition-colors duration-300"
+        >
             {isAuthenticated && onDelete && (
               <div className="absolute top-2 right-2 z-10">
                 <AdminActions
@@ -95,9 +95,9 @@ export function AboutTeam({
                 />
               </div>
             )}
-            <CardContent className="px-0">
-              {member.photoUrl && (
-                <div className="flex justify-center bg-muted pt-10">
+        <CardContent className="flex-1 flex flex-col px-0">
+          {member.photoUrl && (
+          <div className="flex justify-center bg-muted pt-10">
                   <SafeImage
                     src={member.photoUrl}
                     alt={member.name}

@@ -42,16 +42,14 @@ export function TestimonialsSection({ isAuthenticated }: TestimonialsSectionProp
 
   if (isLoading)
     return (
-      <section className="py-8 sm:py-16 lg:py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <Skeleton className="mx-auto mb-12 h-8 w-48" />
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-48 rounded-xl" />
-            ))}
-          </div>
+      <PageSection borderTop width="wide" padding="compact">
+        <Skeleton className="mx-auto mb-12 h-8 w-48" />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 rounded-xl" />
+          ))}
         </div>
-      </section>
+      </PageSection>
     )
 
   return (
@@ -68,18 +66,18 @@ export function TestimonialsSection({ isAuthenticated }: TestimonialsSectionProp
         />
 
         {testimonials.length > 0 ? (
-          <Marquee pauseOnHover repeat={2} className="[--duration:60s] [--gap:1.5rem]">
-            {testimonials.map((testimonial) => (
-              <Card key={testimonial.id} className="group relative bg-muted/50 w-80">
-                {isAuthenticated && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <AdminActions
-                      onEdit={() => handleEdit(testimonial)}
-                      onDelete={() => setDeletingTestimonial({ id: testimonial.id })}
-                    />
-                  </div>
-                )}
-                <CardContent className="pt-6 flex flex-col gap-4">
+        <Marquee pauseOnHover repeat={2} className="[--duration:60s] [--gap:1.5rem] items-stretch">
+        {testimonials.map((testimonial) => (
+          <Card key={testimonial.id} className="group relative bg-muted/50 w-80 flex h-full flex-col">
+            {isAuthenticated && (
+              <div className="absolute top-2 right-2 z-10">
+                <AdminActions
+                  onEdit={() => handleEdit(testimonial)}
+                  onDelete={() => setDeletingTestimonial({ id: testimonial.id })}
+                />
+              </div>
+            )}
+            <CardContent className="pt-6 flex flex-1 flex-col gap-4">
                   {testimonial.photoUrl ? (
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full overflow-hidden shrink-0">

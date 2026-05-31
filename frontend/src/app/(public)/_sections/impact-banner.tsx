@@ -2,6 +2,8 @@
 
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 
 export function ImpactBanner() {
   const ref = useRef<HTMLDivElement>(null)
@@ -14,7 +16,7 @@ export function ImpactBanner() {
   const y = useTransform(scrollYProgress, [0, 1], ['-50%', '50%'])
 
   return (
-    <div ref={ref} style={{ position: 'relative', overflow: 'hidden', minHeight: '420px' }}>
+    <section ref={ref} className="relative overflow-hidden min-h-[420px]">
       <motion.div
         style={{
           backgroundImage: 'url(/images/impact-bg.webp)',
@@ -31,20 +33,24 @@ export function ImpactBanner() {
 
       <div className="absolute inset-0 bg-foreground/65" />
 
-      <div className="relative z-10 mx-auto max-w-4xl px-4 py-24 text-center text-primary-foreground sm:px-6 lg:px-8">
+      <PageSection className="relative z-10 text-center text-primary-foreground">
         <p className="text-chart-2 mb-4 text-sm font-medium uppercase tracking-widest">
           Nosso propósito
         </p>
-        <h2 className="mb-6 text-3xl font-semibold leading-tight md:text-4xl lg:text-5xl">
-          Cada resgate é uma nova chance.
-          <br />
-          <span className="text-chart-2">Cada adoção, uma vida transformada.</span>
-        </h2>
-        <p className="text-primary-foreground/70 mx-auto max-w-2xl text-xl leading-relaxed">
+        <SectionHeading
+          title={
+            <>
+              Cada resgate é uma nova chance.
+              <br />
+              <span className="text-chart-2">Cada adoção, uma vida transformada.</span>
+            </>
+          }
+        />
+        <p className="mx-auto max-w-2xl text-xl leading-relaxed opacity-70">
           Unimos cuidado, amor e responsabilidade para oferecer aos animais um futuro com mais
           dignidade e esperança.
         </p>
-      </div>
-    </div>
+      </PageSection>
+    </section>
   )
 }

@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 import { EmptyState } from '@/components/empty-state'
 
 type AboutHistoryProps = {
@@ -9,12 +10,12 @@ type AboutHistoryProps = {
 export function AboutHistory({ about }: AboutHistoryProps) {
   return (
     <PageSection>
-      <div className="max-w-3xl mx-auto text-center mb-12">
+      <div className="max-w-3xl mx-auto text-center">
         <span className="text-sm font-medium text-primary uppercase tracking-wider">
           Quem Somos
         </span>
-        <h2 className="mt-2 text-3xl md:text-4xl font-bold text-foreground">Nossa História</h2>
-        <div className="mt-4 h-1 w-16 bg-primary mx-auto rounded-full" />
+        <SectionHeading title="Nossa História" />
+        <div className="h-1 w-16 bg-primary mx-auto rounded-full" />
       </div>
 
       <div className="max-w-4xl mx-auto">

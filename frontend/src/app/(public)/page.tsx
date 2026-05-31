@@ -14,15 +14,23 @@ export default async function Home() {
   const session = await auth()
   const isAuthenticated = !!session
 
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60,
+      },
+    },
+  })
   await queryClient.prefetchQuery({
     queryKey: ['stats', 'list'],
     queryFn: () => StatService.findAll(),
   })
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <HomeContent isAuthenticated={isAuthenticated} />
-    </HydrationBoundary>
+    <main className="flex flex-col">
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <HomeContent isAuthenticated={isAuthenticated} />
+      </HydrationBoundary>
+    </main>
   )
 }

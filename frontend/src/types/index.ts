@@ -194,6 +194,8 @@ export type VolunteerFilters = {
 
 export type PostFilters = {
   search?: string
+  page?: number
+  limit?: number
 }
 
 export type RegistrationWithIncludes = RegistrationGetPayload<{

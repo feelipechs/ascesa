@@ -19,7 +19,7 @@ export function RelatedProjects({ projects }: RelatedProjectsProps) {
       {projects.map((project, index) => (
         <Card
           key={project.id}
-          className="group overflow-hidden border-border/50 py-0 transition-all duration-300 hover:border-primary/30 hover:shadow-md animate-in fade-in slide-in-from-bottom-4"
+          className="group flex h-full flex-col overflow-hidden border-border/50 py-0 transition-all duration-300 hover:border-primary/30 hover:shadow-md animate-in fade-in slide-in-from-bottom-4"
           style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'backwards' }}
         >
           <div className="relative h-40 overflow-hidden">
@@ -39,7 +39,7 @@ export function RelatedProjects({ projects }: RelatedProjectsProps) {
               </div>
             )}
           </div>
-          <CardContent className="space-y-2 p-4">
+          <CardContent className="flex flex-1 flex-col space-y-2 p-4">
             <h4 className="font-semibold leading-tight">{project.title}</h4>
             {project.description && (
               <p className="line-clamp-2 text-sm text-muted-foreground">{project.description}</p>

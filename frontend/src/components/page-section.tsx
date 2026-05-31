@@ -6,6 +6,7 @@ interface PageSectionProps {
   width?: 'default' | 'wide'
   borderTop?: boolean
   className?: string
+  sectionClassName?: string
 }
 
 export function PageSection({
@@ -14,12 +15,14 @@ export function PageSection({
   width = 'default',
   borderTop = false,
   className,
+  sectionClassName,
 }: PageSectionProps) {
   return (
     <section
       className={cn(
         padding === 'default' ? 'py-12 sm:py-16 md:py-24' : 'py-8 sm:py-12 md:py-16',
-        borderTop && 'border-t border-border'
+        borderTop && 'border-t border-border',
+        sectionClassName
       )}
     >
       <div

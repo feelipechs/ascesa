@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -22,16 +23,16 @@ export function NumberTicker({
 }: NumberTickerProps) {
   const ref = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref, { once: true, amount: 0.5 })
-  const [displayValue, setDisplayValue] = useState(direction === 'down' ? value : 0)
-  const [started, setStarted] = useState(false)
+  const [displayValue, setDisplayValue] = useState(value)
+  const animationStarted = useRef(false)
 
   useEffect(() => {
-    if (!isInView || started) return
-    setStarted(true)
+    if (!isInView || animationStarted.current) return
+    animationStarted.current = true
 
     const startTime = Date.now() + delay * 1000
-    const endValue = value
     const startValue = direction === 'down' ? value : 0
+    const endValue = value
 
     function animate() {
       const now = Date.now()
@@ -51,15 +52,7 @@ export function NumberTicker({
     }
 
     requestAnimationFrame(animate)
-  }, [isInView, value, direction, delay, duration, started])
-
-  useEffect(() => {
-    if (started) return
-    const timeout = setTimeout(() => {
-      if (!started) setDisplayValue(value)
-    }, 3000)
-    return () => clearTimeout(timeout)
-  }, [started, value])
+  }, [isInView, value, direction, delay, duration])
 
   return (
     <span ref={ref} className={cn('tabular-nums', className)}>
