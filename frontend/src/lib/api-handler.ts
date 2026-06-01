@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { z } from 'zod'
 import { Prisma } from '@/generated/prisma/client'
-import type { Session } from 'next-auth'
+import { headers } from 'next/headers'
 
 function handlePrismaError(error: Prisma.PrismaClientKnownRequestError): NextResponse {
   switch (error.code) {
@@ -47,10 +47,10 @@ export function validationError(error: z.ZodError): NextResponse {
 }
 
 export async function protectedApiHandler(
-  fn: (session: Session) => Promise<NextResponse>,
+  fn: (session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>) => Promise<NextResponse>,
   options?: { role?: 'ADMIN' | 'STAFF' }
 ) {
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
 
   if (!session) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })

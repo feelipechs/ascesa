@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import { PostForm } from '@/components/admin/forms/post-form'
 
 export default async function NewBlogPostPage() {
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session) redirect('/blog')
 
   return (

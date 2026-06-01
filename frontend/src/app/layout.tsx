@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { QueryProvider } from '@/providers/query-provider'
-import { SessionProvider } from 'next-auth/react'
+
 import { Toaster } from '@/components/ui/sonner'
 import { unstable_cache } from 'next/cache'
 import { prisma } from '@/lib/prisma'
@@ -57,9 +57,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <SessionProvider>
-            <QueryProvider>{children}</QueryProvider>
-          </SessionProvider>
+        <QueryProvider>{children}</QueryProvider>
           <Toaster />
         </ThemeProvider>
       </body>

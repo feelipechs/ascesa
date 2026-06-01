@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { RelatedProjects, TeamSectionWrapper } from '../_sections'
 import { getAreaBySlug, getAreas } from '@/services/area.service'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AreaDetailPage({ params }: Props) {
   const { slug } = await params
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   const isAuthenticated = !!session
   const area = await getAreaBySlug(slug)
   if (!area) notFound()

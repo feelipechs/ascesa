@@ -33,9 +33,27 @@ export async function PUT(req: NextRequest) {
     }
 
     const { password, ...fields } = parsed.data
-    const data = {
-      ...fields,
-      ...(password && { password: await hashPassword(password) }),
+    const data: Record<string, unknown> = { ...fields }
+
+    if (password) {
+      const account = await prisma.account.findFirst({
+        where: { userId: session.user.id, providerId: 'credential' },
+      })
+      if (account?.password) {
+        await prisma.account.update({
+          where: { id: account.id },
+          data: { password: await hashPassword(password) },
+        })
+      } else {
+        await prisma.account.create({
+          data: {
+            userId: session.user.id,
+            providerId: 'credential',
+            accountId: session.user.id,
+            password: await hashPassword(password),
+          },
+        })
+      }
     }
 
     const user = await prisma.user.update({

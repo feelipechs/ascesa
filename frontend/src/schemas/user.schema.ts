@@ -12,6 +12,7 @@ export const updateUserSchema = z.object({
   email: z.string().email('Email inválido').optional(),
   name: z.string().optional(),
   role: z.nativeEnum(Role).optional(),
+  password: z.string().min(6, 'Mínimo 6 caracteres').optional(),
 })
 
 export type CreateUserInput = z.infer<typeof createUserSchema>

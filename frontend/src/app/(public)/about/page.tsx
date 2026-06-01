@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import { AboutHero, AboutContent } from './_sections'
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function AboutPage() {
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   const isAuthenticated = !!session
 
   return (

@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { routes } from '@/lib/routes'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import { GallerySection } from '@/components/gallery-section'
 
 const getCachedAnimal = cache((slug: string) => AnimalService.findBySlug(slug))
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function AnimalPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   const isAuthenticated = !!session
   const [animal, settings] = await Promise.all([
     getCachedAnimal(slug),

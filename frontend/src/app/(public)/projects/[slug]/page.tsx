@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { getProjectBySlug } from '@/services/project.service'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import { routes } from '@/lib/routes'
 import { GallerySection } from '@/components/gallery-section'
 import { VolunteerButton } from './_sections/volunteer-button'
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   const isAuthenticated = !!session
   const project = await getCachedProject(slug)
 

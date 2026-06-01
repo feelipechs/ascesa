@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/lib/auth-client'
 import { toast } from 'sonner'
 
 export default function ProfilePage() {
-  const { data: session, update } = useSession()
+  const { data: session } = useSession()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -48,8 +48,7 @@ export default function ProfilePage() {
         throw new Error(err.error?.message || 'Erro ao salvar')
       }
 
-      await update()
-      setCurrentPassword('')
+        setCurrentPassword('')
       setNewPassword('')
       setIsEditing(false)
       toast.success('Perfil atualizado!')

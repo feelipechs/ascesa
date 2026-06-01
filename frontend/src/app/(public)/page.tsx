@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import { StatService } from '@/services/stat.service'
 import { HomeContent } from './_sections'
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   const isAuthenticated = !!session
 
   const queryClient = new QueryClient({

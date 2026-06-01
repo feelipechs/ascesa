@@ -1,4 +1,5 @@
 'use client'
+
 import { useProjects } from '@/hooks/projects/queries'
 import { Hero } from './hero'
 import { StatsSection } from './stats-section'
@@ -24,7 +25,11 @@ export function HomeContent({ isAuthenticated }: HomeContentProps) {
       <GallerySection
         context="HOME"
         isAuthenticated={isAuthenticated}
-        title={<>Nossa <span className="text-primary underline underline-offset-4">Galeria</span></>}
+        title={
+          <>
+            Nossa <span className="text-primary underline underline-offset-4">Galeria</span>
+          </>
+        }
         description="Momentos que mostram o impacto do nosso trabalho nas comunidades."
         wrapInPageSection
       />

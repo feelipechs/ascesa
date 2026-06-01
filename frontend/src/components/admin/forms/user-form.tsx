@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useUserMutations, userQueryOptions } from '@/hooks/users/queries'
 import { useQuery } from '@tanstack/react-query'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/lib/auth-client'
 
 type UserFormProps = {
   userId?: string

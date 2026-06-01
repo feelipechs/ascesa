@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import { PostForm } from '@/components/admin/forms/post-form'
 
 type EditBlogPostPageProps = {
@@ -7,7 +8,7 @@ type EditBlogPostPageProps = {
 }
 
 export default async function EditBlogPostPage({ params }: EditBlogPostPageProps) {
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session) redirect('/blog')
 
   const { id } = await params

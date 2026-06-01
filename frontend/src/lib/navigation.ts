@@ -1,11 +1,11 @@
 export const mainNavigation = [
-  { title: 'Início', href: '/' },
+  // { title: 'Início', href: '/' },
   { title: 'Sobre', href: '/sobre' },
+  { title: 'Adote um Pet', href: '/animais' },
   { title: 'Projetos', href: '/projetos' },
-  { title: 'Animais', href: '/animais' },
-  { title: 'Áreas de Atuação', href: '/areas' },
+  { title: 'Como Atuamos', href: '/areas' },
+  { title: 'Doações', href: '/doacoes' },
   { title: 'Blog', href: '/blog' },
   { title: 'Transparência', href: '/transparencia' },
-  { title: 'Doações', href: '/doacoes' },
   { title: 'Contato', href: '/contato' },
 ]

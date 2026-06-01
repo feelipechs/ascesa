@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import argon2 from 'argon2'
 import { prisma } from '@/lib/prisma'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createUserSchema } from '@/schemas/user.schema'
+import { hashPassword } from '@/lib/utils-server'
 
 const userSelect = {
   id: true,
@@ -30,13 +30,19 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const hashedPassword = await argon2.hash(parsed.data.password)
+    const hashedPassword = await hashPassword(parsed.data.password)
     const user = await prisma.user.create({
       data: {
         email: parsed.data.email,
-        password: hashedPassword,
         name: parsed.data.name,
         role: parsed.data.role ?? 'STAFF',
+        accounts: {
+          create: {
+            providerId: 'credential',
+            accountId: '',
+            password: hashedPassword,
+          },
+        },
       },
       select: userSelect,
     })

@@ -22,7 +22,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { signOut } from "next-auth/react"
+import { signOut } from '@/lib/auth-client'
 
 export function NavUser({
   user,
@@ -83,7 +83,7 @@ export function NavUser({
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut({ redirectTo: '/' })}>
+            <DropdownMenuItem onClick={() => signOut()}>
               <LogOut />
               Sair
             </DropdownMenuItem>

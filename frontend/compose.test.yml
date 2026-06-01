@@ -1,0 +1,16 @@
+services:
+  db-test:
+    image: docker.io/library/postgres:17-alpine
+    container_name: ong_db_test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ong_user
+      POSTGRES_PASSWORD: ong_test_pass
+      POSTGRES_DB: ong_test
+    ports:
+      - '5433:5432'
+    volumes:
+      - ong_pgdata_test:/var/lib/postgresql/data
+
+volumes:
+  ong_pgdata_test:

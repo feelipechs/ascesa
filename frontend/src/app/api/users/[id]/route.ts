@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
 import { updateUserSchema } from '@/schemas/user.schema'
 import { Role } from '@/generated/prisma/enums'
+import { hashPassword } from '@/lib/utils-server'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -44,7 +45,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     }
 
     if (!isAdmin) {
-      const { role, ...rest } = parsed.data
+      const { role: _role, ...rest } = parsed.data
       const user = await prisma.user.update({
         where: { id },
         data: rest,
@@ -65,9 +66,34 @@ export async function PUT(req: NextRequest, { params }: Params) {
       }
     }
 
+    const { password, ...userData } = parsed.data
+    const data: Record<string, unknown> = { ...userData }
+
+    if (password) {
+      const hashedPassword = await hashPassword(password)
+      const account = await prisma.account.findFirst({
+        where: { userId: id, providerId: 'credential' },
+      })
+      if (account) {
+        await prisma.account.update({
+          where: { id: account.id },
+          data: { password: hashedPassword },
+        })
+      } else {
+        await prisma.account.create({
+          data: {
+            userId: id,
+            providerId: 'credential',
+            accountId: id,
+            password: hashedPassword,
+          },
+        })
+      }
+    }
+
     const user = await prisma.user.update({
       where: { id },
-      data: parsed.data,
+      data,
       select: userSelect,
     })
     return NextResponse.json(user)

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { auth } from '@/auth'
+import { headers } from 'next/headers'
 import { ProjectsContent, ProjectsHero } from './_sections'
 import { PageSection } from '@/components/page-section'
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ProjectsPage() {
-  const session = await auth()
+  const session = await auth.api.getSession({ headers: await headers() })
   const isAuthenticated = !!session
   return (
     <main className="flex flex-col pt-17.5">

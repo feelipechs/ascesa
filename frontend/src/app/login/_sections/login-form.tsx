@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -21,13 +21,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
 
     const formData = new FormData(e.currentTarget)
 
-    const result = await signIn('credentials', {
-      email: formData.get('email'),
-      password: formData.get('password'),
-      redirect: false,
+    const result = await signIn.email({
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
     })
 
-    if (result?.error) {
+    if (result.error) {
       setError('Email ou senha incorretos')
       setIsLoading(false)
       return

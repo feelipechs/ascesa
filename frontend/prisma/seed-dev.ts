@@ -768,7 +768,7 @@ async function main() {
   await prisma.project.deleteMany()
 
   // Admin
-  console.log('👤  Criando usuário admin...')
+  console.log('👤 Criando usuário admin...')
   const password = await hashPassword(process.env.ADMIN_PASSWORD!)
 
   await prisma.user.upsert({
@@ -776,9 +776,15 @@ async function main() {
     update: {},
     create: {
       email: process.env.ADMIN_EMAIL!,
-      password,
       name: 'Admin',
       role: 'ADMIN',
+      accounts: {
+        create: {
+          providerId: 'credential',
+          accountId: '',
+          password,
+        },
+      },
     },
   })
 
