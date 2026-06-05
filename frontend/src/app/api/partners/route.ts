@@ -17,10 +17,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const partner = await createPartner({
-      ...parsed.data,
-      publishedAt: parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : undefined,
-    })
+    const partner = await createPartner(parsed.data)
     return NextResponse.json(partner, { status: 201 })
   })
 }

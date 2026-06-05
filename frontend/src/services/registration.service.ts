@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import type { UpdateRegistrationInput, PublicRegistrationInput } from '@/schemas/registration.schema'
 import { VolunteerService } from './volunteer.service'
+import { EmailService } from './email.service'
 
 export const RegistrationService = {
   async findAll(filters?: { projectId?: string; volunteerId?: string; status?: string }) {
@@ -47,7 +48,32 @@ export const RegistrationService = {
   },
 
   async updateStatus(id: string, data: UpdateRegistrationInput) {
-    return prisma.registration.update({ where: { id }, data: { status: data.status } })
+    const registration = await prisma.registration.update({
+      where: { id },
+      data: { status: data.status },
+      include: {
+        volunteer: { select: { name: true, email: true } },
+        project: { select: { title: true } },
+      },
+    })
+
+    if (data.status === 'APPROVED') {
+      await EmailService.sendApprovedEmail({
+        to: registration.volunteer.email,
+        volunteerName: registration.volunteer.name,
+        projectTitle: registration.project.title,
+      }).catch((err) => console.error('Falha ao enviar email de aprovação:', err))
+    }
+
+    if (data.status === 'REJECTED') {
+      await EmailService.sendRejectedEmail({
+        to: registration.volunteer.email,
+        volunteerName: registration.volunteer.name,
+        projectTitle: registration.project.title,
+      }).catch((err) => console.error('Falha ao enviar email de rejeição:', err))
+    }
+
+    return registration
   },
 
   async delete(id: string) {

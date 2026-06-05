@@ -1,9 +1,8 @@
 'use client'
+
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { useSettings } from '@/hooks/settings/queries'
-import { useTeamMembers, useTeamMemberMutations, teamMemberKeys } from '@/hooks/team-members/queries'
-import { TeamMembersApi } from '@/lib/api/team-members'
+import { useTeamMembers, useTeamMemberMutations } from '@/hooks/team-members/queries'
 import { useReorder } from '@/hooks/use-reorder'
 import type { TeamMemberWithAreas } from '@/types'
 import { AboutHistory } from './about-history'
@@ -12,7 +11,6 @@ import { AboutTeam } from './about-team'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { TeamMemberForm } from '@/components/admin/forms/team-member-form'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { toast } from 'sonner'
 
 type AboutContentProps = {
   isAuthenticated?: boolean
@@ -21,8 +19,7 @@ type AboutContentProps = {
 export function AboutContent({ isAuthenticated }: AboutContentProps) {
   const { data: settings } = useSettings()
   const { data: teamMembers = [] } = useTeamMembers()
-  const { remove, isPending } = useTeamMemberMutations()
-  const queryClient = useQueryClient()
+  const { remove, reorder: reorderMutation, isPending } = useTeamMemberMutations()
 
   const { optimisticItems, reorder, setOptimisticItems } = useReorder(teamMembers, { field: 'order' })
 
@@ -50,13 +47,9 @@ export function AboutContent({ isAuthenticated }: AboutContentProps) {
     if (!reordered) return
 
     const items = reordered.map((item, i) => ({ id: item.id, order: i }))
-    try {
-      await TeamMembersApi.reorder(items)
-      queryClient.invalidateQueries({ queryKey: teamMemberKeys.all })
-    } catch {
-      toast.error('Falha ao reordenar')
-      setOptimisticItems(teamMembers)
-    }
+    reorderMutation.mutate(items, {
+      onError: () => setOptimisticItems(teamMembers),
+    })
   }
 
   return (

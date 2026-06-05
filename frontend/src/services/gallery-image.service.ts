@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { cleanupOrphanedMedia } from '@/lib/media'
 import { GalleryContext } from '@/generated/prisma/enums'
 
 export async function getGalleryImages(params?: {
@@ -22,6 +23,7 @@ export async function getGalleryImages(params?: {
   return prisma.galleryImage.findMany({
     where,
     orderBy: { order: 'asc' },
+    include: { media: { select: { id: true, url: true } } },
   })
 }
 
@@ -30,7 +32,7 @@ export async function getGalleryImageById(id: string) {
 }
 
 export async function createGalleryImage(data: {
-  url: string
+  mediaId: string
   caption?: string
   order?: number
   context: GalleryContext
@@ -49,7 +51,7 @@ export async function createGalleryImage(data: {
 export async function updateGalleryImage(
   id: string,
   data: {
-    url?: string
+    mediaId?: string
     caption?: string
     order?: number
     context?: GalleryContext
@@ -68,7 +70,10 @@ export async function updateGalleryImage(
 }
 
 export async function deleteGalleryImage(id: string) {
-  return prisma.galleryImage.delete({ where: { id } })
+  const image = await prisma.galleryImage.findUnique({ where: { id }, include: { media: true } })
+  const mediaId = image?.media?.id
+  await prisma.galleryImage.delete({ where: { id } })
+  if (mediaId) await cleanupOrphanedMedia(mediaId)
 }
 
 export async function reorderGalleryImages(items: { id: string; order: number }[]) {

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist_Mono } from 'next/font/google'
+import { Quicksand } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { QueryProvider } from '@/providers/query-provider'
@@ -13,8 +14,8 @@ import Script from 'next/script'
 // cache com revalidação para dados de configuração. Quando a API de cache
 // for estabilizada, substituir por React.cache() + fetch com revalidate.
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const quicksand = Quicksand({
+  variable: '--font-quicksand',
   subsets: ['latin'],
 })
 
@@ -55,7 +56,7 @@ export default function RootLayout({
           <Script src="//unpkg.com/react-scan/dist/auto.global.js" strategy="beforeInteractive" />
         )}
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${quicksand.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <QueryProvider>{children}</QueryProvider>
           <Toaster />

@@ -1,8 +1,9 @@
-import { format } from 'date-fns'
+import { formatUTC } from '@/lib/utils-date'
 import { MapPinIcon, MailIcon, PhoneIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
+import { getSettings } from '@/services/site-settings.service'
+import { getAreaSlugs } from '@/services/area.service'
 import { mainNavigation } from '@/lib/navigation'
 import {
   FacebookIcon,
@@ -13,11 +14,10 @@ import {
 } from '@/components/icons/social'
 
 export async function Footer() {
-  const settings = await prisma.siteSettings.findUnique({ where: { id: 'main' } })
-  const areas = await prisma.area.findMany({
-    select: { title: true, slug: true },
-    orderBy: { title: 'asc' },
-  })
+  const [settings, areas] = await Promise.all([
+    getSettings(),
+    getAreaSlugs(),
+  ])
 
   const socialLinks = [
     settings?.socialFacebook && { href: settings.socialFacebook, icon: FacebookIcon },
@@ -37,7 +37,7 @@ export async function Footer() {
           {/* Logo e descrição */}
           <div className="flex flex-col gap-4">
             <Link href="/">
-              <Image src="/logo.png" alt="Ascesa" width={120} height={40} />
+              <Image src="/logo.png" alt="Ascesa" width={1600} height={585} className="h-14 w-auto" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Amor e cuidado por cada animal. Resgate, castração solidária, adoção responsável e
@@ -124,7 +124,7 @@ export async function Footer() {
 
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-6 sm:flex-row sm:px-6">
         <p className="text-muted-foreground text-sm">
-          © {format(new Date(), 'yyyy')} Ascesa. Todos os direitos reservados.
+          © {formatUTC(new Date(), 'yyyy')} Ascesa. Todos os direitos reservados.
         </p>
         {settings?.cnpj && <p className="text-muted-foreground text-sm">CNPJ: {settings.cnpj}</p>}
       </div>

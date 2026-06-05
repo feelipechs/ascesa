@@ -9,21 +9,12 @@ export const fiscalNoteKeys = {
   all: ['fiscal-notes'] as const,
   lists: () => [...fiscalNoteKeys.all, 'list'] as const,
   list: () => [...fiscalNoteKeys.lists()] as const,
-  details: () => [...fiscalNoteKeys.all, 'detail'] as const,
-  detail: (id: string) => [...fiscalNoteKeys.details(), id] as const,
 }
 
 export const fiscalNotesQueryOptions = () =>
   queryOptions({
     queryKey: fiscalNoteKeys.list(),
     queryFn: () => FiscalNotesApi.findAll(),
-  })
-
-export const fiscalNoteQueryOptions = (id: string | undefined) =>
-  queryOptions({
-    queryKey: fiscalNoteKeys.detail(id ?? ''),
-    queryFn: () => FiscalNotesApi.findById(id!),
-    enabled: !!id,
   })
 
 export function useFiscalNotes() {
@@ -44,14 +35,8 @@ export function useFiscalNoteMutations() {
 
   const create = useMutation({
     mutationFn: FiscalNotesApi.create,
-    onSuccess: () => onSuccess('Nota fiscal criada com sucesso!'),
-    onError: (e) => onError(e, 'criar nota fiscal'),
-  })
-
-  const update = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: unknown }) => FiscalNotesApi.update(id, data),
-    onSuccess: () => onSuccess('Nota fiscal atualizada!'),
-    onError: (e) => onError(e, 'atualizar nota fiscal'),
+    onSuccess: () => onSuccess('Nota fiscal enviada com sucesso!'),
+    onError: (e) => onError(e, 'enviar nota fiscal'),
   })
 
   const remove = useMutation({
@@ -60,5 +45,9 @@ export function useFiscalNoteMutations() {
     onError: (e) => onError(e, 'remover nota fiscal'),
   })
 
-  return { create, update, remove, isPending: create.isPending || update.isPending || remove.isPending }
+  return {
+    create,
+    remove,
+    isPending: create.isPending || remove.isPending,
+  }
 }

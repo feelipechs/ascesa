@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createDocumentSchema, updateDocumentSchema } from '@/schemas/document.schema'
-import { nowISO } from '@/lib/utils-date'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -55,7 +55,6 @@ export function DocumentForm({ documentId, defaultCategoryId, onSuccess, onCance
       ...data,
       year: data.year ? Number(data.year) : undefined,
       categoryId: data.categoryId || defaultCategoryId || '',
-      publishedAt: nowISO(),
     }
     if (isEditing && documentId) {
       update.mutate({ id: documentId, data: payload }, { onSuccess })
@@ -138,11 +137,11 @@ export function DocumentForm({ documentId, defaultCategoryId, onSuccess, onCance
           id="year"
           type="number"
           {...form.register('year')}
-          placeholder="2024"
-        />
-      </div>
+      placeholder="2024"
+      />
+    </div>
 
-      <div className="flex gap-2 pt-2">
+    <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
           Cancelar
         </Button>

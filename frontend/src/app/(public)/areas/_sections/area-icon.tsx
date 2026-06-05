@@ -1,6 +1,6 @@
 'use client'
 
-import * as icons from 'lucide-react'
+import { areaIconMap } from '@/lib/area-icon-map'
 
 interface AreaIconProps {
   name: string | null | undefined
@@ -10,7 +10,7 @@ interface AreaIconProps {
 
 export function AreaIcon({ name, size = 24, className }: AreaIconProps) {
   if (!name) return null
-  const Icon = icons[name as keyof typeof icons] as React.ElementType | undefined
+  const Icon = areaIconMap[name]
   if (!Icon) return null
   return <Icon size={size} className={className} />
 }

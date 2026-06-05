@@ -22,8 +22,6 @@ model SiteSettings {
   mission         String?
   vision          String?
   values          String?
-  homeTitle       String?
-  homeSubtitle    String?
   socialInstagram String?
   socialFacebook  String?
   socialYoutube   String?
@@ -35,44 +33,69 @@ model SiteSettings {
 }
 
 // ------------------------------
+// MEDIA (biblioteca centralizada de imagens)
+// ------------------------------
+model Media {
+  id String @id @default(nanoid())
+  key String @unique
+  hash String
+  url String
+  mimeType String
+  size Int
+  originalName String?
+  width Int?
+  height Int?
+  alt String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  areaCovers Area[]
+  projectCovers Project[]
+  postCovers Post[]
+  animalCovers Animal[]
+  teamMemberPhotos TeamMember[]
+  partnerLogos Partner[]
+  galleryImages GalleryImage[]
+}
+
+// ------------------------------
 // AREA DE ATUACAO
 // ------------------------------
 model Area {
-  id          String           @id @default(nanoid())
-  title       String
-  slug        String           @unique
+  id String @id @default(nanoid())
+  title String
+  slug String @unique
   description String?
-  coverUrl    String?
-  iconName    String?
-  publishedAt DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  projects    Project[]
-  members     TeamMemberArea[]
+  coverMediaId String?
+  coverMedia Media? @relation(fields: [coverMediaId], references: [id])
+  iconName String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  projects Project[]
+  members TeamMemberArea[]
 }
 
 // ------------------------------
 // PROJETO / EVENTO (agora só EVENTO)
 // ------------------------------
 model Project {
-  id             String         @id @default(nanoid())
-  title          String
-  slug           String         @unique
-  description    String?
-  content        String?
-  coverUrl       String?
-  eventDate      DateTime?
-  location       String?
-  vacancies      Int?
-  metrics        Json?
-  featured       Boolean        @default(false)
-  publishedAt    DateTime?
-  areaId         String
-  area           Area           @relation(fields: [areaId], references: [id])
-  gallery        GalleryImage[]
-  registrations  Registration[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id String @id @default(nanoid())
+  title String
+  slug String @unique
+  description String?
+  content String?
+  coverMediaId String?
+  coverMedia Media? @relation(fields: [coverMediaId], references: [id])
+  eventDate DateTime?
+  location String?
+  vacancies Int?
+  metrics Json?
+  featured Boolean @default(false)
+  areaId String
+  area Area @relation(fields: [areaId], references: [id])
+  gallery GalleryImage[]
+  registrations Registration[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ------------------------------
@@ -85,33 +108,34 @@ enum GalleryContext {
 }
 
 model GalleryImage {
-  id        String         @id @default(nanoid())
-  url       String
-  caption   String?
-  order     Int            @default(0)
-  context   GalleryContext @default(PROJECT)
+  id String @id @default(nanoid())
+  mediaId String
+  media Media @relation(fields: [mediaId], references: [id])
+  caption String?
+  order Int @default(0)
+  context GalleryContext @default(PROJECT)
   projectId String?
-  project   Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  animalId  String?
-  animal    Animal?        @relation(fields: [animalId], references: [id], onDelete: Cascade)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  animalId String?
+  animal Animal? @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ------------------------------
 // MEMBRO DA EQUIPE
 // ------------------------------
 model TeamMember {
-  id          String           @id @default(nanoid())
-  name        String
-  role        String
-  bio         String?
-  photoUrl    String?
-  order       Int              @default(0)
-  publishedAt DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  areas       TeamMemberArea[]
+  id String @id @default(nanoid())
+  name String
+  role String
+  bio String?
+  photoMediaId String?
+  photoMedia Media? @relation(fields: [photoMediaId], references: [id])
+  order Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  areas TeamMemberArea[]
 }
 
 model TeamMemberArea {
@@ -127,13 +151,13 @@ model TeamMemberArea {
 // PARCEIRO / APOIADOR
 // ------------------------------
 model Partner {
-  id          String    @id @default(nanoid())
-  name        String
-  logoUrl     String
-  websiteUrl  String?
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id String @id @default(nanoid())
+  name String
+  logoMediaId String
+  logoMedia Media @relation(fields: [logoMediaId], references: [id])
+  websiteUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ------------------------------
@@ -157,7 +181,6 @@ model Document {
   description String?
   fileUrl     String
   year        Int?
-  publishedAt DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   categoryId  String
@@ -231,8 +254,6 @@ model Testimonial {
   name        String
   role        String?
   message     String
-  photoUrl    String?
-  publishedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -279,16 +300,17 @@ model Registration {
 // POST (Blog)
 // ------------------------------
 model Post {
-  id          String   @id @default(nanoid())
-  title       String
-  slug        String   @unique
-  excerpt     String?
-  content     String?
-  coverUrl    String?
-  author      String?
+  id String @id @default(nanoid())
+  title String
+  slug String @unique
+  excerpt String?
+  content String?
+  coverMediaId String?
+  coverMedia Media? @relation(fields: [coverMediaId], references: [id])
+  author String?
   publishedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ------------------------------
@@ -299,42 +321,8 @@ model Stat {
   label       String
   value       String
   order       Int      @default(0)
-  publishedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-}
-
-// ------------------------------
-// ESPECIE DE ANIMAL
-// ------------------------------
-model AnimalSpecies {
-  id      String   @id @default(nanoid())
-  name    String   @unique
-  order   Int      @default(0)
-  animals Animal[]
-}
-
-// ------------------------------
-// PORTE DE ANIMAL
-// ------------------------------
-model AnimalSize {
-  id          String   @id @default(nanoid())
-  label       String   @unique
-  description String?
-  order       Int      @default(0)
-  animals     Animal[]
-}
-
-// ------------------------------
-// FAIXA ETARIA DE ANIMAL
-// ------------------------------
-model AnimalAgeRange {
-  id      String   @id @default(nanoid())
-  label   String   @unique
-  minAge  Int?
-  maxAge  Int?
-  order   Int      @default(0)
-  animals Animal[]
 }
 
 // ------------------------------
@@ -351,29 +339,48 @@ enum AnimalStatus {
   FOSTERED
 }
 
+enum AnimalSpecies {
+  DOG
+  CAT
+  BIRD
+  RABBIT
+  HAMSTER
+  FISH
+  OTHER
+}
+
+enum AnimalSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum AnimalAgeRange {
+  PUPPY
+  ADULT
+  SENIOR
+}
+
 model Animal {
-  id           String        @id @default(nanoid())
-  name         String
-  slug         String        @unique
-  speciesId    String
-  species      AnimalSpecies @relation(fields: [speciesId], references: [id])
-  breed        String?
-  gender       AnimalGender
-  sizeId       String?
-  size         AnimalSize?   @relation(fields: [sizeId], references: [id])
-  birthDate    DateTime?
-  ageRangeId   String?
-  ageRange     AnimalAgeRange? @relation(fields: [ageRangeId], references: [id])
-  shelterSince DateTime      @default(now())
-  description  String?
-  content      String?
-  coverUrl     String?
-  status       AnimalStatus  @default(AVAILABLE)
-  featured     Boolean       @default(false)
-  publishedAt  DateTime?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  gallery      GalleryImage[]
+  id String @id @default(nanoid())
+  name String
+  slug String @unique
+  species AnimalSpecies
+  breed String?
+  gender AnimalGender
+  size AnimalSize?
+  birthDate DateTime?
+  ageRange AnimalAgeRange?
+  shelterSince DateTime @default(now())
+  description String?
+  content String?
+  coverMediaId String?
+  coverMedia Media? @relation(fields: [coverMediaId], references: [id])
+  status AnimalStatus @default(AVAILABLE)
+  featured Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  gallery GalleryImage[]
 }
 
 // ------------------------------
@@ -424,13 +431,13 @@ enum FiscalNoteType {
 }
 
 model FiscalNote {
-  id           String         @id @default(nanoid())
-  type         FiscalNoteType
-  cnpj         String?
+  id         String         @id @default(nanoid())
+  type       FiscalNoteType
+  cnpj       String?
   emissionDate DateTime?
-  coo          String?
-  amount       Decimal?       @db.Decimal(10, 2)
-  accessKey    String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  coo        String?
+  amount     Decimal?       @db.Decimal(10, 2)
+  accessKey  String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 }

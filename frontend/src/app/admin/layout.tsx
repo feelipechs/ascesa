@@ -15,6 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = {
     name: session.user.name ?? 'Admin',
     email: session.user.email ?? '',
+    role: session.user.role ?? 'STAFF',
   }
 
   return (

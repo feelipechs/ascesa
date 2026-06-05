@@ -96,6 +96,7 @@ export function ProjectsContent({ isAuthenticated }: { isAuthenticated: boolean 
           title={editingProject ? 'Editar projeto' : 'Novo projeto'}
         >
           <ProjectForm
+            key={editingProject?.id ?? 'new'}
             projectId={editingProject?.id}
             onSuccess={handleSheetClose}
             onCancel={handleSheetClose}
@@ -103,17 +104,19 @@ export function ProjectsContent({ isAuthenticated }: { isAuthenticated: boolean 
         </AdminSheet>
       )}
 
-      <DeleteDialog
-        open={!!deletingProject}
-        onClose={() => setDeletingProject(null)}
-        onConfirm={() => {
-          if (deletingProject)
-            remove.mutate(deletingProject.id, { onSuccess: () => setDeletingProject(null) })
-        }}
-        entity="projeto"
-        description="Tem certeza que deseja excluir este projeto? Esta ação não pode ser desfeita."
-        isPending={isPending}
-      />
+      {isAuthenticated && (
+        <DeleteDialog
+          open={!!deletingProject}
+          onClose={() => setDeletingProject(null)}
+          onConfirm={() => {
+            if (deletingProject)
+              remove.mutate(deletingProject.id, { onSuccess: () => setDeletingProject(null) })
+          }}
+          entity="projeto"
+          description="Tem certeza que deseja excluir este projeto? Esta ação não pode ser desfeita."
+          isPending={isPending}
+        />
+      )}
     </div>
   )
 }

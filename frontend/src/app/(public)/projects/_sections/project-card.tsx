@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AdminActions } from '@/components/admin/admin-actions'
-import { format } from 'date-fns'
+import { formatUTC } from '@/lib/utils-date'
+import { ptBR } from 'date-fns/locale'
 import type { ProjectListItem } from '@/types'
 
 export function ProjectCard({
@@ -31,9 +32,9 @@ export function ProjectCard({
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden shrink-0">
-        {project.coverUrl ? (
-          <SafeImage
-            src={project.coverUrl}
+    {project.coverMedia?.url ? (
+      <SafeImage
+        src={project.coverMedia.url}
             alt={project.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -66,7 +67,7 @@ export function ProjectCard({
             {project.eventDate && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Calendar className="h-3.5 w-3.5 shrink-0" />
-                <span>{format(project.eventDate, "dd 'de' MMMM 'de' yyyy")}</span>
+                <span>{formatUTC(project.eventDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
               </div>
             )}
             {project.location && (

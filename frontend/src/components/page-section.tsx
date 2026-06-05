@@ -7,6 +7,7 @@ interface PageSectionProps {
   borderTop?: boolean
   className?: string
   sectionClassName?: string
+  py?: string
 }
 
 export function PageSection({
@@ -16,11 +17,12 @@ export function PageSection({
   borderTop = false,
   className,
   sectionClassName,
+  py,
 }: PageSectionProps) {
   return (
     <section
       className={cn(
-        padding === 'default' ? 'py-12 sm:py-16 md:py-24' : 'py-8 sm:py-12 md:py-16',
+        py ?? (padding === 'default' ? 'py-12 sm:py-16 md:py-24' : 'py-8 sm:py-12 md:py-16'),
         borderTop && 'border-t border-border',
         sectionClassName
       )}

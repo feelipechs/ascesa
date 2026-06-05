@@ -61,10 +61,17 @@ export function useGalleryImageMutations() {
     onError: (e) => onError(e, 'remover imagem'),
   })
 
+  const reorder = useMutation({
+    mutationFn: GalleryImagesApi.reorder,
+    onSuccess: () => onSuccess('Imagens reordenadas!'),
+    onError: (e) => onError(e, 'reordenar imagens'),
+  })
+
   return {
     create,
     update,
     remove,
-    isPending: create.isPending || update.isPending || remove.isPending,
+    reorder,
+    isPending: create.isPending || update.isPending || remove.isPending || reorder.isPending,
   }
 }

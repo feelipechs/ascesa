@@ -26,7 +26,7 @@ export function SocialLinks({ facebook, instagram, youtube, whatsapp, linkedin }
   if (links.length === 0) return null
 
   return (
-    <div className="flex gap-4">
+    <nav className="flex gap-4" aria-label="Redes sociais">
       {links.map(({ href, label, Icon }) => (
         <a
           key={label}
@@ -37,6 +37,6 @@ export function SocialLinks({ facebook, instagram, youtube, whatsapp, linkedin }
           <Icon size={20} />
         </a>
       ))}
-    </div>
+    </nav>
   )
 }

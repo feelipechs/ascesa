@@ -1,9 +1,9 @@
 'use client'
 
 import { useProjects } from '@/hooks/projects/queries'
-import { Hero } from './hero'
+import { Hero } from './home-hero'
 import { StatsSection } from './stats-section'
-import { ProjectsCarousel } from './projects-carousel'
+import { ProjectsCarousel } from './projects-section'
 import { TestimonialsSection } from './testimonials-section'
 import { GallerySection } from '@/components/gallery-section'
 import { PartnersContent } from './partners-content'

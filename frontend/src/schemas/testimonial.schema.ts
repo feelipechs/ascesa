@@ -4,8 +4,6 @@ export const createTestimonialSchema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
   role: z.string().optional(),
   message: z.string().min(1, 'Mensagem obrigatória'),
-  photoUrl: z.string().url().optional().nullable(),
-  publishedAt: z.string().optional().nullable(),
 })
 
 export const updateTestimonialSchema = createTestimonialSchema.partial()

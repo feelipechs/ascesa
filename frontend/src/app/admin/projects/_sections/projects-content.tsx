@@ -1,26 +1,23 @@
 'use client'
 
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { format } from 'date-fns'
-import { Calendar, MapPin, Users, UserCheck, Clock, X } from 'lucide-react'
+import { formatUTC } from '@/lib/utils-date'
+import { Calendar, MapPin, Users, Eye } from 'lucide-react'
 import { ptBR } from 'date-fns/locale'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/empty-state'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { projectsWithVolunteersQueryOptions } from '@/hooks/projects/queries'
-import { useRegistrationMutations } from '@/hooks/registrations/queries'
+import { ProjectVolunteersSheet } from './project-volunteers-sheet'
+
+type ProjectData = Awaited<ReturnType<typeof import('@/lib/api/projects').ProjectsApi.findWithVolunteers>>[number]
 
 export function ProjectsContent() {
   const { data: projects = [], isLoading } = useQuery(projectsWithVolunteersQueryOptions())
-  const { updateStatus } = useRegistrationMutations()
+  const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null)
 
   return (
     <div className="px-4 lg:px-6 space-y-6">
@@ -49,11 +46,11 @@ export function ProjectsContent() {
                     <CardTitle className="text-lg">{project.title}</CardTitle>
                     <CardDescription className="flex flex-col gap-1 mt-2">
                       {project.eventDate && (
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="h-3.5 w-3.5" />
-                          {format(new Date(project.eventDate), "dd 'de' MMMM 'de' yyyy", {
-                            locale: ptBR,
-                          })}
+              <span className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                {formatUTC(project.eventDate, "dd 'de' MMMM 'de' yyyy", {
+                  locale: ptBR,
+                })}
                         </span>
                       )}
                       {project.location && (
@@ -77,52 +74,38 @@ export function ProjectsContent() {
                 </div>
               </CardHeader>
               <CardContent>
-                {project.registrations.length > 0 ? (
-                  <div className="space-y-2">
-                    {project.registrations.map((reg) => (
-                      <div
-                        key={reg.id}
-                        className="flex items-center justify-between gap-2 rounded-lg bg-muted/50 p-2.5 text-sm"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium truncate">{reg.volunteer.name}</p>
-                          <p className="text-muted-foreground truncate text-xs">
-                            {reg.volunteer.email}
-                          </p>
-                        </div>
-                        <Select
-                          value={reg.status}
-                          onValueChange={(value) =>
-                            updateStatus.mutate({ id: reg.id, data: { status: value } })
-                          }
-                        >
-                          <SelectTrigger className="h-7 w-35 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="PENDING">
-                              <Clock className="h-3 w-3 mr-1 inline" /> Pendente
-                            </SelectItem>
-                            <SelectItem value="APPROVED">
-                              <UserCheck className="h-3 w-3 mr-1 inline" /> Aprovado
-                            </SelectItem>
-                            <SelectItem value="REJECTED">
-                              <X className="h-3 w-3 mr-1 inline" /> Rejeitado
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Nenhum voluntário inscrito neste evento.
-                  </p>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setSelectedProject(project)}
+                  disabled={project.registrations.length === 0}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver voluntários
+                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {selectedProject && (
+        <ProjectVolunteersSheet
+          open={!!selectedProject}
+          onOpenChange={(open) => {
+            if (!open) setSelectedProject(null)
+          }}
+          projectTitle={selectedProject.title}
+          registrations={selectedProject.registrations.map((reg) => ({
+            id: reg.id,
+            status: reg.status,
+            volunteerName: reg.volunteer.name,
+            volunteerEmail: reg.volunteer.email,
+            volunteerPhone: reg.volunteer.phone,
+            message: reg.message ?? null,
+          }))}
+        />
       )}
     </div>
   )

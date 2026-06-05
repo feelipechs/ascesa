@@ -1,42 +1,11 @@
-type AnimalListItem = {
-  id: string
-  name: string
-  slug: string
-  coverUrl: string | null
-  description: string | null
-  status: string
-  featured: boolean
-  shelterSince: string
-  species: { id: string; name: string }
-  size: { id: string; label: string } | null
-  ageRange: { id: string; label: string } | null
-  gender: string
-  breed: string | null
-  birthDate: string | null
-  ageRangeId: string | null
-  speciesId: string
-  sizeId: string | null
-  content: string | null
-  publishedAt: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-type AnimalDetail = AnimalListItem & {
-  gallery: Array<{ id: string; url: string; caption: string | null; order: number }>
-}
-
-type PaginatedResult = {
-  data: AnimalListItem[]
-  meta: { total: number; page: number; limit: number; totalPages: number }
-}
+import type { AnimalListItem, AnimalWithDetails, AnimalFilters, PaginatedResponse } from '@/types'
 
 export const AnimalsApi = {
-  async findAll(filters?: Record<string, string | undefined>): Promise<PaginatedResult> {
+  async findAll(filters?: AnimalFilters): Promise<PaginatedResponse<AnimalListItem>> {
     const params = new URLSearchParams()
-    if (filters?.speciesId) params.set('speciesId', filters.speciesId)
-    if (filters?.sizeId) params.set('sizeId', filters.sizeId)
-    if (filters?.ageRangeId) params.set('ageRangeId', filters.ageRangeId)
+    if (filters?.species) params.set('species', filters.species)
+    if (filters?.size) params.set('size', filters.size)
+    if (filters?.ageRange) params.set('ageRange', filters.ageRange)
     if (filters?.gender) params.set('gender', filters.gender)
     if (filters?.status) params.set('status', filters.status)
     if (filters?.search) params.set('search', filters.search)
@@ -49,7 +18,7 @@ export const AnimalsApi = {
     return res.json()
   },
 
-  async findBySlug(slug: string): Promise<AnimalDetail> {
+  async findBySlug(slug: string): Promise<AnimalWithDetails> {
     const res = await fetch(`/api/animals/${slug}`)
     if (!res.ok) throw new Error('Falha ao carregar animal')
     return res.json()

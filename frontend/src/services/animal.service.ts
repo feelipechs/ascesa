@@ -1,66 +1,20 @@
-// Diferente de posts e projetos, animais com publishedAt: null aparecem
-// na listagem pública. Isso é intencional — todos os animais cadastrados
-// devem estar visíveis para adoção. Se mudar esse comportamento no futuro,
-// adicione: where: { publishedAt: { not: null } } no findAll.
-
 import { prisma } from '@/lib/prisma'
+import { cleanupOrphanedMedia } from '@/lib/media'
 import type { Prisma } from '@/generated/prisma/client'
-import type { AnimalGender, AnimalStatus } from '@/generated/prisma/enums'
-
-type AnimalWithIncludes = Prisma.AnimalGetPayload<{
-  include: {
-    species: { select: { id: true; name: true } }
-    size: { select: { id: true; label: true } }
-    ageRange: { select: { id: true; label: true } }
-    gallery: { orderBy: { order: 'asc' }; select: { id: true; url: true; caption: true; order: true } }
-  }
-}>
-
-type AnimalFilters = {
-  speciesId?: string
-  sizeId?: string
-  ageRangeId?: string
-  gender?: AnimalGender
-  status?: AnimalStatus
-  search?: string
-  featured?: boolean
-  page?: number
-  limit?: number
-}
-
-type AnimalListItem = {
-  id: string
-  name: string
-  slug: string
-  coverUrl: string | null
-  description: string | null
-  status: AnimalStatus
-  featured: boolean
-  gender: AnimalGender
-  breed: string | null
-  shelterSince: Date
-  species: { id: string; name: string }
-  size: { id: string; label: string } | null
-  ageRange: { id: string; label: string } | null
-}
-
-type PaginatedResult<T> = {
-  data: T[]
-  meta: { total: number; page: number; limit: number; totalPages: number }
-}
+import type { AnimalListItem, AnimalWithDetails, AnimalFilters, PaginatedResponse } from '@/types'
 
 const DEFAULT_LIMIT = 12
 
 export const AnimalService = {
-  async findAll(filters: AnimalFilters = {}): Promise<PaginatedResult<AnimalListItem>> {
+  async findAll(filters: AnimalFilters = {}): Promise<PaginatedResponse<AnimalListItem>> {
     const page = filters.page ?? 1
     const limit = filters.limit ?? DEFAULT_LIMIT
     const skip = (page - 1) * limit
 
     const where: Record<string, unknown> = {}
-    if (filters.speciesId) where.speciesId = filters.speciesId
-    if (filters.sizeId) where.sizeId = filters.sizeId
-    if (filters.ageRangeId) where.ageRangeId = filters.ageRangeId
+    if (filters.species) where.species = filters.species
+    if (filters.size) where.size = filters.size
+    if (filters.ageRange) where.ageRange = filters.ageRange
     if (filters.gender) where.gender = filters.gender
     if (filters.status) where.status = filters.status
     if (filters.featured) where.featured = true
@@ -78,16 +32,16 @@ export const AnimalService = {
           id: true,
           name: true,
           slug: true,
-          coverUrl: true,
+          coverMedia: { select: { id: true, url: true } },
           description: true,
           status: true,
           featured: true,
           gender: true,
           breed: true,
           shelterSince: true,
-          species: { select: { id: true, name: true } },
-          size: { select: { id: true, label: true } },
-          ageRange: { select: { id: true, label: true } },
+          species: true,
+          size: true,
+          ageRange: true,
         },
       }),
       prisma.animal.count({ where }),
@@ -99,26 +53,38 @@ export const AnimalService = {
     }
   },
 
-  async findBySlug(slug: string): Promise<AnimalWithIncludes | null> {
+  async findBySlug(slug: string): Promise<AnimalWithDetails | null> {
     return prisma.animal.findUnique({
       where: { slug },
-      include: {
-        species: { select: { id: true, name: true } },
-        size: { select: { id: true, label: true } },
-        ageRange: { select: { id: true, label: true } },
-        gallery: { orderBy: { order: 'asc' }, select: { id: true, url: true, caption: true, order: true } },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        species: true,
+        breed: true,
+        gender: true,
+        size: true,
+        birthDate: true,
+        ageRange: true,
+        shelterSince: true,
+        description: true,
+        content: true,
+        coverMedia: { select: { id: true, url: true } },
+        status: true,
+        featured: true,
+        createdAt: true,
+        updatedAt: true,
+        gallery: { orderBy: { order: 'asc' }, select: { id: true, media: { select: { id: true, url: true } }, caption: true, order: true } },
       },
-    }) as Promise<AnimalWithIncludes | null>
+    }) as Promise<AnimalWithDetails | null>
   },
 
   async findById(id: string) {
     return prisma.animal.findUnique({
       where: { id },
       include: {
-        species: { select: { id: true, name: true } },
-        size: { select: { id: true, label: true } },
-        ageRange: { select: { id: true, label: true } },
-        gallery: { orderBy: { order: 'asc' } },
+        coverMedia: true,
+        gallery: { orderBy: { order: 'asc' }, include: { media: true } },
       },
     })
   },
@@ -132,8 +98,26 @@ export const AnimalService = {
   },
 
   async delete(id: string) {
-    return prisma.animal.delete({ where: { id } })
+    const animal = await prisma.animal.findUnique({
+      where: { id },
+      include: {
+        coverMedia: true,
+        gallery: { include: { media: true } },
+      },
+    })
+    if (animal) {
+      const mediaIds = [
+        animal.coverMedia?.id,
+        ...animal.gallery.map((g) => g.media.id),
+      ].filter((id): id is string => !!id)
+
+      await prisma.animal.delete({ where: { id } })
+
+      for (const mediaId of mediaIds) {
+        await cleanupOrphanedMedia(mediaId)
+      }
+    } else {
+      await prisma.animal.delete({ where: { id } })
+    }
   },
 }
-
-export type { AnimalWithIncludes, AnimalFilters, AnimalListItem, PaginatedResult }

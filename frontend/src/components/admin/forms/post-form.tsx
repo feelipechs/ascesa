@@ -1,11 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createPostSchema, updatePostSchema } from '@/schemas/post.schema'
 import { nowISO } from '@/lib/utils-date'
+import { routes } from '@/lib/routes'
+import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -24,7 +27,18 @@ import { toSlug } from '@/lib/utils'
 import { TitleField } from './fields/title-field'
 import { SlugField } from './fields/slug-field'
 import { ImageUploadField } from './fields/image-upload-field'
-import { RichTextEditor } from '@/components/rich-text-editor/rich-text-editor'
+
+const RichTextEditor = dynamic(
+  () => import('@/components/rich-text-editor/rich-text-editor').then((m) => ({ default: m.RichTextEditor })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[200px] rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground animate-pulse">
+        Carregando editor...
+      </div>
+    ),
+  }
+)
 
 type PostFormProps = {
   postId?: string
@@ -46,8 +60,9 @@ export function PostForm({ postId, onSuccess, onCancel, mode = 'sheet' }: PostFo
       slug: '',
       excerpt: '',
       content: '',
-      coverUrl: '',
+      coverMediaId: '',
       author: '',
+      publishedAt: '',
     },
   })
 
@@ -58,14 +73,15 @@ export function PostForm({ postId, onSuccess, onCancel, mode = 'sheet' }: PostFo
       slug: postData.slug ?? '',
       excerpt: postData.excerpt ?? '',
       content: postData.content ?? '',
-      coverUrl: postData.coverUrl ?? '',
+      coverMediaId: postData.coverMediaId ?? '',
       author: postData.author ?? '',
+      publishedAt: postData.publishedAt ? String(postData.publishedAt) : '',
     })
   }, [postData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
-    const payload = { ...data, publishedAt: nowISO() }
-    const callback = onSuccess ?? (() => router.push('/blog'))
+    const payload = { ...data, coverMediaId: (data.coverMediaId as string) || null, publishedAt: (data.publishedAt as string) || null }
+    const callback = onSuccess ?? (() => router.push(routes.blog))
     if (isEditing && postId) {
       update.mutate({ id: postId, data: payload }, { onSuccess: callback })
     } else {
@@ -77,7 +93,7 @@ export function PostForm({ postId, onSuccess, onCancel, mode = 'sheet' }: PostFo
     if (onCancel) {
       onCancel()
     } else {
-      router.push('/blog')
+      router.push(routes.blog)
     }
   }
 
@@ -87,7 +103,7 @@ export function PostForm({ postId, onSuccess, onCancel, mode = 'sheet' }: PostFo
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/blog">Blog</BreadcrumbLink>
+              <BreadcrumbLink href={routes.blog}>Blog</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -161,15 +177,22 @@ export function PostForm({ postId, onSuccess, onCancel, mode = 'sheet' }: PostFo
 
         <Controller
           control={form.control}
-          name="coverUrl"
+          name="coverMediaId"
           render={({ field }) => (
             <ImageUploadField
-              value={field.value ?? ''}
-              onChange={field.onChange}
+              mediaId={field.value ?? ''}
+              url={postData?.coverMedia?.url ?? null}
+              onChange={(mediaId) => field.onChange(mediaId)}
+              onRemove={() => field.onChange('')}
               label="Imagem de capa"
             />
           )}
         />
+
+        <div className="flex items-center gap-2">
+          <Switch id="published" checked={!!form.watch('publishedAt')} onCheckedChange={(v) => form.setValue('publishedAt', v ? nowISO() : '')} />
+          <Label htmlFor="published">Publicado</Label>
+        </div>
 
         <div className="flex gap-2 pt-2">
           <Button type="button" variant="outline" onClick={handleCancel} className="flex-1">

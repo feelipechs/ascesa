@@ -2,22 +2,19 @@
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Plus, GripVertical } from 'lucide-react'
-import { useQueryClient } from '@tanstack/react-query'
-import { Button } from '@/components/ui/button'
+import { GripVertical } from 'lucide-react'
 import { SafeImage } from '@/components/safe-image'
 import { AdminActions } from '@/components/admin/admin-actions'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { GalleryImageForm } from '@/components/admin/forms/gallery-image-form'
-import { useGalleryImages, useGalleryImageMutations, galleryImageKeys } from '@/hooks/gallery-images/queries'
-import { GalleryImagesApi } from '@/lib/api/gallery-images'
+import { useGalleryImages, useGalleryImageMutations } from '@/hooks/gallery-images/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 import { SortableList, SortableItem } from '@/components/sortable-list'
 import { useReorder } from '@/hooks/use-reorder'
-import { toast } from 'sonner'
 import type { GalleryContext } from '@/generated/prisma/enums'
 
 type GallerySectionProps = {
@@ -42,8 +39,7 @@ export function GallerySection({
   if (context === 'ANIMAL' && foreignKey) filters.animalId = foreignKey
 
   const { data: images = [], isLoading } = useGalleryImages(filters)
-  const { remove, isPending } = useGalleryImageMutations()
-  const queryClient = useQueryClient()
+  const { remove, reorder: reorderMutation, isPending } = useGalleryImageMutations()
 
   const { optimisticItems, reorder, setOptimisticItems } = useReorder(images, { field: 'order' })
 
@@ -71,28 +67,17 @@ export function GallerySection({
     if (!reordered) return
 
     const items = reordered.map((item, i) => ({ id: item.id, order: i }))
-    try {
-      await GalleryImagesApi.reorder(items)
-      queryClient.invalidateQueries({ queryKey: galleryImageKeys.all })
-    } catch {
-      toast.error('Falha ao reordenar')
-      setOptimisticItems(images)
-    }
+    reorderMutation.mutate(items, {
+      onError: () => setOptimisticItems(images),
+    })
   }
 
   const headingContent = (
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
-        {description && <p className="text-muted-foreground mt-1">{description}</p>}
-      </div>
-      {isAuthenticated && (
-        <Button size="sm" onClick={handleNew}>
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar
-        </Button>
-      )}
-    </div>
+    <SectionHeading
+      title={title}
+      description={description}
+      action={isAuthenticated ? { label: 'Adicionar', onClick: handleNew } : undefined}
+    />
   )
 
   const galleryContent = isLoading ? (
@@ -103,55 +88,55 @@ export function GallerySection({
     </div>
   ) : optimisticItems.length > 0 ? (
     isAuthenticated ? (
-      <SortableList items={optimisticItems} onReorder={handleReorder}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {optimisticItems.map((image, index) => (
-            <SortableItem key={image.id} id={image.id}>
-              {({ attributes, listeners, isDragging }) => (
-                <div
-                  className={`group relative aspect-[3/2] overflow-hidden rounded-lg ${isDragging ? 'opacity-50' : ''}`}
-                >
-                  <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
-                    <button
-                      {...attributes}
-                      {...listeners}
-                      className="cursor-grab active:cursor-grabbing touch-none flex items-center justify-center h-8 w-8 rounded-md bg-background/95 backdrop-blur shadow-sm border hover:bg-muted"
-                    >
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                    <AdminActions
-                      onEdit={() => handleEdit(image)}
-                      onDelete={() => setDeletingImage({ id: image.id })}
-                    />
-                  </div>
-                  <SafeImage
-                    src={image.url}
-                    alt={image.caption ?? `Foto ${index + 1}`}
-                    fill
-                    className="object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
-              )}
-            </SortableItem>
-          ))}
-        </div>
-      </SortableList>
-    ) : (
+    <SortableList items={optimisticItems} onReorder={handleReorder}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {optimisticItems.map((image, index) => (
-          <div
-            key={image.id}
-            className="group relative aspect-[3/2] overflow-hidden rounded-lg"
-          >
-            <SafeImage
-              src={image.url}
-              alt={image.caption ?? `Foto ${index + 1}`}
-              fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
-            />
-          </div>
+          <SortableItem key={image.id} id={image.id}>
+            {({ attributes, listeners, isDragging }) => (
+              <div
+                className={`group relative aspect-[3/2] overflow-hidden rounded-lg ${isDragging ? 'opacity-50' : ''}`}
+              >
+                <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+                  <button
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing touch-none flex items-center justify-center h-8 w-8 rounded-md bg-background/95 backdrop-blur shadow-sm border hover:bg-muted"
+                  >
+                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  <AdminActions
+                    onEdit={() => handleEdit(image)}
+                    onDelete={() => setDeletingImage({ id: image.id })}
+                  />
+                </div>
+                <SafeImage
+                  src={image.media?.url}
+                  alt={image.caption ?? `Foto ${index + 1}`}
+                  fill
+                  className="object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+            )}
+          </SortableItem>
         ))}
       </div>
+    </SortableList>
+    ) : (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {optimisticItems.map((image, index) => (
+        <div
+          key={image.id}
+          className="group relative aspect-[3/2] overflow-hidden rounded-lg"
+        >
+          <SafeImage
+            src={image.media?.url}
+            alt={image.caption ?? `Foto ${index + 1}`}
+            fill
+            className="object-cover transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+      ))}
+    </div>
     )
   ) : (
     <EmptyState title="Nenhuma imagem cadastrada na galeria." />
@@ -161,8 +146,8 @@ export function GallerySection({
     context === 'PROJECT'
       ? { context, projectId: foreignKey ?? null }
       : context === 'ANIMAL'
-        ? { context, animalId: foreignKey ?? null }
-        : { context, projectId: null, animalId: null }
+      ? { context, animalId: foreignKey ?? null }
+      : { context, projectId: null, animalId: null }
 
   const crudOverlay = isAuthenticated && (
     <>
@@ -206,11 +191,11 @@ export function GallerySection({
 
   return (
     <>
-    <section>
-      {headingContent}
-      {galleryContent}
-    </section>
-    {crudOverlay}
+      <section>
+        {headingContent}
+        {galleryContent}
+      </section>
+      {crudOverlay}
     </>
   )
 }

@@ -12,7 +12,7 @@ import {
 import {
   SortableContext,
   useSortable,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 type SortableItemChildren = {
@@ -23,10 +23,11 @@ type SortableItemChildren = {
 
 type SortableItemProps = {
   id: string
+  as?: React.ElementType
   children: (props: SortableItemChildren) => ReactNode
 }
 
-export function SortableItem({ id, children }: SortableItemProps) {
+export function SortableItem({ id, as: Component = 'div', children }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -42,9 +43,9 @@ export function SortableItem({ id, children }: SortableItemProps) {
   }
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <Component ref={setNodeRef} style={style}>
       {children({ attributes, listeners, isDragging })}
-    </div>
+    </Component>
   )
 }
 
@@ -78,7 +79,7 @@ export function SortableList({ items, onReorder, children }: SortableListProps) 
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext items={items.map((i) => i.id)} strategy={rectSortingStrategy}>
         {children}
       </SortableContext>
     </DndContext>

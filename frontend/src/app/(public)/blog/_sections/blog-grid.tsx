@@ -9,9 +9,12 @@ import type { Post } from '@/types'
 type BlogGridProps = {
   posts: Post[]
   isLoading?: boolean
+  isAuthenticated?: boolean
+  onEdit?: (post: Post) => void
+  onDelete?: (post: Post) => void
 }
 
-export function BlogGrid({ posts, isLoading }: BlogGridProps) {
+export function BlogGrid({ posts, isLoading, isAuthenticated, onEdit, onDelete }: BlogGridProps) {
   if (isLoading) {
     return (
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -34,9 +37,15 @@ export function BlogGrid({ posts, isLoading }: BlogGridProps) {
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 animate-in fade-in-0 duration-500">
-      {posts.map((post) => (
-        <BlogCard key={post.id} post={post} />
-      ))}
+    {posts.map((post) => (
+      <BlogCard
+        key={post.id}
+        post={post}
+        isAuthenticated={isAuthenticated}
+        onEdit={onEdit ? () => onEdit(post) : undefined}
+        onDelete={onDelete ? () => onDelete(post) : undefined}
+      />
+    ))}
     </div>
   )
 }

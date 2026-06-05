@@ -3,13 +3,13 @@
 import { SafeImage } from '@/components/safe-image'
 import { EmptyState } from '@/components/empty-state'
 import { AdminActions } from '@/components/admin/admin-actions'
-import type { TeamMember } from '@/types'
+import type { TeamMemberWithAreas } from '@/types'
 
 type TeamSectionProps = {
-  members: TeamMember[]
+  members: TeamMemberWithAreas[]
   isAuthenticated?: boolean
-  onEdit?: (member: TeamMember) => void
-  onDelete?: (member: TeamMember) => void
+  onEdit?: (member: TeamMemberWithAreas) => void
+  onDelete?: (member: TeamMemberWithAreas) => void
 }
 
 export function TeamSection({ members, isAuthenticated, onEdit, onDelete }: TeamSectionProps) {
@@ -29,9 +29,9 @@ export function TeamSection({ members, isAuthenticated, onEdit, onDelete }: Team
               <AdminActions onEdit={onEdit ? () => onEdit(member) : undefined} onDelete={() => onDelete(member)} />
             </div>
           )}
-          {member.photoUrl ? (
-            <SafeImage
-              src={member.photoUrl}
+    {member.photoMedia?.url ? (
+      <SafeImage
+        src={member.photoMedia.url}
               alt={member.name}
               width={80}
               height={80}

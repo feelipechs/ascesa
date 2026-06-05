@@ -29,9 +29,9 @@ export function AreaCard({ area, isAuthenticated, onEdit, onDelete }: AreaCardPr
 
       {/* Image Area */}
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary to-primary/60">
-        {area.coverUrl ? (
-          <SafeImage
-            src={area.coverUrl}
+    {area.coverMedia?.url ? (
+      <SafeImage
+        src={area.coverMedia.url}
             alt={area.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"

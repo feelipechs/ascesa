@@ -1,13 +1,11 @@
-import { hashPassword } from '@/lib/utils-server'
+import { hashPassword } from '@/lib/password'
 import { toSlug } from '../src/lib/utils'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../src/generated/prisma/client'
+import type { AnimalSpecies, AnimalSize, AnimalAgeRange } from '../src/generated/prisma/enums'
 import { reorderGalleryImages } from '@/services/gallery-image.service'
 import { reorderTeamMembers } from '@/services/team-member.service'
 import { StatService } from '@/services/stat.service'
-import { reorderAnimalSpecies } from '@/services/animal-species.service'
-import { reorderAnimalSizes } from '@/services/animal-size.service'
-import { reorderAnimalAgeRanges } from '@/services/animal-age-range.service'
 import 'dotenv/config'
 
 const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL! })
@@ -101,6 +99,16 @@ const teamMembersData: {
 function avatarUrl(name: string, gender: 'male' | 'female') {
   const style = gender === 'female' ? 'lorelei' : 'adventurer'
   return `https://api.dicebear.com/9.x/${style}/png?seed=${encodeURIComponent(name)}&size=240`
+}
+
+async function ensureMedia(url: string, prefix: string): Promise<string> {
+  const key = `${prefix}/${url.replace(/[^a-zA-Z0-9]/g, '_').slice(-80)}`
+  const media = await prisma.media.upsert({
+    where: { key },
+    update: {},
+    create: { key, hash: key, url, mimeType: 'image/jpeg', size: 0 },
+  })
+  return media.id
 }
 
 // --------------------
@@ -234,9 +242,6 @@ const siteSettingsData = {
   vision: 'Ser referência nacional em resgate, castração e adoção responsável, construindo uma sociedade mais consciente sobre o bem-estar animal.',
   about:
     'Fundada em 2018 na cidade de São Paulo, a Ascesa nasceu da vontade de transformar a realidade de animais abandonados. O que começou com resgates pontuais cresceu e se tornou uma organização que oferece acolhimento, castração solidária, apoio veterinário, feiras de adoção e programas de educação e conscientização. Já resgatamos mais de 800 animais e realizamos mais de 1.500 castrações, com uma equipe de profissionais dedicados e centenas de voluntários ativos.',
-  homeTitle: 'Todo animal **merece** um lar',
-  homeSubtitle:
-    'Resgate, cuidado e adoção responsável. Transformamos vidas — deles e das famílias que os acolhem.',
   values:
     'Respeito, Transparência, Compromisso, Amor, Responsabilidade, Ética, Inclusão, Trabalho em Equipe',
   socialInstagram: 'https://instagram.com/ascesa',
@@ -244,6 +249,7 @@ const siteSettingsData = {
   socialYoutube: 'https://youtube.com/@ascesa',
   socialWhatsapp: '5511999999999',
   socialLinkedin: 'https://linkedin.com/company/ascesa',
+  googleMapsEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.000000!2d-46.633309!3d-23.550650!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDMzJzAyLjQiUyA0NsKwMzcnNTkuOSJX!5e0!3m2!1spt-BR!2sbr!4v1',
 }
 
 // --------------------
@@ -760,12 +766,10 @@ async function main() {
   await prisma.bankConfig.deleteMany()
   await prisma.paymentMethod.deleteMany()
   await prisma.animal.deleteMany()
-  await prisma.animalAgeRange.deleteMany()
-  await prisma.animalSize.deleteMany()
-  await prisma.animalSpecies.deleteMany()
   await prisma.testimonial.deleteMany()
   await prisma.galleryImage.deleteMany()
   await prisma.project.deleteMany()
+  await prisma.media.deleteMany()
 
   // Admin
   console.log('👤 Criando usuário admin...')
@@ -797,22 +801,24 @@ async function main() {
   })
 
   // Áreas
-  console.log('📂  Criando áreas...')
+  console.log('📂 Criando áreas...')
   const areas = await Promise.all(
-    areasData.map((area) =>
-      prisma.area.upsert({
+    areasData.map(async (area) => {
+      const coverMediaId = area.coverUrl ? await ensureMedia(area.coverUrl, 'area') : undefined
+      return prisma.area.upsert({
         where: { slug: area.slug },
         update: {},
-        create: { ...area, publishedAt: new Date() },
+        create: { title: area.title, slug: area.slug, description: area.description, iconName: area.iconName, coverMediaId: coverMediaId ?? null },
       })
-    )
+    })
   )
   const areaBySlug = Object.fromEntries(areas.map((a) => [a.slug, a]))
 
   // Partners
-  console.log('🤝  Criando parceiros...')
+  console.log('🤝 Criando parceiros...')
   for (const partner of partnersData) {
-    await prisma.partner.create({ data: { ...partner, publishedAt: new Date() } })
+    const logoMediaId = await ensureMedia(partner.logoUrl, 'partner')
+    await prisma.partner.create({ data: { name: partner.name, websiteUrl: partner.websiteUrl, logoMediaId } })
   }
 
   // DocumentCategories + Documents
@@ -838,7 +844,6 @@ async function main() {
           fileUrl:
             'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
           year: doc.year,
-          publishedAt: new Date(),
           categoryId: cat.id,
         },
       })
@@ -849,15 +854,14 @@ async function main() {
   console.log('👥 Criando membros da equipe...')
   const teamMembersCreated: { id: string }[] = []
   for (const tm of teamMembersData) {
-    const member = await prisma.teamMember.create({
-      data: {
-        name: tm.name,
-        role: tm.role,
-        bio: tm.bio,
-        photoUrl: avatarUrl(tm.name, tm.gender),
-        publishedAt: new Date(),
-      },
-    })
+  const member = await prisma.teamMember.create({
+    data: {
+      name: tm.name,
+      role: tm.role,
+      bio: tm.bio,
+      photoMediaId: await ensureMedia(avatarUrl(tm.name, tm.gender), 'avatar'),
+    },
+  })
     teamMembersCreated.push({ id: member.id })
     for (const slug of tm.areaSlugs) {
       const area = areaBySlug[slug]
@@ -878,25 +882,25 @@ async function main() {
     if (!dataList) continue
 
     for (const data of dataList) {
-      const slug = toSlug(data.title)
-      const project = await prisma.project.upsert({
-        where: { slug },
-        update: {},
-        create: {
-          title: data.title,
-          slug,
-          description: data.description,
-          content: data.content,
-          coverUrl: data.coverUrl,
-          featured: data.featured,
-          publishedAt: new Date(),
-          areaId: area.id,
-          eventDate: data.eventDate ? new Date(data.eventDate) : null,
-          location: data.location ?? null,
-          vacancies: data.vacancies ?? null,
-          metrics: data.metrics ?? undefined,
-        },
-      })
+    const slug = toSlug(data.title)
+    const coverMediaId = data.coverUrl ? await ensureMedia(data.coverUrl, 'project') : undefined
+    const project = await prisma.project.upsert({
+      where: { slug },
+      update: {},
+      create: {
+        title: data.title,
+        slug,
+        description: data.description,
+        content: data.content,
+        coverMediaId: coverMediaId ?? null,
+        featured: data.featured,
+        areaId: area.id,
+        eventDate: data.eventDate ? new Date(data.eventDate) : null,
+        location: data.location ?? null,
+        vacancies: data.vacancies ?? null,
+        metrics: data.metrics ?? undefined,
+      },
+    })
       projectsCreated.push({ id: project.id, areaSlug: area.slug })
     }
   }
@@ -907,7 +911,6 @@ async function main() {
     name: t.name,
     role: t.role,
     message: t.message,
-    publishedAt: new Date(),
   }))
   await prisma.testimonial.createMany({ data: testimonials })
 
@@ -917,12 +920,13 @@ async function main() {
   for (const project of projectsCreated) {
     const images = projectGalleryByArea[project.areaSlug] ?? []
     for (const img of images) {
+      const mediaId = await ensureMedia(img.url, 'gallery-project')
       const created = await prisma.galleryImage.create({
         data: {
-          url: img.url,
           caption: img.caption,
           context: 'PROJECT',
           projectId: project.id,
+          mediaId,
         },
       })
       projectGalleryItems.push({ id: created.id })
@@ -933,12 +937,13 @@ async function main() {
   console.log('🏠 Criando galeria da home...')
   const homeGalleryItems: { id: string }[] = []
   for (const img of homeGalleryData) {
+    const mediaId = await ensureMedia(img.url, 'gallery-home')
     const created = await prisma.galleryImage.create({
       data: {
-        url: img.url,
         caption: img.caption,
         context: 'HOME',
         projectId: null,
+        mediaId,
       },
     })
     homeGalleryItems.push({ id: created.id })
@@ -968,68 +973,46 @@ async function main() {
   }
 
   // Posts
-  console.log('📝  Criando posts...')
-  await prisma.post.createMany({
-    data: postsData.map((post) => ({
-      ...post,
-      publishedAt: post.publishedAt ?? new Date(),
-    })),
-  })
+  console.log('📝 Criando posts...')
+  for (const post of postsData) {
+    const coverMediaId = post.coverUrl ? await ensureMedia(post.coverUrl, 'post') : undefined
+    await prisma.post.create({
+      data: {
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverMediaId: coverMediaId ?? null,
+        author: post.author,
+        publishedAt: post.publishedAt ?? new Date(),
+      },
+    })
+  }
 
   // Stats
   console.log('📊 Criando métricas...')
   const statsCreated: { id: string }[] = []
   for (const s of statsData) {
     const stat = await prisma.stat.create({
-      data: { ...s, publishedAt: new Date() },
+      data: s,
     })
     statsCreated.push({ id: stat.id })
   }
 
-  // Animal Species
-  console.log('🐾 Criando espécies...')
-  const speciesData = [{ name: 'Cão' }, { name: 'Gato' }]
-  const species = await Promise.all(
-    speciesData.map((s) => prisma.animalSpecies.create({ data: s }))
-  )
-  const speciesByName = Object.fromEntries(species.map((s) => [s.name, s]))
-
-  // Animal Sizes
-  console.log('📏 Criando portes...')
-  const sizesData = [
-    { label: 'Pequeno', description: 'até 10kg' },
-    { label: 'Médio', description: '10kg a 25kg' },
-    { label: 'Grande', description: 'acima de 25kg' },
-  ]
-  const sizes = await Promise.all(
-    sizesData.map((s) => prisma.animalSize.create({ data: s }))
-  )
-  const sizeByLabel = Object.fromEntries(sizes.map((s) => [s.label, s]))
-
-  // Animal Age Ranges
-  console.log('🎂 Criando faixas etárias...')
-  const ageRangesData = [
-    { label: 'Filhote', minAge: 0, maxAge: 12 },
-    { label: 'Adulto', minAge: 12, maxAge: 96 },
-    { label: 'Idoso', minAge: 96, maxAge: null },
-  ]
-  const ageRanges = await Promise.all(
-    ageRangesData.map((a) => prisma.animalAgeRange.create({ data: a }))
-  )
-  const ageRangeByLabel = Object.fromEntries(ageRanges.map((a) => [a.label, a]))
+  // Animal Species/Sizes/AgeRanges are now enums — no separate tables needed
 
   // Animals
   console.log('🐕  Criando animais...')
   const animalsData: {
-    name: string; slug: string; speciesName: string; breed: string | null
-    gender: 'MALE' | 'FEMALE'; sizeLabel: string; ageRangeLabel: string
+    name: string; slug: string;     species: string; breed: string | null
+    gender: 'MALE' | 'FEMALE'; size: string; ageRange: string
     birthDate: Date; description: string; content: string; coverUrl: string
     status: 'AVAILABLE' | 'ADOPTED' | 'FOSTERED'; featured: boolean
   }[] = [
     {
       name: 'Thor', slug: 'thor',
-      speciesName: 'Cão', breed: 'SRD', gender: 'MALE',
-      sizeLabel: 'Grande', ageRangeLabel: 'Adulto',
+      species: 'DOG', breed: 'SRD', gender: 'MALE',
+      size: 'LARGE', ageRange: 'ADULT',
       birthDate: new Date('2020-03-15'),
       description: 'Cão dócil e brincalhão, ótimo com crianças e outros animais.',
       content: 'Thor foi resgatado pela nossa equipe em janeiro de 2025. Ele estava em situação de abandono em uma região periférica, muito magro e assustado.\n\nApós tratamento veterinário e muito carinho, Thor se recuperou completamente. É um cão de grande porte, mas de coração gigante. Adora brincar, correr no parque e receber carinho na barriga.\n\nThor se dá bem com crianças e outros cães. Ideal para famílias com espaço amplo.',
@@ -1038,8 +1021,8 @@ async function main() {
     },
     {
       name: 'Luna', slug: 'luna',
-      speciesName: 'Gato', breed: 'SRD', gender: 'FEMALE',
-      sizeLabel: 'Pequeno', ageRangeLabel: 'Filhote',
+      species: 'CAT', breed: 'SRD', gender: 'FEMALE',
+      size: 'SMALL', ageRange: 'PUPPY',
       birthDate: new Date('2025-01-10'),
       description: 'Filhote de gata carinhosa e brincalhona, vacinada e castrada.',
       content: 'Luna foi encontrada ainda filhote, sozinha em uma caixa de papelão. Nossa equipe a resgatou e desde então recebeu todos os cuidados necessários.\n\nÉ uma gata muito sociável, adora colo e brincar com brinquedos. Ideal para quem busca uma companheira dócil e afetuosa.',
@@ -1048,8 +1031,8 @@ async function main() {
     },
     {
       name: 'Buddy', slug: 'buddy',
-      speciesName: 'Cão', breed: 'Labrador', gender: 'MALE',
-      sizeLabel: 'Grande', ageRangeLabel: 'Adulto',
+      species: 'DOG', breed: 'Labrador', gender: 'MALE',
+      size: 'LARGE', ageRange: 'ADULT',
       birthDate: new Date('2019-08-22'),
       description: 'Labrador puro sangue, muito amigável e treinado.',
       content: 'Buddy foi abandonado por seus antigos tutores quando se mudaram de cidade. Ele chegou ao abrigo confuso e triste, mas logo se adaptou.\n\nÉ um cão extremamente inteligente, sabe comandos básicos e é muito sociável. Precisa de espaço para gastar energia. Ideal para tutores experientes.',
@@ -1058,8 +1041,8 @@ async function main() {
     },
     {
       name: 'Mimi', slug: 'mimi',
-      speciesName: 'Gato', breed: 'Siamês', gender: 'FEMALE',
-      sizeLabel: 'Pequeno', ageRangeLabel: 'Adulto',
+      species: 'CAT', breed: 'Siamês', gender: 'FEMALE',
+      size: 'SMALL', ageRange: 'ADULT',
       birthDate: new Date('2021-06-01'),
       description: 'Gata siamesa elegante e carinhosa, castrada e vacinada.',
       content: 'Mimi foi resgatada de um abrigo municipal superlotado. Apesar de um início difícil, ela é uma gata muito afetuosa e tranquila.\n\nPrefere ambientes calmos e se dá bem com outros gatos. Ideal para quem busca uma companhia serena.',
@@ -1068,8 +1051,8 @@ async function main() {
     },
     {
       name: 'Rex', slug: 'rex',
-      speciesName: 'Cão', breed: 'SRD', gender: 'MALE',
-      sizeLabel: 'Médio', ageRangeLabel: 'Idoso',
+      species: 'DOG', breed: 'SRD', gender: 'MALE',
+      size: 'MEDIUM', ageRange: 'SENIOR',
       birthDate: new Date('2016-02-14'),
       description: 'Cão idoso e sábio, merece um lar tranquilo para seus anos dourados.',
       content: 'Rex passou anos em um abrigo antes de chegar até nós. É um cão calmo, educado e muito grato por qualquer atenção que recebe.\n\nPor ser idoso, requer cuidados veterinários regulares. A Ascesa oferece suporte veterinário vitalício para adotantes de animais idosos.',
@@ -1078,8 +1061,8 @@ async function main() {
     },
     {
       name: 'Mel', slug: 'mel',
-      speciesName: 'Gato', breed: 'SRD', gender: 'FEMALE',
-      sizeLabel: 'Médio', ageRangeLabel: 'Adulto',
+      species: 'CAT', breed: 'SRD', gender: 'FEMALE',
+      size: 'MEDIUM', ageRange: 'ADULT',
       birthDate: new Date('2022-11-30'),
       description: 'Gata dócil que adiciona doçura a qualquer lar.',
       content: 'Mel foi resgatada grávida das ruas. Teve seus filhotes em segurança no abrigo e todos foram adotados.\n\nAgora é a vez dela! Mel é uma gata extremamente carinhosa, adora ficar no colo e ronronar. Ideal para famílias.',
@@ -1088,8 +1071,8 @@ async function main() {
     },
     {
       name: 'Zeca', slug: 'zeca',
-      speciesName: 'Cão', breed: 'SRD', gender: 'MALE',
-      sizeLabel: 'Pequeno', ageRangeLabel: 'Filhote',
+      species: 'DOG', breed: 'SRD', gender: 'MALE',
+      size: 'SMALL', ageRange: 'PUPPY',
       birthDate: new Date('2025-04-01'),
       description: 'Filhote cheio de energia, ideal para famílias ativas.',
       content: 'Zeca e seus irmãos foram resgatados de uma situação de maus-tratos. Ele é o mais brincalhão da ninhada.\n\nEstá com as vacinas em dia e será castrado assim que atingir a idade recomendada. Cheio de energia e amor para dar!',
@@ -1098,8 +1081,8 @@ async function main() {
     },
     {
       name: 'Nina', slug: 'nina',
-      speciesName: 'Gato', breed: 'SRD', gender: 'FEMALE',
-      sizeLabel: 'Pequeno', ageRangeLabel: 'Idoso',
+      species: 'CAT', breed: 'SRD', gender: 'FEMALE',
+      size: 'SMALL', ageRange: 'SENIOR',
       birthDate: new Date('2017-05-20'),
       description: 'Gata idosa e tranquila, busca um lar para viver seus anos dourados.',
       content: 'Nina viveu boa parte da vida nas ruas até ser resgatada. Apesar da idade, é saudável e muito carinhosa.\n\nEla merece um lar onde possa descansar e receber amor. A Ascesa oferece suporte veterinário vitalício para adotantes de animais idosos.',
@@ -1108,29 +1091,29 @@ async function main() {
     },
   ]
 
-  const animals = await Promise.all(
-    animalsData.map((a) =>
-      prisma.animal.create({
-        data: {
-          name: a.name,
-          slug: a.slug,
-          breed: a.breed,
-          gender: a.gender,
-          birthDate: a.birthDate,
-          description: a.description,
-          content: a.content,
-          coverUrl: a.coverUrl,
-          status: a.status,
-          featured: a.featured,
-          shelterSince: new Date(),
-          publishedAt: new Date(),
-          speciesId: speciesByName[a.speciesName].id,
-          sizeId: sizeByLabel[a.sizeLabel].id,
-          ageRangeId: ageRangeByLabel[a.ageRangeLabel].id,
-        },
-      })
-    )
-  )
+const animals = await Promise.all(
+  animalsData.map(async (a) => {
+    const coverMediaId = a.coverUrl ? await ensureMedia(a.coverUrl, 'animal') : undefined
+    return prisma.animal.create({
+      data: {
+        name: a.name,
+        slug: a.slug,
+        species: a.species as AnimalSpecies,
+        breed: a.breed,
+        gender: a.gender as 'MALE' | 'FEMALE',
+        size: a.size as AnimalSize | null,
+        ageRange: a.ageRange as AnimalAgeRange | null,
+        birthDate: a.birthDate,
+        description: a.description,
+        content: a.content,
+        coverMediaId: coverMediaId ?? null,
+        status: a.status,
+        featured: a.featured,
+        shelterSince: new Date(),
+      },
+    })
+  })
+)
   const animalBySlug = Object.fromEntries(animals.map((a) => [a.slug, a]))
 
   // Gallery — Animal context
@@ -1143,16 +1126,17 @@ async function main() {
     { slug: 'rex', url: 'https://images.unsplash.com/photo-1568572933382-74d440642117?w=800', caption: 'Rex tirando uma soneca' },
   ]
   const animalGalleryItems: { id: string }[] = []
-  for (const img of animalGallery) {
-    const created = await prisma.galleryImage.create({
-      data: {
-        url: img.url,
-        caption: img.caption,
-        context: 'ANIMAL' as const,
-        projectId: null,
-        animalId: animalBySlug[img.slug].id,
-      },
-    })
+for (const img of animalGallery) {
+  const mediaId = await ensureMedia(img.url, 'gallery-animal')
+  const created = await prisma.galleryImage.create({
+    data: {
+      caption: img.caption,
+      context: 'ANIMAL' as const,
+      projectId: null,
+      animalId: animalBySlug[img.slug].id,
+      mediaId,
+    },
+  })
     animalGalleryItems.push({ id: created.id })
   }
 
@@ -1229,18 +1213,6 @@ async function main() {
     statsForReorder.map((item, i) => ({ id: item.id, order: i }))
   )
 
-  await reorderAnimalSpecies(
-    species.map((item, i) => ({ id: item.id, order: i }))
-  )
-
-  await reorderAnimalSizes(
-    sizes.map((item, i) => ({ id: item.id, order: i }))
-  )
-
-  await reorderAnimalAgeRanges(
-    ageRanges.map((item, i) => ({ id: item.id, order: i }))
-  )
-
   const totalProjects = projectsCreated.length
   const totalTestimonials = testimonials.length
   const totalProjectGallery = projectGalleryItems.length
@@ -1257,9 +1229,6 @@ async function main() {
   console.log(` ${volunteers.length} voluntários`)
   console.log(` ${postsData.length} posts`)
   console.log(` ${statsCreated.length} métricas`)
-  console.log(` ${species.length} espécies`)
-  console.log(` ${sizes.length} portes`)
-  console.log(` ${ageRanges.length} faixas etárias`)
   console.log(` ${animals.length} animais`)
 }
 

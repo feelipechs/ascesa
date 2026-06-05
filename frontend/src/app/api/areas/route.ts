@@ -18,10 +18,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const area = await createArea({
-      ...parsed.data,
-      publishedAt: parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : undefined,
-    })
+    const area = await createArea(parsed.data)
     return NextResponse.json(area, { status: 201 })
   })
 }

@@ -1,4 +1,3 @@
-'use client'
 import { type ComponentPropsWithoutRef } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -17,15 +16,18 @@ export function Marquee({
   pauseOnHover = false,
   children,
   vertical = false,
-  repeat = 2,
+  repeat = 4,
   ...props
 }: MarqueeProps) {
   return (
     <div
       {...props}
       className={cn(
-        'group flex overflow-hidden p-2 [--duration:40s] [--gap:1rem]',
-        vertical ? 'flex-col' : 'flex-row',
+        'group flex gap-(--gap) overflow-hidden p-2 [--duration:40s] [--gap:1rem]',
+        {
+          'flex-row': !vertical,
+          'flex-col': vertical,
+        },
         className
       )}
     >
@@ -34,12 +36,12 @@ export function Marquee({
         .map((_, i) => (
           <div
             key={i}
-            className={cn(
-              'flex shrink-0 justify-around [gap:var(--gap)]',
-              vertical ? 'animate-marquee-vertical flex-col' : 'animate-marquee flex-row',
-              pauseOnHover && 'group-hover:[animation-play-state:paused]',
-              reverse && '[animation-direction:reverse]'
-            )}
+            className={cn('flex shrink-0 gap-(--gap)', {
+              'animate-marquee flex-row': !vertical,
+              'animate-marquee-vertical flex-col': vertical,
+              'group-hover:[animation-play-state:paused]': pauseOnHover,
+              '[animation-direction:reverse]': reverse,
+            })}
           >
             {children}
           </div>

@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/prisma'
+import { cleanupOrphanedMedia } from '@/lib/media'
 
 const memberInclude = {
   areas: { include: { area: { select: { id: true, title: true } } } },
+  photoMedia: { select: { id: true, url: true } },
 } as const
 
 export async function getTeamMembers() {
@@ -22,16 +24,14 @@ export async function createTeamMember(data: {
   name: string
   role: string
   bio?: string
-  photoUrl?: string
+  photoMediaId?: string
   order?: number
-  publishedAt?: Date
   areaIds: string[]
 }) {
-  const { areaIds, publishedAt, ...fields } = data
+  const { areaIds, ...fields } = data
   return prisma.teamMember.create({
     data: {
       ...fields,
-      publishedAt: publishedAt ? new Date(publishedAt) : undefined,
       areas: { create: areaIds.map((areaId) => ({ areaId })) },
     },
     include: memberInclude,
@@ -44,18 +44,16 @@ export async function updateTeamMember(
     name?: string
     role?: string
     bio?: string
-    photoUrl?: string
+    photoMediaId?: string | null
     order?: number
-    publishedAt?: Date | null
     areaIds?: string[]
   }
 ) {
-  const { areaIds, publishedAt, ...fields } = data
+  const { areaIds, ...fields } = data
   return prisma.teamMember.update({
     where: { id },
     data: {
       ...fields,
-      publishedAt: publishedAt === null ? null : publishedAt ? new Date(publishedAt) : undefined,
       ...(areaIds && {
         areas: {
           deleteMany: {},
@@ -68,7 +66,10 @@ export async function updateTeamMember(
 }
 
 export async function deleteTeamMember(id: string) {
-  return prisma.teamMember.delete({ where: { id } })
+  const member = await prisma.teamMember.findUnique({ where: { id }, include: { photoMedia: true } })
+  const photoMediaId = member?.photoMedia?.id
+  await prisma.teamMember.delete({ where: { id } })
+  if (photoMediaId) await cleanupOrphanedMedia(photoMediaId)
 }
 
 export async function reorderTeamMembers(items: { id: string; order: number }[]) {

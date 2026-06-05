@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { format } from 'date-fns'
+import { formatUTC } from '@/lib/utils-date'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -71,7 +71,7 @@ export function UsersContent() {
       header: 'Criado em',
       cell: ({ getValue }) => {
         const date = getValue() as Date
-        return <span className="text-muted-foreground">{format(date, 'dd/MM/yyyy')}</span>
+        return <span className="text-muted-foreground">{formatUTC(date, 'dd/MM/yyyy')}</span>
       },
     },
     {
@@ -110,7 +110,7 @@ export function UsersContent() {
       ) : !users || users.length === 0 ? (
         <EmptyState title="Nenhum usuário encontrado." />
       ) : (
-        <DataTable columns={columns} data={users as UserRow[]} searchKey="name" />
+        <DataTable columns={columns} data={users as UserRow[]} searchKey="name" enableRowSelection />
       )}
 
       <AdminSheet

@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { useStatMutations, statQueryOptions } from '@/hooks/stats/queries'
 import { useQuery } from '@tanstack/react-query'
 
+
 type StatFormProps = {
   statId?: string
   onSuccess: () => void

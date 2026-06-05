@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { toSlug } from '@/lib/utils'
+import { cleanupOrphanedMedia } from '@/lib/media'
 import type { CreatePostInput, UpdatePostInput } from '@/schemas/post.schema'
 import type { PostFilters, PaginatedResponse, Post } from '@/types'
 
@@ -10,6 +11,7 @@ export const PostService = {
   async findAll() {
     return prisma.post.findMany({
       orderBy: { publishedAt: 'desc' },
+      include: { coverMedia: { select: { id: true, url: true } } },
     })
   },
 
@@ -36,6 +38,7 @@ export const PostService = {
         orderBy: { publishedAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
+        include: { coverMedia: { select: { id: true, url: true } } },
       }),
       prisma.post.count({ where }),
     ])
@@ -54,12 +57,14 @@ export const PostService = {
   async findBySlug(slug: string) {
     return prisma.post.findUnique({
       where: { slug },
+      include: { coverMedia: { select: { id: true, url: true } } },
     })
   },
 
   async findById(id: string) {
     return prisma.post.findUnique({
       where: { id },
+      include: { coverMedia: { select: { id: true, url: true } } },
     })
   },
 
@@ -81,8 +86,9 @@ export const PostService = {
   },
 
   async delete(id: string) {
-    return prisma.post.delete({
-      where: { id },
-    })
+    const post = await prisma.post.findUnique({ where: { id }, include: { coverMedia: true } })
+    const coverMediaId = post?.coverMedia?.id
+    await prisma.post.delete({ where: { id } })
+    if (coverMediaId) await cleanupOrphanedMedia(coverMediaId)
   },
 }

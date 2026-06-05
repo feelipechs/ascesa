@@ -1,4 +1,4 @@
-import type { TeamMember, TeamMemberWithAreas } from '@/types'
+import type { TeamMemberWithAreas } from '@/types'
 
 export const TeamMembersApi = {
   async findAll(): Promise<TeamMemberWithAreas[]> {

@@ -22,11 +22,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const { publishedAt, ...rest } = parsed.data
-    const partner = await updatePartner(id, {
-      ...rest,
-      publishedAt: publishedAt === null ? null : publishedAt ? new Date(publishedAt) : undefined,
-    })
+    const partner = await updatePartner(id, parsed.data)
     return NextResponse.json(partner)
   })
 }

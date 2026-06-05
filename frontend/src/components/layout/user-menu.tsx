@@ -3,6 +3,7 @@
 import { useSession, signOut } from '@/lib/auth-client'
 import { LayoutDashboard, UserCircle, LogOut } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button'
 
 export function UserMenu() {
   const { data: session } = useSession()
+  const router = useRouter()
 
   if (!session?.user) return null
 
@@ -56,7 +58,7 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
+        <DropdownMenuItem onClick={async () => { await signOut(); router.push('/'); router.refresh() }} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           Sair
         </DropdownMenuItem>

@@ -2,6 +2,7 @@
 
 import { LogOut, UserCircle } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import {
   Avatar,
@@ -34,6 +35,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
 
   const displayName = user.name || 'Admin'
   const displayEmail = user.email || ''
@@ -83,10 +85,10 @@ export function NavUser({
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
-              <LogOut />
-              Sair
-            </DropdownMenuItem>
+        <DropdownMenuItem onClick={async () => { await signOut(); router.push('/login'); router.refresh() }}>
+          <LogOut />
+          Sair
+        </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

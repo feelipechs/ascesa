@@ -9,13 +9,13 @@ import { PageSection } from '@/components/page-section'
 import { SectionHeading } from '@/components/section-heading'
 import { SortableList, SortableItem } from '@/components/sortable-list'
 import { GripVertical } from 'lucide-react'
-import type { TeamMember } from '@/types'
+import type { TeamMemberWithAreas } from '@/types'
 
 type AboutTeamProps = {
-  teamMembers: TeamMember[]
+  teamMembers: TeamMemberWithAreas[]
   isAuthenticated?: boolean
-  onEdit?: (member: TeamMember) => void
-  onDelete?: (member: TeamMember) => void
+  onEdit?: (member: TeamMemberWithAreas) => void
+  onDelete?: (member: TeamMemberWithAreas) => void
   onAdd?: () => void
   onReorder?: (activeIndex: number, overIndex: number) => void
 }
@@ -54,10 +54,10 @@ export function AboutTeam({
                     )}
                   </div>
                   <CardContent className="flex-1 flex flex-col px-0">
-                    {member.photoUrl && (
+                    {member.photoMedia?.url && (
                       <div className="flex justify-center bg-muted pt-10">
                         <SafeImage
-                          src={member.photoUrl}
+                          src={member.photoMedia?.url}
                           alt={member.name}
                           width={240}
                           height={240}
@@ -96,10 +96,10 @@ export function AboutTeam({
               </div>
             )}
         <CardContent className="flex-1 flex flex-col px-0">
-          {member.photoUrl && (
+          {member.photoMedia?.url && (
           <div className="flex justify-center bg-muted pt-10">
                   <SafeImage
-                    src={member.photoUrl}
+                    src={member.photoMedia?.url}
                     alt={member.name}
                     width={240}
                     height={240}

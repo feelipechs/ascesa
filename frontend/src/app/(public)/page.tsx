@@ -15,13 +15,7 @@ export default async function Home() {
   const session = await auth.api.getSession({ headers: await headers() })
   const isAuthenticated = !!session
 
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60,
-      },
-    },
-  })
+  const queryClient = new QueryClient()
   await queryClient.prefetchQuery({
     queryKey: ['stats', 'list'],
     queryFn: () => StatService.findAll(),

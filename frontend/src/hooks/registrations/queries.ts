@@ -6,6 +6,7 @@ import { RegistrationsApi } from '@/lib/api/registrations'
 import { getErrorMessage } from '@/lib/utils'
 import type { RegistrationFilters } from '@/types'
 import { volunteerKeys } from '@/hooks/volunteers/queries'
+import { projectKeys } from '@/hooks/projects/queries'
 
 export const registrationKeys = {
   all: ['registrations'] as const,
@@ -49,6 +50,7 @@ export function useRegistrationMutations() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: registrationKeys.all })
       queryClient.invalidateQueries({ queryKey: volunteerKeys.all })
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
       toast.success('Inscrição atualizada!')
     },
     onError: (e) => onError(e, 'atualizar inscrição'),

@@ -1,4 +1,4 @@
-import { hashPassword } from '@/lib/utils-server'
+import { hashPassword } from '@/lib/password'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../src/generated/prisma/client'
 import 'dotenv/config'

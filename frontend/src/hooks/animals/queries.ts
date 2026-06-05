@@ -50,7 +50,10 @@ export function useAnimalMutations() {
 
   const update = useMutation({
     mutationFn: ({ slug, data }: { slug: string; data: unknown }) => AnimalsApi.update(slug, data),
-    onSuccess: () => onSuccess('Animal atualizado!'),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: animalKeys.detail(variables.slug) })
+      onSuccess('Animal atualizado!')
+    },
     onError: (e) => onError(e, 'atualizar animal'),
   })
 

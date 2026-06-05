@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth'
 import { prismaAdapter } from '@better-auth/prisma-adapter'
 import { nextCookies } from 'better-auth/next-js'
 import { prisma } from '@/lib/prisma'
+import { hashPassword, verifyPassword } from '@/lib/password'
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -10,6 +11,10 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 6,
+    password: {
+      hash: hashPassword,
+      verify: verifyPassword,
+    },
   },
   plugins: [nextCookies()],
   user: {

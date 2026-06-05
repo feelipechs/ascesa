@@ -10,7 +10,7 @@ export default function SobreLoading() {
           <Skeleton className="mx-auto h-5 w-full max-w-lg" />
         </div>
       </section>
-      <div className="space-y-16 py-16">
+      <div className="space-y-8 md:space-y-12 lg:space-y-16 py-16">
         <div className="mx-auto max-w-4xl px-4">
           <Skeleton className="mx-auto mb-12 h-8 w-48" />
           <Skeleton className="mb-4 h-4 w-full" />

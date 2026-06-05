@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createUserSchema, updateUserSchema } from '@/schemas/user.schema'
 import { Button } from '@/components/ui/button'
@@ -25,14 +25,13 @@ export function UserForm({ userId, onSuccess, onCancel }: UserFormProps) {
   const { create, update, isPending } = useUserMutations()
   const isAdmin = session?.user?.role === 'ADMIN'
 
-  const [role, setRole] = useState<'ADMIN' | 'STAFF'>('STAFF')
-
   const form = useForm({
     resolver: zodResolver(isEditing ? updateUserSchema : createUserSchema),
     defaultValues: {
       name: '',
       email: '',
       password: '',
+      role: 'STAFF' as const,
     },
   })
 
@@ -42,20 +41,20 @@ export function UserForm({ userId, onSuccess, onCancel }: UserFormProps) {
       name: userData.name ?? '',
       email: userData.email ?? '',
       password: '',
+      role: userData.role,
     })
-    setRole(userData.role)
   }, [userData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
-    const password = form.getValues('password') || ''
+    const password = (data.password as string) || ''
 
     if (isEditing && userId) {
-      const payload: Record<string, unknown> = { ...data }
-      if (isAdmin) payload.role = role
+      const payload: Record<string, unknown> = { name: data.name, email: data.email }
+      if (data.role && isAdmin) payload.role = data.role
       if (password) payload.password = password
       update.mutate({ id: userId, data: payload }, { onSuccess })
     } else {
-      create.mutate({ ...data, password, role }, { onSuccess })
+      create.mutate({ ...data, password, role: data.role ?? 'STAFF' }, { onSuccess })
     }
   }
 
@@ -70,30 +69,36 @@ export function UserForm({ userId, onSuccess, onCancel }: UserFormProps) {
         <Label htmlFor="email">Email</Label>
         <Input id="email" type="email" {...form.register('email')} required placeholder="email@exemplo.com" />
         {form.formState.errors.email && (
-          <p className="text-sm text-destructive">{form.formState.errors.email.message as string}</p>
+          <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
         )}
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">{isEditing ? 'Nova senha (deixe vazio para manter)' : 'Senha'}</Label>
         <Input id="password" type="password" {...form.register('password')} required={!isEditing} placeholder="Mínimo 6 caracteres" />
-        {(form.formState.errors as any).password && (
-          <p className="text-sm text-destructive">{(form.formState.errors as any).password?.message as string}</p>
+        {form.formState.errors.password && (
+          <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
         )}
       </div>
 
       {isAdmin && (
         <div className="flex flex-col gap-2">
           <Label htmlFor="role">Perfil</Label>
-          <Select value={role} onValueChange={(v) => setRole(v as 'ADMIN' | 'STAFF')}>
-            <SelectTrigger id="role">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="STAFF">STAFF</SelectItem>
-              <SelectItem value="ADMIN">ADMIN</SelectItem>
-            </SelectContent>
-          </Select>
+          <Controller
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <Select value={field.value ?? 'STAFF'} onValueChange={field.onChange}>
+                <SelectTrigger id="role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="STAFF">STAFF</SelectItem>
+                  <SelectItem value="ADMIN">ADMIN</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
       )}
 

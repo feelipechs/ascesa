@@ -22,11 +22,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const { publishedAt, ...rest } = parsed.data
-    const area = await updateArea(id, {
-      ...rest,
-      publishedAt: publishedAt === null ? null : publishedAt ? new Date(publishedAt) : undefined,
-    })
+    const area = await updateArea(id, parsed.data)
     return NextResponse.json(area)
   })
 }

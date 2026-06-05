@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import * as icons from 'lucide-react'
+import { areaIconMap } from '@/lib/area-icon-map'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -32,11 +32,12 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
 
   const grouped = AREA_ICONS.reduce<Record<string, (typeof AREA_ICONS)[number][]>>(
     (acc, icon) => {
-    const cat = icon.category ?? 'Outros'
-    if (!acc[cat]) acc[cat] = []
-    acc[cat].push(icon)
-    return acc
-  }, {} as Record<string, (typeof AREA_ICONS)[number][]>)
+      const cat = icon.category ?? 'Outros'
+      if (!acc[cat]) acc[cat] = []
+      acc[cat].push(icon)
+      return acc
+    }, {} as Record<string, (typeof AREA_ICONS)[number][]>
+  )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -50,9 +51,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
           {selected ? (
             <span className="flex items-center gap-2">
               {(() => {
-                const Icon = icons[selected.name as keyof typeof icons] as
-                  | React.ElementType
-                  | undefined
+                const Icon = areaIconMap[selected.name]
                 return Icon ? <Icon size={16} /> : null
               })()}
               {selected.label}
@@ -71,9 +70,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
             {Object.entries(grouped).map(([category, items]) => (
               <CommandGroup key={category} heading={category}>
                 {items.map((icon) => {
-                  const Icon = icons[icon.name as keyof typeof icons] as
-                    | React.ElementType
-                    | undefined
+                  const Icon = areaIconMap[icon.name]
                   return (
                     <CommandItem
                       key={icon.name}

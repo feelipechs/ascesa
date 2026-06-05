@@ -8,8 +8,6 @@ export const updateSiteSettingsSchema = z.object({
   mission: z.string().optional(),
   vision: z.string().optional(),
   about: z.string().optional(),
-  homeTitle: z.string().optional(),
-  homeSubtitle: z.string().optional(),
   values: z.string().optional(),
   socialInstagram: z.string().optional(),
   socialFacebook: z.string().optional(),

@@ -37,7 +37,7 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-8">
         {/* LOGO */}
         <Link href="/" className="flex items-center">
-          <Image src="/logo.png" alt="Ascesa" width={80} height={40} priority />
+          <Image src="/logo.png" alt="Ascesa" width={1600} height={585} priority className="h-10 lg:h-12 w-auto" />
         </Link>
 
         {/* DESKTOP NAV */}

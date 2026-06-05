@@ -1,7 +1,7 @@
-import type { ProjectWithArea, ProjectFilters, PaginatedResponse } from '@/types'
+import type { ProjectWithDetails, ProjectFilters, PaginatedResponse } from '@/types'
 
 export const ProjectsApi = {
-  async findAll(filters?: ProjectFilters): Promise<PaginatedResponse<ProjectWithArea>> {
+  async findAll(filters?: ProjectFilters): Promise<PaginatedResponse<ProjectWithDetails>> {
     const params = new URLSearchParams()
     if (filters?.search) params.set('search', filters.search)
     if (filters?.areas?.length) params.set('areas', filters.areas.join(','))
@@ -17,7 +17,7 @@ export const ProjectsApi = {
     return res.json()
   },
 
-  async findById(id: string): Promise<ProjectWithArea> {
+  async findById(id: string): Promise<ProjectWithDetails> {
     const res = await fetch(`/api/projects/${id}`)
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
@@ -26,7 +26,7 @@ export const ProjectsApi = {
     return res.json()
   },
 
-  async create(data: unknown): Promise<ProjectWithArea> {
+  async create(data: unknown): Promise<ProjectWithDetails> {
     const res = await fetch('/api/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,7 +39,7 @@ export const ProjectsApi = {
     return res.json()
   },
 
-  async update(id: string, data: unknown): Promise<ProjectWithArea> {
+  async update(id: string, data: unknown): Promise<ProjectWithDetails> {
     const res = await fetch(`/api/projects/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -61,17 +61,18 @@ export const ProjectsApi = {
   },
 
   async findWithVolunteers(): Promise<{
+  id: string
+  title: string
+  slug: string
+  eventDate: string | null
+  location: string | null
+  vacancies: number | null
+  registrations: {
     id: string
-    title: string
-    slug: string
-    eventDate: string | null
-    location: string | null
-    vacancies: number | null
-    registrations: {
-      id: string
-      status: string
-      volunteer: { id: string; name: string; email: string; phone: string | null }
-    }[]
+    status: string
+    message: string | null
+    volunteer: { id: string; name: string; email: string; phone: string | null }
+  }[]
   }[]> {
     const res = await fetch('/api/projects/with-volunteers')
     if (!res.ok) throw new Error('Falha ao carregar projetos com voluntários')

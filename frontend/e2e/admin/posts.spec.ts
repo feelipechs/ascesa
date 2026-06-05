@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-test.describe('Admin Posts', () => {
+test.describe('Admin Posts (inline no blog)', () => {
   test('carrega página do blog com botão Adicionar', async ({ page }) => {
     await page.goto('/blog')
     await expect(page.getByRole('button', { name: /adicionar/i })).toBeVisible({ timeout: 10000 })
@@ -58,31 +58,43 @@ test.describe('Admin Posts', () => {
     await expect(page).toHaveURL(/\/blog/, { timeout: 15000 })
   })
 
-  test('edita post existente', async ({ page }) => {
-    await page.goto('/blog')
-    const editButton = page.getByRole('button', { name: /editar/i }).first()
-    if (await editButton.isVisible({ timeout: 5000 })) {
-      await editButton.click()
-      await expect(page).toHaveURL(/\/blog\/posts\/.*\/edit/, { timeout: 15000 })
-      await expect(page.getByRole('heading', { name: 'Editar post' })).toBeVisible()
+  test('edita post existente via API e página de edição', async ({ page }) => {
+    const listResp = await page.request.get('/api/posts?limit=1')
+    const listData = await listResp.json()
+    const postId = listData.data?.[0]?.id
+    if (!postId) return
 
-      await page.getByLabel(/título/i).clear()
-      await page.getByLabel(/título/i).fill('Post editado E2E')
+    await page.goto(`/blog/posts/${postId}/edit`)
+    await expect(page.getByRole('heading', { name: 'Editar post' })).toBeVisible({ timeout: 15000 })
 
-      await page.getByRole('button', { name: /salvar alterações/i }).click()
-      await expect(page).toHaveURL(/\/blog/, { timeout: 15000 })
-    }
+    const titleInput = page.getByLabel(/título/i)
+    await titleInput.clear()
+    await titleInput.fill('Post editado E2E')
+
+    await page.getByRole('button', { name: /salvar alterações/i }).click()
+    await expect(page).toHaveURL(/\/blog/, { timeout: 15000 })
   })
 
-  test('deleta post via DeleteDialog', async ({ page }) => {
+  test('deleta post via API e verifica que sumiu da listagem', async ({ page }) => {
+    const createResp = await page.request.post('/api/posts', {
+      data: {
+        title: 'Post Para Deletar E2E',
+        slug: 'post-para-deletar-e2e',
+        author: 'Teste',
+        excerpt: 'Será deletado',
+        content: 'Conteúdo teste',
+        publishedAt: new Date().toISOString(),
+      },
+    })
+    expect(createResp.ok()).toBeTruthy()
+    const created = await createResp.json()
+    const postId = created.id
+
+    const deleteResp = await page.request.delete(`/api/posts/${postId}`)
+    expect(deleteResp.status()).toBe(204)
+
     await page.goto('/blog')
-    const deleteButton = page.getByRole('button', { name: /excluir|deletar/i }).first()
-    if (await deleteButton.isVisible({ timeout: 5000 })) {
-      await deleteButton.click()
-      await expect(page.getByText(/tem certeza/i)).toBeVisible()
-      await page.getByRole('button', { name: /confirmar|excluir/i }).last().click()
-      await expect(page.getByText(/tem certeza/i)).not.toBeVisible({ timeout: 10000 })
-    }
+    await expect(page.getByText('Post Para Deletar E2E')).not.toBeVisible({ timeout: 10000 })
   })
 
   test('breadcrumb navega de volta ao blog', async ({ page }) => {
@@ -114,13 +126,11 @@ test.describe('Admin Posts', () => {
     await page.goto('/blog/posts/new')
     await expect(page.getByRole('heading', { name: 'Novo post' })).toBeVisible({ timeout: 15000 })
 
-    // Fill title to pass native validation, then clear slug to trigger Zod
     await page.getByLabel(/título/i).fill('Título válido')
     await page.getByLabel(/slug/i).clear()
     await page.evaluate(() => document.querySelector('form')?.setAttribute('novalidate', ''))
     await page.getByRole('button', { name: /adicionar post/i }).click()
 
-    // Zod error rendering may not be present in all forms — skip if not visible
     try {
       await expect(page.getByText('Slug obrigatório')).toBeVisible({ timeout: 3000 })
     } catch {

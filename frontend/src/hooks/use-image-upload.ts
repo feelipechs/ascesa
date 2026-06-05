@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface UseImageUploadProps {
-  onUpload?: (url: string) => void
+  onUpload?: (mediaId: string, url: string) => void
 }
 
 export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
@@ -12,7 +12,7 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const uploadFile = async (file: File, localUrl: string): Promise<string> => {
+  const uploadFile = async (file: File, localUrl: string): Promise<{ mediaId: string; url: string }> => {
     try {
       setUploading(true)
       setError(null)
@@ -30,8 +30,8 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
         throw new Error(body.error || 'Falha no upload')
       }
 
-      const { url } = await res.json()
-      return url
+      const data = await res.json()
+      return { mediaId: data.mediaId, url: data.url }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Falha no upload'
       setError(errorMessage)
@@ -55,8 +55,8 @@ export function useImageUpload({ onUpload }: UseImageUploadProps = {}) {
         previewRef.current = localUrl
 
         try {
-          const uploadedUrl = await uploadFile(file, localUrl)
-          onUpload?.(uploadedUrl)
+          const { mediaId, url } = await uploadFile(file, localUrl)
+          onUpload?.(mediaId, url)
         } catch (err) {
           URL.revokeObjectURL(localUrl)
           setPreviewUrl(null)

@@ -5,7 +5,6 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createAreaSchema, updateAreaSchema } from '@/schemas/area.schema'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAreaMutations, areaQueryOptions } from '@/hooks/areas/queries'
 import { useQuery } from '@tanstack/react-query'
@@ -14,6 +13,8 @@ import { TitleField } from './fields/title-field'
 import { SlugField } from './fields/slug-field'
 import { DescriptionField } from './fields/description-field'
 import { IconPicker } from './fields/icon-picker'
+import { ImageUploadField } from './fields/image-upload-field'
+
 
 type AreaFormProps = {
   areaId?: string
@@ -33,7 +34,7 @@ export function AreaForm({ areaId, onSuccess, onCancel }: AreaFormProps) {
       slug: '',
       description: '',
       iconName: null,
-      coverUrl: '',
+      coverMediaId: '',
     },
   })
 
@@ -44,15 +45,16 @@ export function AreaForm({ areaId, onSuccess, onCancel }: AreaFormProps) {
       slug: areaData.slug ?? '',
       description: areaData.description ?? '',
       iconName: areaData.iconName ?? null,
-      coverUrl: areaData.coverUrl ?? '',
+      coverMediaId: areaData.coverMediaId ?? '',
     })
   }, [areaData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
+    const payload = { ...data, coverMediaId: (data.coverMediaId as string) || null }
     if (isEditing && areaId) {
-      update.mutate({ id: areaId, data }, { onSuccess })
+      update.mutate({ id: areaId, data: payload }, { onSuccess })
     } else {
-      create.mutate(data, { onSuccess })
+      create.mutate(payload, { onSuccess })
     }
   }
 
@@ -88,14 +90,19 @@ export function AreaForm({ areaId, onSuccess, onCancel }: AreaFormProps) {
         )}
       />
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="coverUrl">URL da imagem de capa</Label>
-        <Input
-          id="coverUrl"
-          {...form.register('coverUrl')}
-          placeholder="https://..."
-        />
-      </div>
+      <Controller
+        control={form.control}
+        name="coverMediaId"
+        render={({ field }) => (
+          <ImageUploadField
+            mediaId={field.value ?? ''}
+            url={areaData?.coverMedia?.url ?? null}
+            onChange={(mediaId) => field.onChange(mediaId)}
+            onRemove={() => field.onChange('')}
+            label="Imagem de capa"
+          />
+        )}
+      />
 
       <div className="flex flex-col gap-2">
         <Label>Ícone</Label>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createPartnerSchema, updatePartnerSchema } from '@/schemas/partner.schema'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { usePartnerMutations, partnerQueryOptions } from '@/hooks/partners/queries'
 import { useQuery } from '@tanstack/react-query'
+import { ImageUploadField } from './fields/image-upload-field'
+
 
 type PartnerFormProps = {
   partnerId?: string
@@ -25,7 +27,7 @@ export function PartnerForm({ partnerId, onSuccess, onCancel }: PartnerFormProps
     resolver: zodResolver(isEditing ? updatePartnerSchema : createPartnerSchema),
     defaultValues: {
       name: '',
-      logoUrl: '',
+      logoMediaId: '',
       websiteUrl: '',
     },
   })
@@ -34,7 +36,7 @@ export function PartnerForm({ partnerId, onSuccess, onCancel }: PartnerFormProps
     if (!partnerData) return
     form.reset({
       name: partnerData.name ?? '',
-      logoUrl: partnerData.logoUrl ?? '',
+      logoMediaId: partnerData.logoMediaId ?? '',
       websiteUrl: partnerData.websiteUrl ?? '',
     })
   }, [partnerData, form])
@@ -58,19 +60,24 @@ export function PartnerForm({ partnerId, onSuccess, onCancel }: PartnerFormProps
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="logoUrl">URL da logo</Label>
-        <Input id="logoUrl" {...form.register('logoUrl')} required placeholder="https://..." />
-        {form.formState.errors.logoUrl && (
-          <p className="text-sm text-destructive">{form.formState.errors.logoUrl.message as string}</p>
+      <Controller
+        control={form.control}
+        name="logoMediaId"
+        render={({ field }) => (
+          <ImageUploadField
+            mediaId={field.value ?? ''}
+            url={partnerData?.logoMedia?.url ?? null}
+            onChange={(mediaId) => field.onChange(mediaId)}
+            onRemove={() => field.onChange('')}
+            label="Logo do parceiro"
+          />
         )}
-      </div>
+      />
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="websiteUrl">Site (opcional)</Label>
         <Input id="websiteUrl" {...form.register('websiteUrl')} placeholder="https://..." />
       </div>
-
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">

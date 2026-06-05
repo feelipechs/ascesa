@@ -31,10 +31,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const document = await createDocument({
-      ...parsed.data,
-      publishedAt: parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : undefined,
-    })
+    const document = await createDocument(parsed.data)
     return NextResponse.json(document, { status: 201 })
   })
 }

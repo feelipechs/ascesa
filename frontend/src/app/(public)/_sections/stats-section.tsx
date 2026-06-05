@@ -1,19 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AdminActions } from '@/components/admin/admin-actions'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { StatForm } from '@/components/admin/forms/stat-form'
-import { useStats, useStatMutations, statKeys } from '@/hooks/stats/queries'
+import { useStats, useStatMutations } from '@/hooks/stats/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { SortableList, SortableItem } from '@/components/sortable-list'
 import { useReorder } from '@/hooks/use-reorder'
-import { StatsApi } from '@/lib/api/stats'
 import { NumberTicker } from '@/components/ui/number-ticker'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Plus, GripVertical } from 'lucide-react'
 import { PageSection } from '@/components/page-section'
@@ -28,8 +25,7 @@ export function StatsSection({ isAuthenticated }: StatsSectionProps) {
   const [editingStat, setEditingStat] = useState<null | { id: string }>(null)
   const [deletingStat, setDeletingStat] = useState<null | { id: string }>(null)
   const { data: stats = [], isLoading } = useStats()
-  const { remove, isPending } = useStatMutations()
-  const queryClient = useQueryClient()
+  const { remove, reorder: reorderMutation, isPending } = useStatMutations()
 
   const { optimisticItems, reorder, setOptimisticItems } = useReorder(stats, { field: 'order' })
 
@@ -53,13 +49,9 @@ export function StatsSection({ isAuthenticated }: StatsSectionProps) {
     if (!reordered) return
 
     const items = reordered.map((item, i) => ({ id: item.id, order: i }))
-    try {
-      await StatsApi.reorder(items)
-      queryClient.invalidateQueries({ queryKey: statKeys.all })
-    } catch {
-      toast.error('Falha ao reordenar')
-      setOptimisticItems(stats)
-    }
+    reorderMutation.mutate(items, {
+      onError: () => setOptimisticItems(stats),
+    })
   }
 
   if (isLoading)
@@ -72,8 +64,6 @@ export function StatsSection({ isAuthenticated }: StatsSectionProps) {
         </div>
       </PageSection>
     )
-
-  if (!isLoading && stats.length === 0 && !isAuthenticated) return null
 
   const action = isAuthenticated ? { label: 'Adicionar', onClick: handleNew } : undefined
 

@@ -22,11 +22,11 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (!parsed.success) return validationError(parsed.error)
     const existing = await AnimalService.findBySlug(slug)
     if (!existing) return NextResponse.json({ error: 'Animal não encontrado' }, { status: 404 })
-    const { publishedAt, birthDate, speciesId, ...rest } = parsed.data
+    const { birthDate, coverMediaId, ...rest } = parsed.data
     const data: Record<string, unknown> = { ...rest }
-    if (speciesId !== undefined) data.species = { connect: { id: speciesId } }
-    if (publishedAt !== undefined) data.publishedAt = publishedAt ? new Date(publishedAt) : null
     if (birthDate !== undefined) data.birthDate = birthDate ? new Date(birthDate) : null
+    if (coverMediaId) data.coverMedia = { connect: { id: coverMediaId } }
+    else if (coverMediaId === '') data.coverMedia = { disconnect: true }
     const animal = await AnimalService.update(existing.id, data)
     return NextResponse.json(animal)
   })

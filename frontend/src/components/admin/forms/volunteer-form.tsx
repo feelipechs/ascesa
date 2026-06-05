@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useVolunteerMutations, volunteerQueryOptions } from '@/hooks/volunteers/queries'
 import { useQuery } from '@tanstack/react-query'
+import { toDateInput } from '@/lib/utils-date'
 
 type VolunteerFormProps = {
   volunteerId?: string
@@ -38,15 +39,15 @@ export function VolunteerForm({ volunteerId, onSuccess, onCancel }: VolunteerFor
       name: (data.name as string) ?? '',
       email: (data.email as string) ?? '',
       phone: (data.phone as string) ?? '',
-      birthDate: data.birthDate ? String(data.birthDate).split('T')[0] : '',
+      birthDate: data.birthDate ? toDateInput(data.birthDate as string | Date) : '',
     })
   }, [volunteerData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
-    const payload = {
-      ...data,
-      birthDate: data.birthDate ? new Date(data.birthDate as string).toISOString() : null,
-    }
+  const payload = {
+    ...data,
+    birthDate: (data.birthDate as string) || null,
+  }
     if (isEditing && volunteerId) {
       update.mutate({ id: volunteerId, data: payload }, { onSuccess })
     } else {

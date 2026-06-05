@@ -1,28 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
 import { updateUserSchema } from '@/schemas/user.schema'
+import { hashPassword } from '@/lib/password'
+import { UserService } from '@/services/user.service'
+import { prisma } from '@/lib/prisma'
 import { Role } from '@/generated/prisma/enums'
-import { hashPassword } from '@/lib/utils-server'
 
 type Params = { params: Promise<{ id: string }> }
-
-const userSelect = {
-  id: true,
-  email: true,
-  name: true,
-  role: true,
-  createdAt: true,
-  updatedAt: true,
-} as const
 
 export async function GET(_req: NextRequest, { params }: Params) {
   return protectedApiHandler(async () => {
     const { id } = await params
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: userSelect,
-    })
+    const user = await UserService.findById(id)
     if (!user) return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
     return NextResponse.json(user)
   }, { role: 'ADMIN' })
@@ -45,20 +34,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
     }
 
     if (!isAdmin) {
-      const { role: _role, ...rest } = parsed.data
-      const user = await prisma.user.update({
-        where: { id },
-        data: rest,
-        select: userSelect,
-      })
+      const { role, ...rest } = parsed.data
+      void role
+      const user = await UserService.update(id, rest)
       return NextResponse.json(user)
     }
 
     if (parsed.data.role === Role.ADMIN) {
-      const existingAdmin = await prisma.user.findFirst({
-        where: { role: Role.ADMIN, id: { not: id } },
-      })
-      if (existingAdmin) {
+      const adminCount = await UserService.findAdminCount(id)
+      if (adminCount > 0) {
         return NextResponse.json(
           { error: 'Já existe um administrador. Remova o atual antes de promover outro.' },
           { status: 409 }
@@ -71,9 +55,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     if (password) {
       const hashedPassword = await hashPassword(password)
-      const account = await prisma.account.findFirst({
-        where: { userId: id, providerId: 'credential' },
-      })
+      const account = await UserService.findAccount(id)
       if (account) {
         await prisma.account.update({
           where: { id: account.id },
@@ -91,11 +73,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
       }
     }
 
-    const user = await prisma.user.update({
-      where: { id },
-      data,
-      select: userSelect,
-    })
+    const user = await UserService.update(id, data)
     return NextResponse.json(user)
   })
 }
@@ -106,7 +84,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     if (id === session.user.id) {
       return NextResponse.json({ error: 'Não pode deletar a si mesmo' }, { status: 400 })
     }
-    await prisma.user.delete({ where: { id } })
+    await UserService.delete(id)
     return new NextResponse(null, { status: 204 })
   }, { role: 'ADMIN' })
 }

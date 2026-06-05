@@ -16,6 +16,7 @@ export const AREA_ICONS = [
   // --- Saúde & Bem-estar
   { name: 'Heart', label: 'Saúde Mental', category: 'Saúde & Bem-estar' },
   { name: 'Stethoscope', label: 'Saúde Física', category: 'Saúde & Bem-estar' },
+  { name: 'Syringe', label: 'Castração', category: 'Saúde & Bem-estar' },
   { name: 'Activity', label: 'Fitness', category: 'Saúde & Bem-estar' },
   { name: 'Dumbbell', label: 'Esporte', category: 'Saúde & Bem-estar' },
   { name: 'Wind', label: 'Atividades Aquáticas', category: 'Saúde & Bem-estar' },
@@ -74,6 +75,7 @@ export const AREA_ICONS = [
   { name: 'Film', label: 'Cinema', category: 'Cultura & Identidade' },
 
   // --- Genérico & Multidisciplinar
+  { name: 'PawPrint', label: 'Adoção', category: 'Genérico & Multidisciplinar' },
   { name: 'Star', label: 'Excelência', category: 'Genérico & Multidisciplinar' },
   { name: 'Sparkles', label: 'Inovação', category: 'Genérico & Multidisciplinar' },
   { name: 'Compass', label: 'Direcionamento', category: 'Genérico & Multidisciplinar' },

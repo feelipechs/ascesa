@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
+import { ContactApi } from '@/lib/api/contact'
+import { toast } from 'sonner'
+import { getErrorMessage } from '@/lib/utils'
 
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -15,11 +18,22 @@ export function ContactForm() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simula envio do formulário
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+    try {
+      const form = e.currentTarget
+      const data = {
+        name: (form.elements.namedItem('name') as HTMLInputElement).value,
+        email: (form.elements.namedItem('email') as HTMLInputElement).value,
+        phone: (form.elements.namedItem('phone') as HTMLInputElement).value || undefined,
+        subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
+        message: (form.elements.namedItem('message') as HTMLInputElement).value,
+      }
+      await ContactApi.send(data)
+      setIsSubmitted(true)
+    } catch (error) {
+      toast.error('Falha ao enviar mensagem', { description: getErrorMessage(error) })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (isSubmitted) {

@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createProjectSchema, updateProjectSchema } from '@/schemas/project.schema'
-import { nowISO } from '@/lib/utils-date'
+import { toDateInput } from '@/lib/utils-date'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,6 +16,11 @@ import { toSlug } from '@/lib/utils'
 import { TitleField } from './fields/title-field'
 import { SlugField } from './fields/slug-field'
 import { DescriptionField } from './fields/description-field'
+import { ImageUploadField } from './fields/image-upload-field'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { ProjectWithDetails } from '@/types'
+
+type ProjectData = ProjectWithDetails
 
 type ProjectFormProps = {
   projectId?: string
@@ -26,49 +30,60 @@ type ProjectFormProps = {
 
 export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps) {
   const isEditing = !!projectId
-  const { data: projectData } = useQuery(projectQueryOptions(projectId))
+  const { data: projectData, isLoading } = useQuery(projectQueryOptions(projectId))
+
+  if (isEditing && isLoading) {
+    return <Skeleton className="h-96 w-full" />
+  }
+
+  if (isEditing && !projectData) {
+    return null
+  }
+
+  return (
+    <ProjectFormInner
+      projectId={projectId}
+      projectData={projectData as ProjectData | undefined}
+      onSuccess={onSuccess}
+      onCancel={onCancel}
+    />
+  )
+}
+
+type ProjectFormInnerProps = {
+  projectId?: string
+  projectData?: ProjectData
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+function ProjectFormInner({ projectId, projectData, onSuccess, onCancel }: ProjectFormInnerProps) {
+  const isEditing = !!projectId
+  const { create, update, isPending } = useProjectMutations()
   const { data: areasData, isLoading: areasLoading } = useAreas()
   const areas = areasData ?? []
-  const { create, update, isPending } = useProjectMutations()
 
   const form = useForm({
     resolver: zodResolver(isEditing ? updateProjectSchema : createProjectSchema),
     defaultValues: {
-      title: '',
-      slug: '',
-      description: '',
-      content: '',
-      coverUrl: '',
-      areaId: '',
-      featured: false,
-      eventDate: '',
-      location: '',
-      vacancies: null as number | null,
+      title: projectData?.title ?? '',
+      slug: projectData?.slug ?? '',
+      description: projectData?.description ?? '',
+      content: projectData?.content ?? '',
+      coverMediaId: projectData?.coverMediaId ?? '',
+      areaId: projectData?.areaId ?? '',
+      featured: projectData?.featured ?? false,
+      eventDate: projectData?.eventDate ? toDateInput(projectData.eventDate) : '',
+      location: projectData?.location ?? '',
+      vacancies: projectData?.vacancies ?? null as number | null,
     },
   })
-
-  useEffect(() => {
-    if (!projectData) return
-    const data = projectData as unknown as Record<string, unknown>
-    form.reset({
-      title: (data.title as string) ?? '',
-      slug: (data.slug as string) ?? '',
-      description: (data.description as string) ?? '',
-      content: (data.content as string) ?? '',
-      coverUrl: (data.coverUrl as string) ?? '',
-      areaId: (data.areaId as string) ?? '',
-      featured: (data.featured as boolean) ?? false,
-      eventDate: data.eventDate ? String(data.eventDate).split('T')[0] : '',
-      location: (data.location as string) ?? '',
-      vacancies: (data.vacancies as number | null) ?? null,
-    })
-  }, [projectData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
     const payload = {
       ...data,
-      publishedAt: nowISO(),
-      eventDate: data.eventDate ? data.eventDate : null,
+      coverMediaId: (data.coverMediaId as string) || undefined,
+      eventDate: (data.eventDate as string) || null,
       vacancies: data.vacancies ? Number(data.vacancies) : null,
     }
     if (isEditing && projectId) {
@@ -179,14 +194,19 @@ export function ProjectForm({ projectId, onSuccess, onCancel }: ProjectFormProps
         />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="coverUrl">URL da imagem de capa</Label>
-        <Input
-          id="coverUrl"
-          {...form.register('coverUrl')}
-          placeholder="https://..."
-        />
-      </div>
+      <Controller
+        control={form.control}
+        name="coverMediaId"
+        render={({ field }) => (
+          <ImageUploadField
+            mediaId={field.value ?? ''}
+            url={projectData?.coverMedia?.url ?? null}
+            onChange={(mediaId) => field.onChange(mediaId)}
+            onRemove={() => field.onChange('')}
+            label="Imagem de capa"
+          />
+        )}
+      />
 
       <div className="flex items-center gap-2">
         <input

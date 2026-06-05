@@ -1,17 +1,15 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Building, Handshake, BarChart3, Wallet, FileText, Plus } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { AdminActions } from '@/components/admin/admin-actions'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   useDocumentCategories,
   useDocumentCategoryMutations,
 } from '@/hooks/document-categories/queries'
 import { useDocuments, useDocumentMutations } from '@/hooks/documents/queries'
-import { DocumentSection } from './document-section'
+import { DocumentsGroupedList } from './documents-grouped-list'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { DocumentForm } from '@/components/admin/forms/document-form'
 import { DocumentCategoryForm } from '@/components/admin/forms/document-category-form'
@@ -19,13 +17,7 @@ import { DeleteDialog } from '@/components/delete-dialog'
 import { EmptyState } from '@/components/empty-state'
 import type { DocumentCategory, DocumentWithCategory } from '@/types'
 import { PageSection } from '@/components/page-section'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { TransparencyFilters } from './transparency-filters'
 
 type TransparencyContentProps = {
   isAuthenticated?: boolean
@@ -83,17 +75,16 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
   if (isCategoriesLoading || isDocumentsLoading)
     return (
       <PageSection padding="compact">
-        <div className="mb-8 flex flex-wrap gap-4 items-center justify-between">
-          <div className="flex flex-wrap gap-4">
-            <Skeleton className="h-10 w-48 rounded-md" />
-            <Skeleton className="h-10 w-36 rounded-md" />
-          </div>
+        <div className="flex justify-end mb-6">
           <Skeleton className="h-9 w-32 rounded-md" />
         </div>
-        <div className="space-y-16">
+        <div className="mb-8 flex flex-wrap gap-4 items-center">
+          <Skeleton className="h-10 w-48 rounded-md" />
+          <Skeleton className="h-10 w-36 rounded-md" />
+        </div>
+        <div className="space-y-8 md:space-y-12 lg:space-y-16">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i}>
-              {i > 0 && <Separator className="mb-16" />}
               <div className="flex items-center justify-between mb-6">
                 <Skeleton className="h-6 w-48" />
                 <div className="flex gap-2">
@@ -144,83 +135,41 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
     setDeletingCat(cat)
   }
 
-  const hasNoDocuments = documents.length === 0 && !selectedCategory && !selectedYear
+  const hasNoDocuments = documents.length === 0 && !selectedCategory && !selectedYear && (categories ?? []).length === 0
 
   return (
     <PageSection padding="compact">
-      <div className="mb-8 flex flex-wrap gap-4 items-center justify-between">
-        <div className="flex flex-wrap gap-4">
-          <Select
-            value={selectedCategory ?? 'all'}
-            onValueChange={(v) => setSelectedCategory(v === 'all' ? undefined : v)}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as categorias</SelectItem>
-              {categories?.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name} ({cat._count.documents})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={selectedYear?.toString() ?? 'all'}
-            onValueChange={(v) => setSelectedYear(v === 'all' ? undefined : Number(v))}
-          >
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os anos</SelectItem>
-              {availableYears.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {isAuthenticated && (
-          <Button
-            size="sm"
-            onClick={() => {
-              setEditingCat(null)
-              setCatSheetOpen(true)
-            }}
-          >
+      {isAuthenticated && (
+        <div className="flex justify-end mb-6">
+          <Button size="sm" onClick={() => { setEditingCat(null); setCatSheetOpen(true) }}>
             <Plus className="h-4 w-4 mr-2" />
             Adicionar
           </Button>
-        )}
-      </div>
+        </div>
+      )}
+
+      <TransparencyFilters
+        categories={categories}
+        availableYears={availableYears}
+        selectedCategory={selectedCategory}
+        selectedYear={selectedYear}
+        onCategoryChange={setSelectedCategory}
+        onYearChange={setSelectedYear}
+      />
 
       {hasNoDocuments ? (
         <EmptyState title="Nenhum documento encontrado." />
       ) : (
-        <div className="space-y-16">
-          {(categories ?? []).map((category, index) => (
-            <div key={category.id}>
-              {index > 0 && <Separator className="mb-16" />}
-              <DocumentSection
-                icon={<FileText className="h-5 w-5" />}
-                title={category.name}
-                description=""
-                documents={groupedDocuments[category.slug] ?? []}
-                isAuthenticated={isAuthenticated}
-                onAdd={() => handleAddDocument(category.slug)}
-                onEdit={handleEditDocument}
-                onDelete={handleDeleteDocument}
-                onEditCategory={() => handleEditCategory(category)}
-                onDeleteCategory={() => handleDeleteCategory(category)}
-              />
-            </div>
-          ))}
-        </div>
+        <DocumentsGroupedList
+          categories={categories ?? []}
+          groupedDocuments={groupedDocuments}
+          isAuthenticated={isAuthenticated}
+          onAddDocument={handleAddDocument}
+          onEditDocument={handleEditDocument}
+          onDeleteDocument={handleDeleteDocument}
+          onEditCategory={handleEditCategory}
+          onDeleteCategory={handleDeleteCategory}
+        />
       )}
 
       {isAuthenticated && (
@@ -277,7 +226,7 @@ export function TransparencyContent({ isAuthenticated }: TransparencyContentProp
         />
       )}
 
-      <div className="mt-16 rounded-lg border bg-muted/30 p-6 text-center">
+      <div className="mt-8 md:mt-12 lg:mt-16 rounded-lg border bg-muted/30 p-6 text-center">
         <p className="text-sm text-muted-foreground">
           Todos os documentos estão disponíveis para consulta pública.
         </p>

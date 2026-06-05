@@ -33,11 +33,11 @@ export async function POST(req: NextRequest) {
       return validationError(parsed.error)
     }
 
-    const { areaId, publishedAt, eventDate, ...rest } = parsed.data
+    const { areaId, coverMediaId, eventDate, ...rest } = parsed.data
     const project = await createProject({
       ...rest,
       area: { connect: { id: areaId } },
-      publishedAt: publishedAt ? new Date(publishedAt) : undefined,
+      ...(coverMediaId ? { coverMedia: { connect: { id: coverMediaId } } } : {}),
       eventDate: eventDate ? new Date(eventDate) : undefined,
     })
 

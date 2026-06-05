@@ -1,9 +1,11 @@
 import { prisma } from '@/lib/prisma'
-import type { CreateFiscalNoteInput, UpdateFiscalNoteInput } from '@/schemas/fiscal-note.schema'
+import type { CreateFiscalNoteInput } from '@/schemas/fiscal-note.schema'
 
 export const FiscalNoteService = {
   async findAll() {
-    return prisma.fiscalNote.findMany({ orderBy: { createdAt: 'desc' } })
+    return prisma.fiscalNote.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
   },
 
   async findById(id: string) {
@@ -26,18 +28,6 @@ export const FiscalNoteService = {
       data: {
         type: data.type,
         accessKey: data.accessKey,
-      },
-    })
-  },
-
-  async update(id: string, data: UpdateFiscalNoteInput) {
-    const { emissionDate, amount, ...rest } = data
-    return prisma.fiscalNote.update({
-      where: { id },
-      data: {
-        ...rest,
-        emissionDate: emissionDate !== undefined ? (emissionDate ? new Date(emissionDate) : null) : undefined,
-        amount: amount !== undefined ? (amount ?? null) : undefined,
       },
     })
   },

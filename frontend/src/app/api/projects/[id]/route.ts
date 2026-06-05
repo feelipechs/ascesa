@@ -22,11 +22,13 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const { publishedAt, eventDate, areaId, ...rest } = parsed.data
+    const { eventDate, areaId, coverMediaId, ...rest } = parsed.data
     const project = await updateProject(id, {
       ...rest,
       ...(areaId ? { area: { connect: { id: areaId } } } : {}),
-      publishedAt: publishedAt === null ? null : publishedAt ? new Date(publishedAt) : undefined,
+      ...(coverMediaId !== undefined && {
+        coverMedia: coverMediaId ? { connect: { id: coverMediaId } } : { disconnect: true },
+      }),
       eventDate: eventDate === null ? null : eventDate ? new Date(eventDate) : undefined,
     })
     return NextResponse.json(project)

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createPaymentMethodSchema } from '@/schemas/payment-method.schema'
+import { createPaymentMethodSchema, updatePaymentMethodSchema } from '@/schemas/payment-method.schema'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,8 +23,9 @@ export function PaymentMethodForm({ method, onSuccess, onCancel }: PaymentMethod
   const { create, update, isPending } = usePaymentMethodMutations()
   const [type, setType] = useState<string>((method?.type as string) ?? 'PIX')
 
-  const form = useForm<any>({
-    resolver: zodResolver(createPaymentMethodSchema),
+  const form = useForm({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(isEditing ? updatePaymentMethodSchema : createPaymentMethodSchema) as any,
     defaultValues: {
       type: 'PIX',
       label: '',

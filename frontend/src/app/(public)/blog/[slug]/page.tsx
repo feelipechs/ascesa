@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   return {
     title: `${post.title} — Ascesa`,
     description: post.excerpt || `Leia "${post.title}" no blog da Ascesa.`,
-    openGraph: post.coverUrl
-      ? { images: [{ url: post.coverUrl, alt: post.title }] }
+    openGraph: post.coverMedia?.url
+    ? { images: [{ url: post.coverMedia.url, alt: post.title }] }
       : undefined,
   }
 }

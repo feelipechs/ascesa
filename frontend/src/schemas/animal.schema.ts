@@ -1,21 +1,24 @@
 import { z } from 'zod'
-import { AnimalGender, AnimalStatus } from '@/generated/prisma/enums'
+import { AnimalGender, AnimalStatus, AnimalSpecies, AnimalSize, AnimalAgeRange } from '@/generated/prisma/enums'
+import { dateInputToISO } from '@/lib/utils-date'
 
 export const createAnimalSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
-  speciesId: z.string().min(1),
+  species: z.nativeEnum(AnimalSpecies),
   breed: z.string().optional().nullable(),
   gender: z.nativeEnum(AnimalGender),
-  sizeId: z.string().optional().nullable(),
-  birthDate: z.string().datetime({ offset: true }).optional().nullable(),
-  ageRangeId: z.string().optional().nullable(),
+  size: z.nativeEnum(AnimalSize).optional().nullable(),
+  birthDate: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() !== '' ? dateInputToISO(v) : null),
+    z.string().datetime().nullable().optional(),
+  ),
+  ageRange: z.nativeEnum(AnimalAgeRange).optional().nullable(),
   description: z.string().optional().nullable(),
   content: z.string().optional().nullable(),
-  coverUrl: z.string().url().optional().nullable(),
+  coverMediaId: z.string().optional().nullable(),
   status: z.nativeEnum(AnimalStatus).default('AVAILABLE'),
   featured: z.boolean().default(false),
-  publishedAt: z.string().datetime({ offset: true }).optional().nullable(),
 })
 
 export const updateAnimalSchema = createAnimalSchema.partial()

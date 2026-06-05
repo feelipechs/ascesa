@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { cache } from 'react'
 import { SafeImage } from '@/components/safe-image'
 import { ImagePlaceholder } from '@/components/image-placeholder'
-import { format } from 'date-fns'
 import { ArrowLeft, Calendar, MapPin, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,7 +11,11 @@ import { getProjectBySlug } from '@/services/project.service'
 import { auth } from '@/auth'
 import { headers } from 'next/headers'
 import { routes } from '@/lib/routes'
+import { formatUTC } from '@/lib/utils-date'
+import { ptBR } from 'date-fns/locale'
 import { GallerySection } from '@/components/gallery-section'
+import { PageSection } from '@/components/page-section'
+import { SectionHeading } from '@/components/section-heading'
 import { VolunteerButton } from './_sections/volunteer-button'
 
 const getCachedProject = cache((slug: string) => getProjectBySlug(slug))
@@ -38,11 +41,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   if (!project) notFound()
 
   return (
-    <main className="min-h-screen bg-background">
+    <main>
       <section className="relative h-[50vh] min-h-[400px] overflow-hidden">
-        {project.coverUrl ? (
-          <SafeImage
-            src={project.coverUrl}
+    {project.coverMedia?.url ? (
+      <SafeImage
+        src={project.coverMedia.url}
             alt={project.title}
             fill
             className="object-cover"
@@ -52,17 +55,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <ImagePlaceholder className="h-full w-full" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/40 to-transparent" />
-        <div className="absolute inset-0 flex flex-col justify-end">
-          <div className="mx-auto max-w-6xl px-4 pb-12">
-            <h1 className="text-4xl font-bold text-white md:text-5xl lg:text-6xl text-balance">
+        <header className="absolute inset-0 flex flex-col justify-end">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-12">
+            <h1 className="text-4xl font-bold text-primary-foreground md:text-5xl lg:text-6xl text-balance">
               {project.title}
             </h1>
           </div>
-        </div>
+        </header>
       </section>
 
-      <div className="mx-auto max-w-6xl px-4 py-12">
-        <Button variant="ghost" asChild className="mb-8 -ml-4">
+      <PageSection padding="compact">
+        <Button variant="ghost" asChild className="-ml-4 mb-6">
           <Link href={routes.projects} className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             Voltar para projetos
@@ -72,7 +75,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <div className="grid gap-12 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
             <section>
-              <h2 className="mb-4 text-2xl font-semibold text-foreground">Sobre o Projeto</h2>
+              <SectionHeading title="Sobre o Projeto" />
               <div className="prose max-w-none">
                 {project.content ? (
                   project.content.split('\n\n').map((paragraph, index) => (
@@ -86,11 +89,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               </div>
             </section>
 
-              <GallerySection
-                context="PROJECT"
-                foreignKey={project.id}
-                isAuthenticated={isAuthenticated}
-              />
+            <GallerySection
+              context="PROJECT"
+              foreignKey={project.id}
+              isAuthenticated={isAuthenticated}
+            />
           </div>
 
           <aside className="space-y-6">
@@ -104,21 +107,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Área</p>
-                      <p className="font-medium text-foreground">{project.area.title}</p>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Calendar className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Publicado em</p>
-                      <p className="font-medium text-foreground">
-                        {project.publishedAt
-                          ? format(project.publishedAt, 'dd/MM/yyyy')
-                          : 'Não publicado'}
-                      </p>
+                      <p className="font-medium text-foreground">{project.area?.title ?? '—'}</p>
                     </div>
                   </div>
 
@@ -132,7 +121,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                         <div>
                           <p className="text-sm text-muted-foreground">Data do evento</p>
                           <p className="font-medium text-foreground">
-                            {format(project.eventDate, "dd 'de' MMMM 'de' yyyy")}
+                            {formatUTC(project.eventDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                           </p>
                         </div>
                       </div>
@@ -154,7 +143,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                     </>
                   )}
 
-                  {project.vacancies !== null && project.vacancies !== undefined && (
+                  {project.vacancies != null && (
                     <>
                       <Separator />
                       <div className="flex items-center gap-3">
@@ -170,12 +159,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                   )}
                 </div>
               </CardContent>
-        </Card>
+            </Card>
 
-        <VolunteerButton projectId={project.id} projectTitle={project.title} />
-      </aside>
+            <VolunteerButton projectId={project.id} projectTitle={project.title} />
+          </aside>
         </div>
-      </div>
+      </PageSection>
     </main>
   )
 }

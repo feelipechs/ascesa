@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/r
 import { toast } from 'sonner'
 import { StatsApi } from '@/lib/api/stats'
 import { getErrorMessage } from '@/lib/utils'
+import type { Stat } from '@/types'
 
 export const statKeys = {
   all: ['stats'] as const,
@@ -44,13 +45,25 @@ export function useStatMutations() {
 
   const create = useMutation({
     mutationFn: StatsApi.create,
-    onSuccess: () => onSuccess('Métrica criada com sucesso!'),
+    onSuccess: (data) => {
+      queryClient.setQueryData<Stat[]>(statKeys.list(), (old) =>
+        old ? [...old, data] : [data]
+      )
+      queryClient.invalidateQueries({ queryKey: statKeys.all })
+      toast.success('Métrica criada com sucesso!')
+    },
     onError: (e) => onError(e, 'criar métrica'),
   })
 
   const update = useMutation({
     mutationFn: ({ id, data }: { id: string; data: unknown }) => StatsApi.update(id, data),
-    onSuccess: () => onSuccess('Métrica atualizada!'),
+    onSuccess: (data) => {
+      queryClient.setQueryData<Stat[]>(statKeys.list(), (old) =>
+        old ? old.map((s) => (s.id === data.id ? data : s)) : old
+      )
+      queryClient.invalidateQueries({ queryKey: statKeys.all })
+      toast.success('Métrica atualizada!')
+    },
     onError: (e) => onError(e, 'atualizar métrica'),
   })
 
@@ -60,10 +73,17 @@ export function useStatMutations() {
     onError: (e) => onError(e, 'remover métrica'),
   })
 
+  const reorder = useMutation({
+    mutationFn: StatsApi.reorder,
+    onSuccess: () => onSuccess('Métricas reordenadas!'),
+    onError: (e) => onError(e, 'reordenar métricas'),
+  })
+
   return {
     create,
     update,
     remove,
-    isPending: create.isPending || update.isPending || remove.isPending,
+    reorder,
+    isPending: create.isPending || update.isPending || remove.isPending || reorder.isPending,
   }
 }

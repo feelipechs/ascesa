@@ -1,11 +1,14 @@
-import { format } from 'date-fns'
+'use client'
+
+import { formatUTC } from '@/lib/utils-date'
 import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
 import { ArrowLeft, CalendarDays, User } from 'lucide-react'
 import { SafeImage } from '@/components/safe-image'
-import { ImagePlaceholder } from '@/components/image-placeholder'
 import { Button } from '@/components/ui/button'
 import type { Post } from '@/types'
+import { sanitizeHtml } from '@/lib/sanitize'
+import { routes } from '@/lib/routes'
 
 type PostDetailProps = {
   post: Post
@@ -16,7 +19,7 @@ export function PostDetail({ post }: PostDetailProps) {
     <article>
       <div className="mb-8">
         <Button asChild variant="ghost" size="sm" className="mb-6">
-          <Link href="/blog">
+          <Link href={routes.blog}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Voltar ao blog
           </Link>
@@ -26,15 +29,15 @@ export function PostDetail({ post }: PostDetailProps) {
           {post.title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {post.publishedAt && (
-            <div className="flex items-center gap-1.5">
-              <CalendarDays className="h-4 w-4 shrink-0" />
-        <time dateTime={new Date(post.publishedAt).toISOString()}>
-          {format(new Date(post.publishedAt), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-              </time>
-            </div>
-          )}
+      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+        {post.publishedAt && (
+          <div className="flex items-center gap-1.5">
+            <CalendarDays className="h-4 w-4 shrink-0" />
+            <time dateTime={new Date(post.publishedAt).toISOString()}>
+              {formatUTC(post.publishedAt, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+            </time>
+          </div>
+        )}
           {post.author && (
             <div className="flex items-center gap-1.5">
               <User className="h-4 w-4 shrink-0" />
@@ -44,10 +47,10 @@ export function PostDetail({ post }: PostDetailProps) {
         </div>
       </div>
 
-      {post.coverUrl && (
-        <div className="relative mb-8 aspect-[2/1] overflow-hidden rounded-xl">
-          <SafeImage
-            src={post.coverUrl}
+  {post.coverMedia?.url && (
+    <div className="relative mb-8 aspect-[2/1] overflow-hidden rounded-xl">
+      <SafeImage
+        src={post.coverMedia.url}
             alt={post.title}
             fill
             className="object-cover"
@@ -60,7 +63,7 @@ export function PostDetail({ post }: PostDetailProps) {
       {post.content && (
         <div
           className="prose prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-20 prose-a:text-primary prose-img:rounded-lg"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
         />
       )}
 

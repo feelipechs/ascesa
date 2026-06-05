@@ -3,9 +3,8 @@
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Search } from 'lucide-react'
-import { useAnimalSpecies } from '@/hooks/animal-species/queries'
-import { useAnimalSizes } from '@/hooks/animal-sizes/queries'
 import { AnimalStatus } from '@/generated/prisma/enums'
+import { speciesOptions, sizeOptions } from '@/lib/animal-labels'
 
 const statusOptions: { value: AnimalStatus; label: string }[] = [
   { value: AnimalStatus.AVAILABLE, label: 'Disponível' },
@@ -34,9 +33,6 @@ export function AnimalsFilters({
   onSizeChange,
   onStatusChange,
 }: AnimalsFiltersProps) {
-  const { data: species = [] } = useAnimalSpecies()
-  const { data: sizes = [] } = useAnimalSizes()
-
   return (
     <div className="flex flex-wrap gap-3">
       <div className="relative flex-1 min-w-[200px]">
@@ -55,8 +51,8 @@ export function AnimalsFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas</SelectItem>
-          {species.map((s) => (
-            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+          {speciesOptions.map((s) => (
+            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -67,8 +63,8 @@ export function AnimalsFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos</SelectItem>
-          {sizes.map((s) => (
-            <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+          {sizeOptions.map((s) => (
+            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
           ))}
         </SelectContent>
       </Select>

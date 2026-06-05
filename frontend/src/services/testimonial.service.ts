@@ -16,8 +16,6 @@ export async function createTestimonial(data: {
   name: string
   role?: string
   message: string
-  photoUrl?: string | null
-  publishedAt?: Date | null
 }) {
   return prisma.testimonial.create({ data })
 }
@@ -28,8 +26,6 @@ export async function updateTestimonial(
     name?: string
     role?: string
     message?: string
-    photoUrl?: string | null
-    publishedAt?: Date | null
   }
 ) {
   return prisma.testimonial.update({ where: { id }, data })

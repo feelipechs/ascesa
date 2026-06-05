@@ -5,7 +5,6 @@ export const createDocumentSchema = z.object({
   description: z.string().optional(),
   fileUrl: z.string().url('URL do arquivo inválida'),
   year: z.coerce.number().int().optional(),
-  publishedAt: z.string().datetime({ offset: true }).optional(),
   categoryId: z.string().min(1, 'Categoria obrigatória'),
 })
 
@@ -14,7 +13,6 @@ export const updateDocumentSchema = z.object({
   description: z.string().optional(),
   fileUrl: z.string().url('URL do arquivo inválida').optional().or(z.literal('')),
   year: z.coerce.number().int().optional(),
-  publishedAt: z.string().datetime({ offset: true }).nullable().optional(),
   categoryId: z.string().optional(),
 })
 

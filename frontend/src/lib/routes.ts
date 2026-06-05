@@ -7,6 +7,8 @@ export const routes = {
   animals: '/animais',
   animal: (slug: string) => `/animais/${slug}`,
   about: '/sobre',
+  blog: '/blog',
+  post: (slug: string) => `/blog/${slug}`,
   contact: '/contato',
   transparency: '/transparencia',
   donate: '/doacoes',

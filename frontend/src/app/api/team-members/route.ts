@@ -17,10 +17,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const member = await createTeamMember({
-      ...parsed.data,
-      publishedAt: parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : undefined,
-    })
+    const member = await createTeamMember(parsed.data)
     return NextResponse.json(member, { status: 201 })
   })
 }

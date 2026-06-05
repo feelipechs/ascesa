@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useTestimonialMutations, testimonialQueryOptions } from '@/hooks/testimonials/queries'
 import { useQuery } from '@tanstack/react-query'
 
+
 type TestimonialFormProps = {
   testimonialId?: string
   onSuccess: () => void
@@ -28,7 +29,6 @@ export function TestimonialForm({ testimonialId, onSuccess, onCancel }: Testimon
       name: '',
       role: '',
       message: '',
-      photoUrl: '',
     },
   })
 
@@ -38,7 +38,6 @@ export function TestimonialForm({ testimonialId, onSuccess, onCancel }: Testimon
       name: testimonialData.name ?? '',
       role: testimonialData.role ?? '',
       message: testimonialData.message ?? '',
-      photoUrl: testimonialData.photoUrl ?? '',
     })
   }, [testimonialData, form])
 
@@ -46,7 +45,6 @@ export function TestimonialForm({ testimonialId, onSuccess, onCancel }: Testimon
     const payload = {
       ...data,
       role: (data.role as string) || undefined,
-      photoUrl: (data.photoUrl as string) || null,
     }
     if (isEditing && testimonialId) {
       update.mutate({ id: testimonialId, data: payload }, { onSuccess })
@@ -77,13 +75,6 @@ export function TestimonialForm({ testimonialId, onSuccess, onCancel }: Testimon
           <p className="text-sm text-destructive">{form.formState.errors.message.message as string}</p>
         )}
       </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="photoUrl">URL da foto</Label>
-        <Input id="photoUrl" {...form.register('photoUrl')} placeholder="https://..." />
-      </div>
-
-
 
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>

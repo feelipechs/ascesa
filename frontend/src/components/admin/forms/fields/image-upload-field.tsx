@@ -5,27 +5,29 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2, Upload, X, ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface ImageUploadFieldProps {
-  value: string
-  onChange: (url: string) => void
+  mediaId: string | null | undefined
+  url: string | null | undefined
+  onChange: (mediaId: string, url: string) => void
+  onRemove: () => void
   label?: string
   placeholder?: string
 }
 
-export function ImageUploadField({ value, onChange, label, placeholder }: ImageUploadFieldProps) {
+export function ImageUploadField({ mediaId, url, onChange, onRemove, label, placeholder }: ImageUploadFieldProps) {
   const {
     previewUrl,
     fileInputRef,
     handleFileChange,
-    handleRemove,
     uploading,
     error,
   } = useImageUpload({
-    onUpload: (url) => onChange(url),
+    onUpload: (uploadedMediaId, uploadedUrl) => onChange(uploadedMediaId, uploadedUrl),
   })
 
-  const displayUrl = value || previewUrl
+  const displayUrl = url || previewUrl
 
   return (
     <div className="flex flex-col gap-2">
@@ -33,10 +35,13 @@ export function ImageUploadField({ value, onChange, label, placeholder }: ImageU
 
       {displayUrl ? (
         <div className="relative group rounded-lg border overflow-hidden">
-          <img
+          <Image
             src={displayUrl}
             alt="Preview"
+            width={400}
+            height={160}
             className="h-40 w-full object-cover"
+            unoptimized={displayUrl.startsWith('blob:')}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
             <Button
@@ -53,7 +58,7 @@ export function ImageUploadField({ value, onChange, label, placeholder }: ImageU
               type="button"
               variant="secondary"
               size="sm"
-              onClick={() => onChange('')}
+              onClick={onRemove}
             >
               <X className="h-4 w-4" />
               Remover
@@ -87,15 +92,7 @@ export function ImageUploadField({ value, onChange, label, placeholder }: ImageU
         className="hidden"
       />
 
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">ou cole uma URL:</span>
-        <Input
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder || 'https://...'}
-          className="h-8 text-sm"
-        />
-      </div>
+      <input type="hidden" value={mediaId ?? ''} />
 
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>

@@ -28,7 +28,6 @@ type SectionCardsProps = {
   volunteers: number
   posts: number
   animals: number
-  species: number
   paymentMethods: number
   testimonials: number
   fiscalNotes: number
@@ -45,7 +44,6 @@ export function SectionCards({
   volunteers,
   posts,
   animals,
-  species,
   paymentMethods,
   testimonials,
   fiscalNotes,
@@ -60,7 +58,6 @@ export function SectionCards({
     { icon: Folder, label: 'Projetos', value: projects },
     { icon: FileText, label: 'Blog', value: posts },
     { icon: PawPrint, label: 'Animais', value: animals },
-    { icon: ArrowUpDown, label: 'Espécies', value: species },
     { icon: Wallet, label: 'Pagamentos', value: paymentMethods },
     { icon: MessageSquare, label: 'Depoimentos', value: testimonials },
     { icon: Receipt, label: 'Notas Fiscais', value: fiscalNotes },

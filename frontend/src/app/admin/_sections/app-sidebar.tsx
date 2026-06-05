@@ -33,10 +33,17 @@ const navMain = [
 ]
 
 type AppSidebarProps = {
-  user?: { name: string; email: string }
+  user?: { name: string; email: string; role: string }
 } & React.ComponentProps<typeof Sidebar>
 
+const adminOnlyUrls = ['/admin/users', '/admin/fiscal-notes']
+
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const role = user?.role ?? 'STAFF'
+  const filteredItems = role === 'ADMIN'
+    ? navMain
+    : navMain.filter((item) => !adminOnlyUrls.includes(item.url))
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -52,7 +59,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        <NavMain items={filteredItems} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user ?? { name: 'Admin', email: '' }} />

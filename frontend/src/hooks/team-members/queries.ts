@@ -52,7 +52,12 @@ export function useTeamMemberMutations() {
 
   const update = useMutation({
     mutationFn: ({ id, data }: { id: string; data: unknown }) => TeamMembersApi.update(id, data),
-    onSuccess: () => onSuccess('Membro atualizado!'),
+    onSuccess: (updatedMember, { id }) => {
+      queryClient.setQueryData(teamMemberKeys.detail(id), updatedMember)
+      queryClient.invalidateQueries({ queryKey: teamMemberKeys.all })
+      queryClient.invalidateQueries({ queryKey: areaKeys.all })
+      toast.success('Membro atualizado!')
+    },
     onError: (e) => onError(e, 'atualizar membro'),
   })
 
@@ -62,10 +67,17 @@ export function useTeamMemberMutations() {
     onError: (e) => onError(e, 'remover membro'),
   })
 
+  const reorder = useMutation({
+    mutationFn: TeamMembersApi.reorder,
+    onSuccess: () => onSuccess('Membros reordenados!'),
+    onError: (e) => onError(e, 'reordenar membros'),
+  })
+
   return {
     create,
     update,
     remove,
-    isPending: create.isPending || update.isPending || remove.isPending,
+    reorder,
+    isPending: create.isPending || update.isPending || remove.isPending || reorder.isPending,
   }
 }

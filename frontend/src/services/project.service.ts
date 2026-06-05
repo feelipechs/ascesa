@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { cleanupOrphanedMedia } from '@/lib/media'
 import type { Prisma } from '@/generated/prisma/client'
 
 export async function getProjects(params?: {
@@ -12,10 +13,10 @@ export async function getProjects(params?: {
   const matchedIds = search
     ? (
         await prisma.$queryRaw<{ id: string }[]>`
-        SELECT id FROM "Project"
-        WHERE unaccent(title) ILIKE unaccent(${'%' + search + '%'})
-        OR unaccent(description) ILIKE unaccent(${'%' + search + '%'})
-      `
+          SELECT id FROM "Project"
+          WHERE unaccent(title) ILIKE unaccent(${'%' + search + '%'})
+          OR unaccent(description) ILIKE unaccent(${'%' + search + '%'})
+        `
       ).map((r) => r.id)
     : null
 
@@ -28,7 +29,7 @@ export async function getProjects(params?: {
   const [projects, total] = await Promise.all([
     prisma.project.findMany({
       where,
-      include: { area: true, gallery: true },
+      include: { area: true, coverMedia: { select: { id: true, url: true } }, gallery: { include: { media: true } } },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * limit,
       take: limit,
@@ -45,19 +46,19 @@ export async function getProjects(params?: {
 export async function getProjectBySlug(slug: string) {
   return prisma.project.findUnique({
     where: { slug },
-    include: { area: true, gallery: true },
+    include: { area: true, coverMedia: { select: { id: true, url: true } }, gallery: { include: { media: true } } },
   })
 }
 
 export async function getProjectById(id: string) {
   return prisma.project.findUnique({
     where: { id },
-    include: { area: true },
+    include: { area: true, coverMedia: { select: { id: true, url: true } } },
   })
 }
 
 export async function createProject(data: Prisma.ProjectCreateInput) {
-  return prisma.project.create({ data, include: { area: true } })
+  return prisma.project.create({ data, include: { area: true, coverMedia: { select: { id: true, url: true } } } })
 }
 
 export async function updateProject(id: string, data: Prisma.ProjectUpdateInput) {
@@ -65,7 +66,27 @@ export async function updateProject(id: string, data: Prisma.ProjectUpdateInput)
 }
 
 export async function deleteProject(id: string) {
-  return prisma.project.delete({ where: { id } })
+  const project = await prisma.project.findUnique({
+    where: { id },
+    include: {
+      coverMedia: true,
+      gallery: { include: { media: true } },
+    },
+  })
+  if (project) {
+    const mediaIds = [
+      project.coverMedia?.id,
+      ...project.gallery.map((g) => g.media.id),
+    ].filter((id): id is string => !!id)
+
+    await prisma.project.delete({ where: { id } })
+
+    for (const mediaId of mediaIds) {
+      await cleanupOrphanedMedia(mediaId)
+    }
+  } else {
+    await prisma.project.delete({ where: { id } })
+  }
 }
 
 export async function getProjectsWithVolunteers() {

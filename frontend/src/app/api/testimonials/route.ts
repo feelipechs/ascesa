@@ -17,11 +17,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return validationError(parsed.error)
     }
-    const data = {
-      ...parsed.data,
-      publishedAt: parsed.data.publishedAt ? new Date(parsed.data.publishedAt) : new Date(),
-    }
-    const testimonial = await createTestimonial(data)
+    const testimonial = await createTestimonial(parsed.data)
     return NextResponse.json(testimonial, { status: 201 })
   })
 }

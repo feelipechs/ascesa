@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createTeamMemberSchema, updateTeamMemberSchema } from '@/schemas/team-member.schema'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useTeamMemberMutations, teamMemberQueryOptions } from '@/hooks/team-members/queries'
 import { useQuery } from '@tanstack/react-query'
+import { ImageUploadField } from './fields/image-upload-field'
+
 
 type TeamMemberFormProps = {
   areaIds?: string[]
@@ -29,7 +31,7 @@ export function TeamMemberForm({ areaIds = [], memberId, onSuccess, onCancel }: 
       name: '',
       role: '',
       bio: '',
-      photoUrl: '',
+      photoMediaId: '',
     },
   })
 
@@ -39,12 +41,12 @@ export function TeamMemberForm({ areaIds = [], memberId, onSuccess, onCancel }: 
       name: memberData.name ?? '',
       role: memberData.role ?? '',
       bio: memberData.bio ?? '',
-      photoUrl: memberData.photoUrl ?? '',
+      photoMediaId: memberData.photoMediaId ?? '',
     })
   }, [memberData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
-    const payload = { ...data, bio: (data.bio as string) || undefined, photoUrl: (data.photoUrl as string) || undefined, areaIds }
+    const payload = { ...data, bio: (data.bio as string) || undefined, photoMediaId: (data.photoMediaId as string) || null, areaIds }
     if (isEditing && memberId) {
       update.mutate({ id: memberId, data: payload }, { onSuccess })
     } else {
@@ -75,12 +77,21 @@ export function TeamMemberForm({ areaIds = [], memberId, onSuccess, onCancel }: 
         <Textarea id="bio" {...form.register('bio')} rows={3} placeholder="Breve descrição..." />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="photoUrl">URL da foto</Label>
-        <Input id="photoUrl" {...form.register('photoUrl')} placeholder="https://..." />
-      </div>
+      <Controller
+        control={form.control}
+        name="photoMediaId"
+        render={({ field }) => (
+          <ImageUploadField
+            mediaId={field.value ?? ''}
+            url={memberData?.photoMedia?.url ?? null}
+            onChange={(mediaId) => field.onChange(mediaId)}
+            onRemove={() => field.onChange('')}
+            label="Foto do membro"
+          />
+        )}
+      />
 
-    <div className="flex gap-2 pt-2">
+      <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">Cancelar</Button>
         <Button type="submit" disabled={isPending} className="flex-1">
           {isPending ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Adicionar membro'}

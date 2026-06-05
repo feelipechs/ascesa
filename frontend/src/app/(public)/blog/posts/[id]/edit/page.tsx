@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
+import { routes } from '@/lib/routes'
 import { auth } from '@/auth'
 import { headers } from 'next/headers'
-import { PostForm } from '@/components/admin/forms/post-form'
+import { PostFormLoader } from '../../_components/post-form-loader'
 
 type EditBlogPostPageProps = {
   params: Promise<{ id: string }>
@@ -9,13 +10,13 @@ type EditBlogPostPageProps = {
 
 export default async function EditBlogPostPage({ params }: EditBlogPostPageProps) {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) redirect('/blog')
+  if (!session) redirect(routes.blog)
 
   const { id } = await params
 
   return (
     <main className="flex flex-col pt-17.5 py-16 md:py-24">
-      <PostForm postId={id} mode="page" />
+      <PostFormLoader postId={id} />
     </main>
   )
 }

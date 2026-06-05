@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePartners, usePartnerMutations } from '@/hooks/partners/queries'
-import { Partners } from './partners'
+import { Partners } from './partners-section'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { PartnerForm } from '@/components/admin/forms/partner-form'
 import { DeleteDialog } from '@/components/delete-dialog'

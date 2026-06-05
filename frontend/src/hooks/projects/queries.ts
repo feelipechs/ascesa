@@ -35,6 +35,7 @@ export const projectsWithVolunteersQueryOptions = () =>
   queryOptions({
     queryKey: projectKeys.withVolunteers(),
     queryFn: () => ProjectsApi.findWithVolunteers(),
+    placeholderData: keepPreviousData,
   })
 
 export function useProjects(filters?: ProjectFilters) {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Settings } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageSection } from '@/components/page-section'
 import { AnimalCard } from './animal-card'
@@ -10,10 +10,10 @@ import { SharedPagination } from '@/components/pagination'
 import { AdminSheet } from '@/components/admin/admin-sheet'
 import { AnimalForm } from '@/components/admin/forms/animal-form'
 import { useAnimals, useAnimalMutations } from '@/hooks/animals/queries'
+import { useAnimalsFilter } from '@/hooks/use-animals-filter'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/empty-state'
 import { DeleteDialog } from '@/components/delete-dialog'
-import { AnimalSettingsSheet } from './animal-settings-sheet'
 import { getPageNumbers } from '@/lib/utils'
 
 type AnimalsContentProps = {
@@ -21,32 +21,28 @@ type AnimalsContentProps = {
 }
 
 export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedSpecies, setSelectedSpecies] = useState('all')
-  const [selectedSize, setSelectedSize] = useState('all')
-  const [selectedStatus, setSelectedStatus] = useState('all')
-  const [currentPage, setCurrentPage] = useState(1)
+  const {
+    searchQuery,
+    selectedSpecies,
+    selectedSize,
+    selectedStatus,
+    currentPage,
+    filters,
+    handleSearchChange,
+    handleSpeciesChange,
+    handleSizeChange,
+    handleStatusChange,
+    handlePageChange,
+  } = useAnimalsFilter()
+
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingAnimal, setEditingAnimal] = useState<null | { slug: string }>(null)
   const [deletingAnimal, setDeletingAnimal] = useState<null | { slug: string }>(null)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-
-  const filters: Record<string, string | undefined> = {
-    ...(searchQuery && { search: searchQuery }),
-    ...(selectedSpecies !== 'all' && { speciesId: selectedSpecies }),
-    ...(selectedSize !== 'all' && { sizeId: selectedSize }),
-    ...(selectedStatus !== 'all' && { status: selectedStatus }),
-    page: String(currentPage),
-  }
 
   const { data, isLoading } = useAnimals(filters)
   const { remove, isPending } = useAnimalMutations()
   const animals = data?.data ?? []
   const totalPages = data?.meta.totalPages ?? 1
-
-  function handleFilterChange() {
-    setCurrentPage(1)
-  }
 
   function handleNew() {
     setEditingAnimal(null)
@@ -68,16 +64,12 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
       <PageSection padding="compact">
         <div className="space-y-6">
           {isAuthenticated && (
-                <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configurações
-                  </Button>
-                  <Button size="sm" onClick={handleNew}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Adicionar
-                  </Button>
-                </div>
+            <div className="flex justify-end gap-2">
+              <Button size="sm" onClick={handleNew}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar
+              </Button>
+            </div>
           )}
 
           <AnimalsFilters
@@ -85,10 +77,10 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
             selectedSpecies={selectedSpecies}
             selectedSize={selectedSize}
             selectedStatus={selectedStatus}
-            onSearchChange={(v) => { setSearchQuery(v); handleFilterChange() }}
-            onSpeciesChange={(v) => { setSelectedSpecies(v); handleFilterChange() }}
-            onSizeChange={(v) => { setSelectedSize(v); handleFilterChange() }}
-            onStatusChange={(v) => { setSelectedStatus(v); handleFilterChange() }}
+            onSearchChange={handleSearchChange}
+            onSpeciesChange={handleSpeciesChange}
+            onSizeChange={handleSizeChange}
+            onStatusChange={handleStatusChange}
           />
 
           {isLoading ? (
@@ -119,12 +111,12 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
 
               {totalPages > 1 && (
                 <div className="mt-8">
-                <SharedPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  pageNumbers={getPageNumbers(currentPage, totalPages)}
-                    onPageChange={setCurrentPage}
-                />
+                  <SharedPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    pageNumbers={getPageNumbers(currentPage, totalPages)}
+                    onPageChange={handlePageChange}
+                  />
                 </div>
               )}
             </>
@@ -138,14 +130,16 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
           onClose={handleSheetClose}
           title={editingAnimal ? 'Editar animal' : 'Novo animal'}
         >
-          <AnimalForm
-            animalSlug={editingAnimal?.slug}
-            onSuccess={handleSheetClose}
-            onCancel={handleSheetClose}
-          />
+        <AnimalForm
+          key={editingAnimal?.slug ?? 'new'}
+          animalSlug={editingAnimal?.slug}
+          onSuccess={handleSheetClose}
+          onCancel={handleSheetClose}
+        />
         </AdminSheet>
       )}
 
+      {isAuthenticated && (
         <DeleteDialog
           open={!!deletingAnimal}
           onClose={() => setDeletingAnimal(null)}
@@ -156,11 +150,8 @@ export function AnimalsContent({ isAuthenticated }: AnimalsContentProps) {
           isPending={isPending}
           entity="animal"
         />
+      )}
 
-        <AnimalSettingsSheet
-          open={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-        />
     </>
   )
 }

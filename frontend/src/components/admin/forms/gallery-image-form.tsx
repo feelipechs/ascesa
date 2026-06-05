@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createGalleryImageSchema, updateGalleryImageSchema } from '@/schemas/gallery-image.schema'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { useGalleryImageMutations, galleryImageQueryOptions } from '@/hooks/gallery-images/queries'
 import { useQuery } from '@tanstack/react-query'
 import type { GalleryContext } from '@/generated/prisma/enums'
+import { ImageUploadField } from './fields/image-upload-field'
 
 type GalleryImageFormProps = {
   context: GalleryContext
@@ -28,7 +29,7 @@ export function GalleryImageForm({ context, projectId, animalId, imageId, onSucc
   const form = useForm({
     resolver: zodResolver(isEditing ? updateGalleryImageSchema : createGalleryImageSchema),
     defaultValues: {
-      url: '',
+      mediaId: '',
       caption: '',
       context: context,
       projectId: projectId ?? null,
@@ -38,9 +39,10 @@ export function GalleryImageForm({ context, projectId, animalId, imageId, onSucc
 
   useEffect(() => {
     if (!imageData) return
+    const data = imageData
     form.reset({
-      url: imageData.url ?? '',
-      caption: imageData.caption ?? '',
+      mediaId: data.mediaId ?? '',
+      caption: data.caption ?? '',
       context: imageData.context ?? context,
       projectId: imageData.projectId ?? projectId ?? null,
       animalId: imageData.animalId ?? animalId ?? null,
@@ -58,20 +60,26 @@ export function GalleryImageForm({ context, projectId, animalId, imageId, onSucc
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="url">URL da imagem</Label>
-        <Input id="url" {...form.register('url')} required placeholder="https://..." />
-        {form.formState.errors.url && (
-          <p className="text-sm text-destructive">{form.formState.errors.url.message as string}</p>
+      <Controller
+        control={form.control}
+        name="mediaId"
+        render={({ field }) => (
+          <ImageUploadField
+            mediaId={field.value ?? ''}
+            url={imageData?.media?.url ?? null}
+            onChange={(mediaId) => field.onChange(mediaId)}
+            onRemove={() => field.onChange('')}
+            label="Imagem"
+          />
         )}
-      </div>
+      />
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="caption">Legenda</Label>
         <Input id="caption" {...form.register('caption')} placeholder="Descrição da imagem" />
       </div>
 
-    <input type="hidden" {...form.register('context')} />
+      <input type="hidden" {...form.register('context')} />
       <input type="hidden" {...form.register('projectId')} />
       <input type="hidden" {...form.register('animalId')} />
 

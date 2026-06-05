@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
 import { updateUserPasswordSchema } from '@/schemas/user-password.schema'
-import { verifyPassword, hashPassword } from '@/lib/utils-server'
+import { verifyPassword, hashPassword } from '@/lib/password'
+import { UserService } from '@/services/user.service'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -20,23 +20,18 @@ export async function PUT(req: NextRequest, { params }: Params) {
       return validationError(parsed.error)
     }
 
-    const account = await prisma.account.findFirst({
-      where: { userId: id, providerId: 'credential' },
-    })
+    const account = await UserService.findAccount(id)
     if (!account?.password) {
       return NextResponse.json({ error: 'Conta sem senha configurada' }, { status: 400 })
     }
 
-    const isValid = await verifyPassword(account.password, parsed.data.currentPassword)
+    const isValid = await verifyPassword({ hash: account.password, password: parsed.data.currentPassword })
     if (!isValid) {
       return NextResponse.json({ error: 'Senha atual incorreta' }, { status: 400 })
     }
 
     const hashedPassword = await hashPassword(parsed.data.newPassword)
-    await prisma.account.update({
-      where: { id: account.id },
-      data: { password: hashedPassword },
-    })
+    await UserService.updateAccountPassword(account.id, hashedPassword)
 
     return new NextResponse(null, { status: 204 })
   })

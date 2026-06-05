@@ -5,9 +5,12 @@ export const createPostSchema = z.object({
   slug: z.string().min(1, 'Slug obrigatório'),
   excerpt: z.string().optional(),
   content: z.string().optional(),
-  coverUrl: z.string().url('URL inválida').optional().or(z.literal('')),
+  coverMediaId: z.string().optional().or(z.literal('')),
   author: z.string().optional(),
-  publishedAt: z.string().datetime({ offset: true }).nullable().optional(),
+  publishedAt: z.preprocess(
+    (v) => (v === '' || v === undefined ? null : v),
+    z.string().datetime().nullable().optional(),
+  ),
 })
 
 export const updatePostSchema = createPostSchema.partial()

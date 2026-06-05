@@ -1,10 +1,20 @@
-import { hashPassword } from '@/lib/utils-server'
+import { hashPassword } from '@/lib/password'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../src/generated/prisma/client'
 import 'dotenv/config'
 
 const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL! })
 const prisma = new PrismaClient({ adapter })
+
+async function ensureMedia(url: string, prefix: string): Promise<string> {
+  const key = `${prefix}/${url.replace(/[^a-zA-Z0-9]/g, '_').slice(-80)}`
+  const media = await prisma.media.upsert({
+    where: { key },
+    update: {},
+    create: { key, hash: key, url, mimeType: 'image/jpeg', size: 0 },
+  })
+  return media.id
+}
 
 async function main() {
   await prisma.registration.deleteMany()
@@ -21,12 +31,10 @@ async function main() {
   await prisma.bankConfig.deleteMany()
   await prisma.paymentMethod.deleteMany()
   await prisma.animal.deleteMany()
-  await prisma.animalAgeRange.deleteMany()
-  await prisma.animalSize.deleteMany()
-  await prisma.animalSpecies.deleteMany()
   await prisma.testimonial.deleteMany()
   await prisma.galleryImage.deleteMany()
   await prisma.project.deleteMany()
+  await prisma.media.deleteMany()
   await prisma.area.deleteMany()
   await prisma.account.deleteMany()
   await prisma.session.deleteMany()
@@ -60,8 +68,6 @@ async function main() {
       mission: 'Resgatar, cuidar e encontrar lares para animais.',
       vision: 'Ser referência nacional em resgate e adoção responsável.',
       about: 'Fundada em 2018, a Ascesa resgata e cuida de animais abandonados.',
-      homeTitle: 'Todo animal merece um lar',
-      homeSubtitle: 'Resgate, cuidado e adoção responsável.',
       values: 'Respeito, Transparência, Compromisso, Amor',
       socialInstagram: 'https://instagram.com/ascesa',
       socialFacebook: 'https://facebook.com/ascesa',
@@ -69,26 +75,26 @@ async function main() {
     },
   })
 
+  const coverMediaId = await ensureMedia('https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800', 'area')
   const area = await prisma.area.create({
     data: {
       title: 'Resgate e Acolhimento',
       slug: 'resgate-acolhimento',
       iconName: 'Heart',
       description: 'Resgate de animais em situação de risco e abandono.',
-      coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
-      publishedAt: new Date(),
+      coverMediaId,
     },
   })
 
+  const projectCoverMediaId = await ensureMedia('https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800', 'project')
   const project = await prisma.project.create({
     data: {
       title: 'Operação Resgate',
       slug: 'operacao-resgate',
       description: 'Mutirão de resgate de animais em situação de risco.',
       content: 'A Operação Resgate é o braço mais urgente da Ascesa.',
-      coverUrl: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
+      coverMediaId: projectCoverMediaId,
       featured: true,
-      publishedAt: new Date(),
       areaId: area.id,
       eventDate: new Date('2025-08-01T08:00:00Z'),
       location: 'Zona Sul, São Paulo — SP',
@@ -102,16 +108,15 @@ async function main() {
       name: 'Carla Mendes',
       role: 'Adotante',
       message: 'Adotei o Thor pela Ascesa e foi a melhor decisão da minha vida.',
-      publishedAt: new Date(),
     },
   })
 
+  const logoMediaId = await ensureMedia('https://placehold.co/200x80/7C5CBF/ffffff?text=Clinica', 'partner')
   await prisma.partner.create({
     data: {
       name: 'Clínica Veterinária Patinhas',
-      logoUrl: 'https://placehold.co/200x80/7C5CBF/ffffff?text=Clinica',
       websiteUrl: '#',
-      publishedAt: new Date(),
+      logoMediaId,
     },
   })
 
@@ -124,42 +129,40 @@ async function main() {
       description: 'Estatuto social da Ascesa.',
       fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
       year: 2020,
-      publishedAt: new Date(),
       categoryId: docCategory.id,
     },
   })
 
-  const species = await prisma.animalSpecies.create({ data: { name: 'Cão' } })
-  const size = await prisma.animalSize.create({ data: { label: 'Médio', description: '10kg a 25kg' } })
-  const ageRange = await prisma.animalAgeRange.create({ data: { label: 'Adulto', minAge: 12, maxAge: 96 } })
+  // AnimalSpecies, AnimalSize, AnimalAgeRange are now enums — no tables needed
 
+  const animalCoverMediaId = await ensureMedia('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800', 'animal')
   const animal = await prisma.animal.create({
     data: {
       name: 'Thor',
       slug: 'thor',
       breed: 'SRD',
       gender: 'MALE',
+      species: 'DOG',
+      size: 'MEDIUM',
+      ageRange: 'ADULT',
       birthDate: new Date('2020-03-15'),
       description: 'Cão dócil e brincalhão.',
       content: 'Thor foi resgatado em 2025.',
-      coverUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800',
+      coverMediaId: animalCoverMediaId,
       status: 'AVAILABLE',
       featured: true,
       shelterSince: new Date(),
-      publishedAt: new Date(),
-      speciesId: species.id,
-      sizeId: size.id,
-      ageRangeId: ageRange.id,
     },
   })
 
+  const postCoverMediaId = await ensureMedia('https://images.unsplash.com/photo-1552053831-71594a27632d?w=800', 'post')
   await prisma.post.create({
     data: {
       title: 'Como preparar sua casa para receber um pet adotado',
       slug: 'como-preparar-casa-para-pet-adotado',
       excerpt: 'Dicas essenciais para receber seu novo amigo.',
       content: 'Adotar um animal é uma decisão linda e cheia de responsabilidade.',
-      coverUrl: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800',
+      coverMediaId: postCoverMediaId,
       author: 'Camila Torres',
       publishedAt: new Date(),
     },
@@ -167,10 +170,10 @@ async function main() {
 
   await prisma.stat.createMany({
     data: [
-      { label: 'Animais Resgatados', value: '800+', order: 0, publishedAt: new Date() },
-      { label: 'Castrações Realizadas', value: '1.500+', order: 1, publishedAt: new Date() },
-      { label: 'Adoções Responsáveis', value: '600+', order: 2, publishedAt: new Date() },
-      { label: 'Voluntários Ativos', value: '120+', order: 3, publishedAt: new Date() },
+      { label: 'Animais Resgatados', value: '800+', order: 0 },
+      { label: 'Castrações Realizadas', value: '1.500+', order: 1 },
+      { label: 'Adoções Responsáveis', value: '600+', order: 2 },
+      { label: 'Voluntários Ativos', value: '120+', order: 3 },
     ],
   })
 
@@ -186,11 +189,14 @@ async function main() {
     },
   })
 
+  const galleryMedia1 = await ensureMedia('https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=1200', 'gallery-home')
+  const galleryMedia2 = await ensureMedia('https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800', 'gallery-project')
+  const galleryMedia3 = await ensureMedia('https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800', 'gallery-animal')
   await prisma.galleryImage.createMany({
     data: [
-      { url: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=1200', caption: 'Resgate em ação', context: 'HOME', order: 0 },
-      { url: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800', caption: 'Equipe durante resgate', context: 'PROJECT', projectId: project.id, order: 0 },
-      { url: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800', caption: 'Thor feliz', context: 'ANIMAL', animalId: animal.id, order: 0 },
+      { mediaId: galleryMedia1, caption: 'Resgate em ação', context: 'HOME', order: 0 },
+      { mediaId: galleryMedia2, caption: 'Equipe durante resgate', context: 'PROJECT', projectId: project.id, order: 0 },
+      { mediaId: galleryMedia3, caption: 'Thor feliz', context: 'ANIMAL', animalId: animal.id, order: 0 },
     ],
   })
 

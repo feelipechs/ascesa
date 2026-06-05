@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { DocumentsApi } from '@/lib/api/documents'
 import { getErrorMessage } from '@/lib/utils'
 import { documentCategoryKeys } from '@/hooks/document-categories/queries'
-import type { DocumentFilters, OngDocument } from '@/types'
+import type { DocumentFilters, DocumentWithCategory } from '@/types'
 
 export const documentKeys = {
   all: ['documents'] as const,

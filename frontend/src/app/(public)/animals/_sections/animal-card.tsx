@@ -7,10 +7,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { SafeImage } from '@/components/safe-image'
 import { AdminActions } from '@/components/admin/admin-actions'
-import { format } from 'date-fns'
+import { formatUTC } from '@/lib/utils-date'
 import { ptBR } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
 import { routes } from '@/lib/routes'
+import { speciesLabels, sizeLabels } from '@/lib/animal-labels'
 
 const statusConfig: Record<
   string,
@@ -36,14 +37,14 @@ export function AnimalCard({
     id: string
     name: string
     slug: string
-    coverUrl: string | null
+    coverMedia: { id: string; url: string } | null
     description: string | null
     status: string
     gender: string
     breed: string | null
-    species: { name: string }
-    size: { label: string } | null
-    shelterSince: string
+    species: string
+    size: string | null
+    shelterSince: string | Date
   }
   isAuthenticated?: boolean
   onEdit?: () => void
@@ -64,9 +65,9 @@ export function AnimalCard({
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden shrink-0">
-        {animal.coverUrl ? (
-          <SafeImage
-            src={animal.coverUrl}
+    {animal.coverMedia?.url ? (
+      <SafeImage
+        src={animal.coverMedia.url}
             alt={animal.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -93,19 +94,19 @@ export function AnimalCard({
             {animal.name}
           </h3>
           <Badge variant="secondary" className="shrink-0 text-xs">
-            {animal.species.name}
+            {speciesLabels[animal.species as keyof typeof speciesLabels] ?? animal.species}
           </Badge>
         </div>
 
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mb-2">
           {animal.breed && <span>{animal.breed}</span>}
           {gender && <span>{gender}</span>}
-          {animal.size && <span>{animal.size.label}</span>}
-          <span className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            No abrigo desde{' '}
-            {format(new Date(animal.shelterSince), "MMM 'de' yyyy", { locale: ptBR })}
-          </span>
+          {animal.size && <span>{sizeLabels[animal.size as keyof typeof sizeLabels] ?? animal.size}</span>}
+        <span className="flex items-center gap-1">
+          <Calendar className="h-3 w-3" />
+          No abrigo desde{' '}
+          {formatUTC(animal.shelterSince, "MMM 'de' yyyy", { locale: ptBR })}
+        </span>
         </div>
 
         {animal.description && (

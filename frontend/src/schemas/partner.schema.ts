@@ -2,16 +2,14 @@ import { z } from 'zod'
 
 export const createPartnerSchema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
-  logoUrl: z.string().url('URL do logo inválida'),
+  logoMediaId: z.string().min(1, 'Logo obrigatório'),
   websiteUrl: z.string().url('URL do site inválida').optional().or(z.literal('')),
-  publishedAt: z.string().datetime({ offset: true }).optional(),
 })
 
 export const updatePartnerSchema = z.object({
   name: z.string().min(1).optional(),
-  logoUrl: z.string().url('URL do logo inválida').optional().or(z.literal('')),
+  logoMediaId: z.string().min(1).optional(),
   websiteUrl: z.string().url('URL do site inválida').optional().or(z.literal('')),
-  publishedAt: z.string().datetime({ offset: true }).nullable().optional(),
 })
 
 export type CreatePartnerInput = z.infer<typeof createPartnerSchema>

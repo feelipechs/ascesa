@@ -11,10 +11,12 @@ import { useBlogFilter } from '@/hooks/use-blog-filter'
 import { usePosts, usePostMutations } from '@/hooks/posts/queries'
 import { DeleteDialog } from '@/components/delete-dialog'
 import { getPageNumbers } from '@/lib/utils'
+import { routes } from '@/lib/routes'
+import type { Post } from '@/types'
 
 export function BlogContent({ isAuthenticated }: { isAuthenticated: boolean }) {
   const router = useRouter()
-  const [deletingPost, setDeletingPost] = useState<null | { id: string }>(null)
+  const [deletingPost, setDeletingPost] = useState<null | Post>(null)
   const { remove, isPending } = usePostMutations()
 
   const { searchQuery, currentPage, handleSearch, handlePageChange } = useBlogFilter()
@@ -33,7 +35,7 @@ export function BlogContent({ isAuthenticated }: { isAuthenticated: boolean }) {
       <section>
         {isAuthenticated && (
           <div className="flex justify-end mb-6">
-            <Button size="sm" onClick={() => router.push('/blog/posts/new')}>
+            <Button size="sm" onClick={() => router.push(`${routes.blog}/posts/new`)}>
               <Plus className="h-4 w-4 mr-2" />
               Adicionar
             </Button>
@@ -42,9 +44,15 @@ export function BlogContent({ isAuthenticated }: { isAuthenticated: boolean }) {
 
         <BlogFilters searchQuery={searchQuery} onSearchChange={handleSearch} />
 
-        <div className="mt-6">
-          <BlogGrid posts={posts} isLoading={isLoading} />
-        </div>
+      <div className="mt-6">
+        <BlogGrid
+          posts={posts}
+          isLoading={isLoading}
+          isAuthenticated={isAuthenticated}
+          onEdit={(post) => router.push(`${routes.blog}/posts/${post.id}/edit`)}
+          onDelete={(post) => setDeletingPost(post)}
+        />
+      </div>
 
         <SharedPagination
           currentPage={currentPage}

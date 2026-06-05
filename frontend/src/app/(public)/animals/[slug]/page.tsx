@@ -3,17 +3,19 @@ import { cache } from 'react'
 import { AnimalService } from '@/services/animal.service'
 import { SafeImage } from '@/components/safe-image'
 import { ImagePlaceholder } from '@/components/image-placeholder'
-import { format } from 'date-fns'
+import { formatUTC } from '@/lib/utils-date'
 import { ptBR } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
 import { Calendar, Heart, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { routes } from '@/lib/routes'
-import { prisma } from '@/lib/prisma'
+import { getSettings } from '@/services/site-settings.service'
 import { auth } from '@/auth'
 import { headers } from 'next/headers'
 import { GallerySection } from '@/components/gallery-section'
+import { PageSection } from '@/components/page-section'
+import { speciesLabels, sizeLabels, ageRangeLabels } from '@/lib/animal-labels'
 
 const getCachedAnimal = cache((slug: string) => AnimalService.findBySlug(slug))
 
@@ -44,7 +46,7 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
   const isAuthenticated = !!session
   const [animal, settings] = await Promise.all([
     getCachedAnimal(slug),
-    prisma.siteSettings.findUnique({ where: { id: 'main' } }),
+    getSettings(),
   ])
 
   if (!animal) notFound()
@@ -55,9 +57,9 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
   }
 
   return (
-    <main className="min-h-screen bg-background pt-17.5">
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <Button variant="ghost" asChild className="mb-6 -ml-4">
+    <main>
+      <PageSection padding="compact">
+        <Button variant="ghost" asChild className="-ml-4 mb-6">
           <Link href={routes.animals} className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             Voltar para animais
@@ -66,9 +68,9 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
 
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-[3/2] rounded-xl overflow-hidden">
-            {animal.coverUrl ? (
-              <SafeImage
-                src={animal.coverUrl}
+    {animal.coverMedia?.url ? (
+      <SafeImage
+        src={animal.coverMedia.url}
                 alt={animal.name}
                 fill
                 className="object-cover"
@@ -80,20 +82,20 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
           </div>
 
           <div className="space-y-6">
-            <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold md:text-4xl">{animal.name}</h1>
-            <Badge variant={status.variant} className={status.className}>{status.label}</Badge>
-          </div>
+            <header>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold md:text-4xl">{animal.name}</h1>
+                <Badge variant={status.variant} className={status.className}>{status.label}</Badge>
+              </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{animal.species.name}</Badge>
-            {animal.breed && <Badge variant="outline">{animal.breed}</Badge>}
-            <Badge variant="outline">{genderLabel[animal.gender] ?? animal.gender}</Badge>
-            {animal.size && <Badge variant="outline">{animal.size.label}</Badge>}
-            {animal.ageRange && <Badge variant="outline">{animal.ageRange.label}</Badge>}
-          </div>
-            </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline">{speciesLabels[animal.species] ?? animal.species}</Badge>
+                {animal.breed && <Badge variant="outline">{animal.breed}</Badge>}
+                <Badge variant="outline">{genderLabel[animal.gender] ?? animal.gender}</Badge>
+                {animal.size && <Badge variant="outline">{sizeLabels[animal.size] ?? animal.size}</Badge>}
+                {animal.ageRange && <Badge variant="outline">{ageRangeLabels[animal.ageRange] ?? animal.ageRange}</Badge>}
+              </div>
+            </header>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2 text-sm bg-muted/50 rounded-lg p-3">
@@ -101,7 +103,7 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
                 <div>
                   <p className="text-xs text-muted-foreground">Nascimento</p>
                   <p className="font-medium">
-                    {animal.birthDate ? format(animal.birthDate, 'dd/MM/yyyy') : 'Não informado'}
+                    {animal.birthDate ? formatUTC(animal.birthDate, 'dd/MM/yyyy', { locale: ptBR }) : 'Não informado'}
                   </p>
                 </div>
               </div>
@@ -110,7 +112,7 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
                 <div>
                   <p className="text-xs text-muted-foreground">No abrigo desde</p>
                   <p className="font-medium">
-                    {format(animal.shelterSince, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    {formatUTC(animal.shelterSince, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                   </p>
                 </div>
               </div>
@@ -146,15 +148,15 @@ export default async function AnimalPage({ params }: { params: Promise<{ slug: s
             </div>
           </div>
         </div>
+      </PageSection>
 
-        <div className="mt-12">
-          <GallerySection
-        context="ANIMAL"
-        foreignKey={animal.id}
-        isAuthenticated={isAuthenticated}
-      />
-        </div>
-      </div>
+      <PageSection borderTop>
+        <GallerySection
+          context="ANIMAL"
+          foreignKey={animal.id}
+          isAuthenticated={isAuthenticated}
+        />
+      </PageSection>
     </main>
   )
 }

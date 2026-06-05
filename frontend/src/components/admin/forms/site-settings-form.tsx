@@ -25,8 +25,6 @@ export function SiteSettingsForm() {
       phone: '',
       address: '',
       cnpj: '',
-      homeTitle: '',
-      homeSubtitle: '',
       about: '',
       mission: '',
       vision: '',
@@ -46,8 +44,6 @@ export function SiteSettingsForm() {
       phone: settings.phone ?? '',
       address: settings.address ?? '',
       cnpj: settings.cnpj ?? '',
-      homeTitle: settings.homeTitle ?? '',
-      homeSubtitle: settings.homeSubtitle ?? '',
       about: settings.about ?? '',
       mission: settings.mission ?? '',
       vision: settings.vision ?? '',
@@ -67,8 +63,6 @@ export function SiteSettingsForm() {
       phone: settings.phone ?? '',
       address: settings.address ?? '',
       cnpj: settings.cnpj ?? '',
-      homeTitle: settings.homeTitle ?? '',
-      homeSubtitle: settings.homeSubtitle ?? '',
       about: settings.about ?? '',
       mission: settings.mission ?? '',
       vision: settings.vision ?? '',
@@ -101,21 +95,6 @@ export function SiteSettingsForm() {
           <Field label="CNPJ" disabled={!isEditing} {...form.register('cnpj')} />
         </CardContent>
       </Card>
-
-      <Separator />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Conteúdo da Home</CardTitle>
-          <CardDescription>Título e subtítulo da página inicial.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Field label="Título" disabled={!isEditing} {...form.register('homeTitle')} />
-          <Field label="Subtítulo" disabled={!isEditing} {...form.register('homeSubtitle')} />
-        </CardContent>
-      </Card>
-
-      <Separator />
 
       <Card>
         <CardHeader>

@@ -12,7 +12,6 @@ export default async function AdminPage() {
     volunteersCount,
     postsCount,
     animalsCount,
-    speciesCount,
     paymentMethodsCount,
     testimonialsCount,
     fiscalNotesCount,
@@ -27,7 +26,6 @@ export default async function AdminPage() {
     prisma.volunteer.count(),
     prisma.post.count(),
     prisma.animal.count(),
-    prisma.animalSpecies.count(),
     prisma.paymentMethod.count(),
     prisma.testimonial.count(),
     prisma.fiscalNote.count(),
@@ -67,7 +65,6 @@ export default async function AdminPage() {
         volunteers={volunteersCount}
         posts={postsCount}
         animals={animalsCount}
-        species={speciesCount}
         paymentMethods={paymentMethodsCount}
         testimonials={testimonialsCount}
         fiscalNotes={fiscalNotesCount}

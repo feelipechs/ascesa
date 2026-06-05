@@ -32,36 +32,34 @@ export const PaymentMethodService = {
   },
 
   async create(data: CreatePaymentMethodInput) {
-    const { key, receiverName, receiverCity, bankName, agency, account, accountType, ...rest } = data
-
     return prisma.$transaction(async (tx) => {
       const method = await tx.paymentMethod.create({
         data: {
-          type: rest.type,
-          label: rest.label,
-          instructions: rest.instructions ?? null,
-          isActive: rest.isActive ?? true,
-          displayOrder: rest.displayOrder ?? 0,
+          type: data.type,
+          label: data.label,
+          instructions: data.instructions ?? null,
+          isActive: data.isActive ?? true,
+          displayOrder: data.displayOrder ?? 0,
         },
       })
 
-      if (rest.type === 'PIX') {
+      if (data.type === 'PIX') {
         await tx.pixConfig.create({
           data: {
             id: method.id,
-            key: key!,
-            receiverName: receiverName!,
-            receiverCity: receiverCity!,
+            key: data.key,
+            receiverName: data.receiverName,
+            receiverCity: data.receiverCity,
           },
         })
-      } else if (rest.type === 'BANK_TRANSFER') {
+      } else if (data.type === 'BANK_TRANSFER') {
         await tx.bankConfig.create({
           data: {
             id: method.id,
-            bankName: bankName!,
-            agency: agency!,
-            account: account!,
-            accountType: accountType ?? null,
+            bankName: data.bankName,
+            agency: data.agency,
+            account: data.account,
+            accountType: data.accountType ?? null,
           },
         })
       }
@@ -71,36 +69,34 @@ export const PaymentMethodService = {
   },
 
   async update(id: string, data: UpdatePaymentMethodInput) {
-    const { key, receiverName, receiverCity, bankName, agency, account, accountType, ...rest } = data
-
     return prisma.$transaction(async (tx) => {
       const updateData: Record<string, unknown> = {}
-      if (rest.label !== undefined) updateData.label = rest.label
-      if (rest.instructions !== undefined) updateData.instructions = rest.instructions
-      if (rest.isActive !== undefined) updateData.isActive = rest.isActive
-      if (rest.displayOrder !== undefined) updateData.displayOrder = rest.displayOrder
-      if (rest.type !== undefined) updateData.type = rest.type
+      if (data.label !== undefined) updateData.label = data.label
+      if (data.instructions !== undefined) updateData.instructions = data.instructions
+      if (data.isActive !== undefined) updateData.isActive = data.isActive
+      if (data.displayOrder !== undefined) updateData.displayOrder = data.displayOrder
+      if (data.type !== undefined) updateData.type = data.type
 
       const method = await tx.paymentMethod.update({
         where: { id },
         data: updateData,
       })
 
-      if (rest.type === 'PIX') {
+      if (data.type === 'PIX') {
         await tx.pixConfig.upsert({
           where: { id },
-          update: { key: key!, receiverName: receiverName!, receiverCity: receiverCity! },
-          create: { id, key: key!, receiverName: receiverName!, receiverCity: receiverCity! },
+          update: { key: data.key!, receiverName: data.receiverName!, receiverCity: data.receiverCity! },
+          create: { id, key: data.key!, receiverName: data.receiverName!, receiverCity: data.receiverCity! },
         })
         await tx.bankConfig.deleteMany({ where: { id } })
-      } else if (rest.type === 'BANK_TRANSFER') {
+      } else if (data.type === 'BANK_TRANSFER') {
         await tx.bankConfig.upsert({
           where: { id },
-          update: { bankName: bankName!, agency: agency!, account: account!, accountType: accountType ?? null },
-          create: { id, bankName: bankName!, agency: agency!, account: account!, accountType: accountType ?? null },
+          update: { bankName: data.bankName!, agency: data.agency!, account: data.account!, accountType: data.accountType ?? null },
+          create: { id, bankName: data.bankName!, agency: data.agency!, account: data.account!, accountType: data.accountType ?? null },
         })
         await tx.pixConfig.deleteMany({ where: { id } })
-      } else if (rest.type === 'CASH') {
+      } else if (data.type === 'CASH') {
         await tx.pixConfig.deleteMany({ where: { id } })
         await tx.bankConfig.deleteMany({ where: { id } })
       }

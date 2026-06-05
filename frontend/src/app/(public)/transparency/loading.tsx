@@ -15,7 +15,7 @@ export default function TransparenciaLoading() {
           <Skeleton className="h-10 w-48 rounded-lg" />
           <Skeleton className="h-10 w-40 rounded-lg" />
         </div>
-        <div className="space-y-16">
+        <div className="space-y-8 md:space-y-12 lg:space-y-16">
           {[1, 2, 3, 4].map((i) => (
             <div key={i}>
               <Skeleton className="mb-6 h-8 w-64" />

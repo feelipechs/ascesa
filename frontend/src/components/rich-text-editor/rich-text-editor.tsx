@@ -34,13 +34,28 @@ import { CodeBlock, RichTextCodeBlock } from 'reactjs-tiptap-editor/codeblock'
 import { RichTextBubbleText, RichTextBubbleLink, RichTextBubbleImage, RichTextBubbleTable } from 'reactjs-tiptap-editor/bubble'
 
 import { useTheme } from 'next-themes'
-import { common, createLowlight } from 'lowlight'
+import { createLowlight } from 'lowlight'
+import javascript from 'highlight.js/lib/languages/javascript'
+import css from 'highlight.js/lib/languages/css'
+import xml from 'highlight.js/lib/languages/xml'
+import typescript from 'highlight.js/lib/languages/typescript'
+import json from 'highlight.js/lib/languages/json'
+import bash from 'highlight.js/lib/languages/bash'
+import sql from 'highlight.js/lib/languages/sql'
 
 import 'reactjs-tiptap-editor/style.css'
+import 'react-image-crop/dist/ReactCrop.css'
 
 localeActions.setLang('pt_BR')
 
-const lowlight = createLowlight(common)
+const lowlight = createLowlight()
+lowlight.register('javascript', javascript)
+lowlight.register('css', css)
+lowlight.register('xml', xml)
+lowlight.register('typescript', typescript)
+lowlight.register('json', json)
+lowlight.register('bash', bash)
+lowlight.register('sql', sql)
 
 async function uploadImageToR2(file: File): Promise<string> {
   const formData = new FormData()
@@ -86,6 +101,8 @@ const extensions = [
   Image.configure({
     resourceImage: 'both',
     upload: uploadImageToR2,
+    acceptMimes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'],
+    maxSize: 5 * 1024 * 1024,
   }),
   Table.configure({ resizable: true }),
   TextAlign.configure({ types: ['heading', 'paragraph'] }),

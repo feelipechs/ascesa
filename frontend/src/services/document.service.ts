@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { deleteFromR2 } from '@/lib/r2'
 
 export async function getDocuments(params?: {
   search?: string
@@ -47,7 +48,6 @@ export async function createDocument(data: {
   fileUrl: string
   year?: number
   categoryId: string
-  publishedAt?: Date
 }) {
   return prisma.document.create({
     data,
@@ -63,7 +63,6 @@ export async function updateDocument(
     fileUrl?: string
     year?: number
     categoryId?: string
-    publishedAt?: Date | null
   }
 ) {
   return prisma.document.update({
@@ -74,5 +73,7 @@ export async function updateDocument(
 }
 
 export async function deleteDocument(id: string) {
+  const doc = await prisma.document.findUnique({ where: { id } })
+  if (doc?.fileUrl) await deleteFromR2(doc.fileUrl)
   return prisma.document.delete({ where: { id } })
 }

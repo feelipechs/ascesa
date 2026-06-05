@@ -34,7 +34,7 @@ const items = [
 ]
 
 export function AboutMvv({ mission, vision, values }: AboutMvvProps) {
-  const valuesList = values ? values.split(',').map((v) => v.trim()) : []
+  const valuesList = values ? values.split(',').map((v) => v.trim()).filter(Boolean) : []
 
   const descriptions: Record<'mission' | 'vision', string> = {
     mission: mission ?? '',
