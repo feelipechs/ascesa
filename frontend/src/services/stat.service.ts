@@ -11,7 +11,9 @@ export const StatService = {
   },
 
   async create(data: CreateStatInput) {
-    return prisma.stat.create({ data })
+    const maxOrder = await prisma.stat.aggregate({ _max: { order: true } })
+    const order = (maxOrder._max.order ?? -1) + 1
+    return prisma.stat.create({ data: { ...data, order } })
   },
 
   async update(id: string, data: UpdateStatInput) {

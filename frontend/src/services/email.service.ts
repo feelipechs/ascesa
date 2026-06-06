@@ -8,7 +8,6 @@ export const EmailService = {
   async sendContactEmail(data: {
     name: string
     email: string
-    phone?: string | null
     subject: string
     message: string
     to: string
@@ -17,7 +16,6 @@ export const EmailService = {
       ContactEmail({
         name: data.name,
         email: data.email,
-        phone: data.phone,
         subject: data.subject,
         message: data.message,
       }),

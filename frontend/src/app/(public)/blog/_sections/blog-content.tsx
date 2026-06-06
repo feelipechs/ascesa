@@ -25,6 +25,7 @@ export function BlogContent({ isAuthenticated }: { isAuthenticated: boolean }) {
     search: searchQuery || undefined,
     page: currentPage,
     limit: 12,
+    includeDrafts: isAuthenticated,
   })
 
   const posts = data?.data ?? []

@@ -17,7 +17,7 @@ export const createAnimalSchema = z.object({
   description: z.string().optional().nullable(),
   content: z.string().optional().nullable(),
   coverMediaId: z.string().optional().nullable(),
-  status: z.nativeEnum(AnimalStatus).default('AVAILABLE'),
+  status: z.nativeEnum(AnimalStatus),
   featured: z.boolean().default(false),
 })
 

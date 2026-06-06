@@ -5,7 +5,6 @@ export const createTeamMemberSchema = z.object({
   role: z.string().min(1, 'Cargo obrigatório'),
   bio: z.string().optional(),
   photoMediaId: z.string().optional().or(z.literal('')),
-  order: z.coerce.number().int().default(0),
   areaIds: z.array(z.string()).default([]),
 })
 

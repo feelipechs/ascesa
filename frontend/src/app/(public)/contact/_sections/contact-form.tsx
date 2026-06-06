@@ -20,13 +20,12 @@ export function ContactForm() {
 
     try {
       const form = e.currentTarget
-      const data = {
-        name: (form.elements.namedItem('name') as HTMLInputElement).value,
-        email: (form.elements.namedItem('email') as HTMLInputElement).value,
-        phone: (form.elements.namedItem('phone') as HTMLInputElement).value || undefined,
-        subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
-        message: (form.elements.namedItem('message') as HTMLInputElement).value,
-      }
+    const data = {
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      email: (form.elements.namedItem('email') as HTMLInputElement).value,
+      subject: (form.elements.namedItem('subject') as HTMLInputElement).value,
+      message: (form.elements.namedItem('message') as HTMLInputElement).value,
+    }
       await ContactApi.send(data)
       setIsSubmitted(true)
     } catch (error) {
@@ -61,24 +60,19 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="name">Nome</Label>
-          <Input id="name" name="name" placeholder="Seu nome completo" required />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="seu@email.com" required />
-        </div>
-      </div>
+  <div className="grid gap-6 sm:grid-cols-2">
+    <div className="space-y-2">
+      <Label htmlFor="name">Nome</Label>
+      <Input id="name" name="name" placeholder="Seu nome completo" required />
+    </div>
+    <div className="space-y-2">
+      <Label htmlFor="email">Email</Label>
+      <Input id="email" name="email" type="email" placeholder="seu@email.com" required />
+    </div>
+  </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="phone">Telefone</Label>
-        <Input id="phone" name="phone" type="tel" placeholder="(00) 00000-0000" />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="subject">Assunto</Label>
+  <div className="space-y-2">
+    <Label htmlFor="subject">Assunto</Label>
         <Input id="subject" name="subject" placeholder="Assunto da mensagem" required />
       </div>
 

@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createStatSchema, updateStatSchema } from '@/schemas/stat.schema'
@@ -9,7 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useStatMutations, statQueryOptions } from '@/hooks/stats/queries'
 import { useQuery } from '@tanstack/react-query'
-
+import { Skeleton } from '@/components/ui/skeleton'
+import type { Stat } from '@/types'
 
 type StatFormProps = {
   statId?: string
@@ -19,24 +19,44 @@ type StatFormProps = {
 
 export function StatForm({ statId, onSuccess, onCancel }: StatFormProps) {
   const isEditing = !!statId
-  const { data: statData } = useQuery(statQueryOptions(statId))
+  const { data: statData, isLoading } = useQuery(statQueryOptions(statId))
+
+  if (isEditing && isLoading) {
+    return <Skeleton className="h-48 w-full" />
+  }
+
+  if (isEditing && !statData) {
+    return null
+  }
+
+  return (
+    <StatFormInner
+      statId={statId}
+      statData={statData}
+      onSuccess={onSuccess}
+      onCancel={onCancel}
+    />
+  )
+}
+
+type StatFormInnerProps = {
+  statId?: string
+  statData?: Stat
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+function StatFormInner({ statId, statData, onSuccess, onCancel }: StatFormInnerProps) {
+  const isEditing = !!statId
   const { create, update, isPending } = useStatMutations()
 
   const form = useForm({
     resolver: zodResolver(isEditing ? updateStatSchema : createStatSchema),
     defaultValues: {
-      label: '',
-      value: '',
+      label: statData?.label ?? '',
+      value: statData?.value ?? '',
     },
   })
-
-  useEffect(() => {
-    if (!statData) return
-    form.reset({
-      label: statData.label ?? '',
-      value: statData.value ?? '',
-    })
-  }, [statData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
     if (isEditing && statId) {
@@ -64,7 +84,7 @@ export function StatForm({ statId, onSuccess, onCancel }: StatFormProps) {
         )}
       </div>
 
-    <div className="flex gap-2 pt-2">
+      <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
           Cancelar
         </Button>

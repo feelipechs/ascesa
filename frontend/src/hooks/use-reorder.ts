@@ -1,18 +1,14 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 export function useReorder<T extends { id: string }>(items: T[], options?: { field?: string }) {
   const field = options?.field ?? 'order'
   const [optimisticItems, setOptimisticItems] = useState(items)
-
-  const itemsKey = items.map((i) => `${i.id}:${(i as Record<string, unknown>)[field]}`).join(',')
-  const prevKeyRef = useRef(itemsKey)
+  const [serverItems, setServerItems] = useState(items)
 
   useEffect(() => {
-    if (prevKeyRef.current !== itemsKey) {
-      prevKeyRef.current = itemsKey
-      setOptimisticItems(items)
-    }
-  }, [itemsKey, items])
+    setServerItems(items)
+    setOptimisticItems(items)
+  }, [items])
 
   const reorder = useCallback(
     (activeIndex: number, overIndex: number) => {
@@ -34,8 +30,8 @@ export function useReorder<T extends { id: string }>(items: T[], options?: { fie
   )
 
   const reset = useCallback(() => {
-    setOptimisticItems(items)
-  }, [items])
+    setOptimisticItems(serverItems)
+  }, [serverItems])
 
   return {
     optimisticItems,

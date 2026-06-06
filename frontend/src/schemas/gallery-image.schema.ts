@@ -4,7 +4,6 @@ import { GalleryContext } from '@/generated/prisma/enums'
 export const createGalleryImageSchema = z.object({
   mediaId: z.string().min(1, 'Imagem obrigatória'),
   caption: z.string().optional(),
-  order: z.coerce.number().int().default(0),
   context: z.nativeEnum(GalleryContext).default('PROJECT'),
   projectId: z.string().nullable().optional(),
   animalId: z.string().nullable().optional(),

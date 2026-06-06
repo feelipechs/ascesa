@@ -67,13 +67,13 @@ function AnimalFormInner({ animalSlug, animalData, onSuccess, onCancel }: Animal
       coverMediaId: animalData?.coverMedia?.id ?? '',
       species: animalData?.species ?? '',
       breed: animalData?.breed ?? '',
-      gender: animalData?.gender ?? AnimalGender.MALE,
+      gender: animalData?.gender ?? '',
       size: animalData?.size ?? '',
       birthDate: animalData?.birthDate ? toDateInput(animalData.birthDate) : '',
       ageRange: animalData?.ageRange ?? '',
       description: animalData?.description ?? '',
       content: animalData?.content ?? '',
-      status: animalData?.status ?? AnimalStatus.AVAILABLE,
+      status: animalData?.status ?? '',
       featured: animalData?.featured ?? false,
     } as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- RHF infers types from Zod schema, but we need '' for empty Select placeholder
   })
@@ -138,9 +138,9 @@ function AnimalFormInner({ animalSlug, animalData, onSuccess, onCancel }: Animal
           <Label htmlFor="gender">Sexo</Label>
           <Controller
             control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange} required>
+          name="gender"
+          render={({ field }) => (
+            <Select value={field.value ?? ''} onValueChange={(v) => field.onChange(v as AnimalGender)} required>
                 <SelectTrigger id="gender"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value={AnimalGender.MALE}>Macho</SelectItem>
@@ -199,9 +199,9 @@ function AnimalFormInner({ animalSlug, animalData, onSuccess, onCancel }: Animal
           <Label htmlFor="status">Status</Label>
           <Controller
             control={form.control}
-            name="status"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange} required>
+          name="status"
+          render={({ field }) => (
+            <Select value={field.value ?? ''} onValueChange={(v) => field.onChange(v as AnimalStatus)} required>
                 <SelectTrigger id="status"><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value={AnimalStatus.AVAILABLE}>Disponível</SelectItem>

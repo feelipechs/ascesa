@@ -40,9 +40,8 @@ const adminOnlyUrls = ['/admin/users', '/admin/fiscal-notes']
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const role = user?.role ?? 'STAFF'
-  const filteredItems = role === 'ADMIN'
-    ? navMain
-    : navMain.filter((item) => !adminOnlyUrls.includes(item.url))
+  const filteredItems =
+    role === 'ADMIN' ? navMain : navMain.filter((item) => !adminOnlyUrls.includes(item.url))
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -50,7 +49,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
-              <Link href="/admin">
+              <Link href="/">
                 <PawPrint className="size-5!" />
                 <span className="text-base font-semibold">Ascesa</span>
               </Link>

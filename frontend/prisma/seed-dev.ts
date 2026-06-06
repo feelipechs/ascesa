@@ -2,7 +2,6 @@ import { hashPassword } from '@/lib/password'
 import { toSlug } from '../src/lib/utils'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../src/generated/prisma/client'
-import type { AnimalSpecies, AnimalSize, AnimalAgeRange } from '../src/generated/prisma/enums'
 import { reorderGalleryImages } from '@/services/gallery-image.service'
 import { reorderTeamMembers } from '@/services/team-member.service'
 import { StatService } from '@/services/stat.service'
@@ -1098,11 +1097,11 @@ const animals = await Promise.all(
       data: {
         name: a.name,
         slug: a.slug,
-        species: a.species as AnimalSpecies,
+        species: a.species as 'DOG' | 'CAT' | 'BIRD' | 'RABBIT' | 'HAMSTER' | 'FISH' | 'OTHER',
         breed: a.breed,
-        gender: a.gender as 'MALE' | 'FEMALE',
-        size: a.size as AnimalSize | null,
-        ageRange: a.ageRange as AnimalAgeRange | null,
+        gender: a.gender,
+        size: a.size as 'SMALL' | 'MEDIUM' | 'LARGE' | null,
+        ageRange: a.ageRange as 'PUPPY' | 'ADULT' | 'SENIOR' | null,
         birthDate: a.birthDate,
         description: a.description,
         content: a.content,

@@ -15,7 +15,7 @@ export const postKeys = {
   slug: (slug: string) => [...postKeys.all, 'slug', slug] as const,
 }
 
-export const postsQueryOptions = (filters?: PostFilters) =>
+export const postsQueryOptions = (filters?: PostFilters & { includeDrafts?: boolean }) =>
   queryOptions({
     queryKey: postKeys.list(filters),
     queryFn: () => PostsApi.findAll(filters),
@@ -35,7 +35,7 @@ export const postBySlugQueryOptions = (slug: string | undefined) =>
     enabled: !!slug,
   })
 
-export function usePosts(filters?: PostFilters) {
+export function usePosts(filters?: PostFilters & { includeDrafts?: boolean }) {
   return useQuery(postsQueryOptions(filters))
 }
 

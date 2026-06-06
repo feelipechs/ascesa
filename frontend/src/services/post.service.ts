@@ -45,12 +45,40 @@ export const PostService = {
 
     return {
       data,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    }
+  },
+
+  async findAllPaginated(filters?: PostFilters): Promise<PaginatedResponse<Post>> {
+    const page = filters?.page ?? DEFAULT_PAGE
+    const limit = filters?.limit ?? DEFAULT_LIMIT
+    const search = filters?.search
+
+    const where = {
+      ...(search
+        ? {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' as const } },
+              { excerpt: { contains: search, mode: 'insensitive' as const } },
+            ],
+          }
+        : {}),
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.post.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+        include: { coverMedia: { select: { id: true, url: true } } },
+      }),
+      prisma.post.count({ where }),
+    ])
+
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     }
   },
 

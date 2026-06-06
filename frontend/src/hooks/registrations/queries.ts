@@ -51,7 +51,6 @@ export function useRegistrationMutations() {
       queryClient.invalidateQueries({ queryKey: registrationKeys.all })
       queryClient.invalidateQueries({ queryKey: volunteerKeys.all })
       queryClient.invalidateQueries({ queryKey: projectKeys.all })
-      toast.success('Inscrição atualizada!')
     },
     onError: (e) => onError(e, 'atualizar inscrição'),
   })
@@ -64,7 +63,12 @@ export function useRegistrationMutations() {
 
   const remove = useMutation({
     mutationFn: RegistrationsApi.delete,
-    onSuccess: () => onSuccess('Inscrição removida.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: registrationKeys.all })
+      queryClient.invalidateQueries({ queryKey: volunteerKeys.all })
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      toast.success('Inscrição removida.')
+    },
     onError: (e) => onError(e, 'remover inscrição'),
   })
 

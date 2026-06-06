@@ -18,14 +18,21 @@ test.describe('Admin Perfil', () => {
   })
 
   test('altera senha com sucesso', async ({ page }) => {
-    // Change password via API directly
-    const resp = await page.request.put('/api/me', {
-      data: { password: '123456' },
-    })
-    expect(resp.ok()).toBeTruthy()
-
     await page.goto('/admin/profile')
     await expect(page.getByText('Meu Perfil')).toBeVisible()
+
+    await page.getByRole('button', { name: /alterar senha/i }).click()
+    await page.getByLabel(/senha atual/i).fill('123456')
+    await page.getByLabel(/nova senha/i).fill('654321')
+    await page.getByLabel(/confirmar nova senha/i).fill('654321')
+    await page.getByRole('button', { name: /salvar alterações/i }).click()
+
+    await expect(page.getByText('Senha atualizada!')).toBeVisible()
+
+    const resp = await page.request.post('/api/auth/change-password', {
+      data: { currentPassword: '654321', newPassword: '123456' },
+    })
+    expect(resp.ok()).toBeTruthy()
   })
 
   test('cancela edição do perfil', async ({ page }) => {

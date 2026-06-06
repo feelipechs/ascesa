@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 import { VolunteersApi } from '@/lib/api/volunteers'
 import { getErrorMessage } from '@/lib/utils'
 import type { VolunteerFilters } from '@/types'
+import { projectKeys } from '@/hooks/projects/queries'
+import { registrationKeys } from '@/hooks/registrations/queries'
 
 export const volunteerKeys = {
   all: ['volunteers'] as const,
@@ -57,7 +59,12 @@ export function useVolunteerMutations() {
 
   const remove = useMutation({
     mutationFn: VolunteersApi.delete,
-    onSuccess: () => onSuccess('Voluntário removido.'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: volunteerKeys.all })
+      queryClient.invalidateQueries({ queryKey: registrationKeys.all })
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      toast.success('Voluntário removido.')
+    },
     onError: (e) => onError(e, 'remover voluntário'),
   })
 

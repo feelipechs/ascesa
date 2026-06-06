@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createTeamMemberSchema, updateTeamMemberSchema } from '@/schemas/team-member.schema'
@@ -11,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { useTeamMemberMutations, teamMemberQueryOptions } from '@/hooks/team-members/queries'
 import { useQuery } from '@tanstack/react-query'
 import { ImageUploadField } from './fields/image-upload-field'
-
+import { Skeleton } from '@/components/ui/skeleton'
+import type { TeamMemberWithAreas } from '@/types'
 
 type TeamMemberFormProps = {
   areaIds?: string[]
@@ -22,28 +22,48 @@ type TeamMemberFormProps = {
 
 export function TeamMemberForm({ areaIds = [], memberId, onSuccess, onCancel }: TeamMemberFormProps) {
   const isEditing = !!memberId
-  const { data: memberData } = useQuery(teamMemberQueryOptions(memberId))
+  const { data: memberData, isLoading } = useQuery(teamMemberQueryOptions(memberId))
+
+  if (isEditing && isLoading) {
+    return <Skeleton className="h-96 w-full" />
+  }
+
+  if (isEditing && !memberData) {
+    return null
+  }
+
+  return (
+    <TeamMemberFormInner
+      areaIds={areaIds}
+      memberId={memberId}
+      memberData={memberData}
+      onSuccess={onSuccess}
+      onCancel={onCancel}
+    />
+  )
+}
+
+type TeamMemberFormInnerProps = {
+  areaIds?: string[]
+  memberId?: string
+  memberData?: TeamMemberWithAreas
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+function TeamMemberFormInner({ areaIds = [], memberId, memberData, onSuccess, onCancel }: TeamMemberFormInnerProps) {
+  const isEditing = !!memberId
   const { create, update, isPending } = useTeamMemberMutations()
 
   const form = useForm({
     resolver: zodResolver(isEditing ? updateTeamMemberSchema : createTeamMemberSchema),
     defaultValues: {
-      name: '',
-      role: '',
-      bio: '',
-      photoMediaId: '',
+      name: memberData?.name ?? '',
+      role: memberData?.role ?? '',
+      bio: memberData?.bio ?? '',
+      photoMediaId: memberData?.photoMediaId ?? '',
     },
   })
-
-  useEffect(() => {
-    if (!memberData) return
-    form.reset({
-      name: memberData.name ?? '',
-      role: memberData.role ?? '',
-      bio: memberData.bio ?? '',
-      photoMediaId: memberData.photoMediaId ?? '',
-    })
-  }, [memberData, form])
 
   function handleSubmit(data: Record<string, unknown>) {
     const payload = { ...data, bio: (data.bio as string) || undefined, photoMediaId: (data.photoMediaId as string) || null, areaIds }

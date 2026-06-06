@@ -1,11 +1,12 @@
 import type { Post, PostFilters, PaginatedResponse } from '@/types'
 
 export const PostsApi = {
-  async findAll(filters?: PostFilters): Promise<PaginatedResponse<Post>> {
+  async findAll(filters?: PostFilters & { includeDrafts?: boolean }): Promise<PaginatedResponse<Post>> {
     const params = new URLSearchParams()
     if (filters?.search) params.set('search', filters.search)
     if (filters?.page) params.set('page', String(filters.page))
     if (filters?.limit) params.set('limit', String(filters.limit))
+    if (filters?.includeDrafts) params.set('includeDrafts', 'true')
 
     const query = params.toString()
     const res = await fetch(`/api/posts${query ? `?${query}` : ''}`)

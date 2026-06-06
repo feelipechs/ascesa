@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
-import { hashPassword } from '@/lib/password'
 import { updateMeSchema } from '@/schemas/me.schema'
 import { MeService } from '@/services/me.service'
 
@@ -20,16 +19,7 @@ export async function PUT(req: NextRequest) {
       return validationError(parsed.error)
     }
 
-    const { password, ...fields } = parsed.data
-    const data: Record<string, unknown> = { ...fields }
-
-    if (password) {
-      const account = await MeService.findCredentialAccount(session.user.id)
-      const passwordHash = await hashPassword(password)
-      await MeService.upsertCredentialAccount(session.user.id, passwordHash, account?.id)
-    }
-
-    const user = await MeService.updateProfile(session.user.id, data)
+    const user = await MeService.updateProfile(session.user.id, parsed.data)
     return NextResponse.json(user)
   })
 }

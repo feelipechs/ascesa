@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSession } from '@/lib/auth-client'
@@ -20,30 +20,25 @@ export default function ProfilePage() {
     defaultValues: {
       name: '',
       email: '',
-      password: '',
     },
   })
 
-  useEffect(() => {
-    if (!session?.user) return
+  if (session?.user && !form.formState.isDirty && form.getValues('name') === '') {
     form.reset({
       name: session.user.name ?? '',
       email: session.user.email ?? '',
-      password: '',
     })
-  }, [session, form])
+  }
 
   function onSubmit(data: UpdateMeInput) {
     const payload: UpdateMeInput = {}
     if (data.name !== session?.user?.name) payload.name = data.name
     if (data.email !== session?.user?.email) payload.email = data.email
-    if (data.password) payload.password = data.password
     if (Object.keys(payload).length === 0) return
 
     update.mutate(payload, {
       onSuccess: () => {
         setIsEditing(false)
-        form.reset({ ...form.getValues(), password: '' })
       },
     })
   }
@@ -66,15 +61,14 @@ export default function ProfilePage() {
             form.reset({
               name: session?.user?.name ?? '',
               email: session?.user?.email ?? '',
-              password: '',
             })
           }}
         />
-
-        <Separator />
-
-        <PasswordSection form={form} isEditing={isEditing} isSaving={isPending} />
       </form>
+
+      <Separator />
+
+      <PasswordSection />
     </div>
   )
 }

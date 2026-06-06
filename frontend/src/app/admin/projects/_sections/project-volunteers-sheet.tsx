@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Loader2, Clock, UserCheck, X } from 'lucide-react'
+import { Loader2, Clock, UserCheck, X, Trash2 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { DeleteDialog } from '@/components/delete-dialog'
 import { useRegistrationMutations } from '@/hooks/registrations/queries'
 import { toast } from 'sonner'
 
@@ -40,8 +41,9 @@ export function ProjectVolunteersSheet({
   registrations,
 }: ProjectVolunteersSheetProps) {
   const [pendingChanges, setPendingChanges] = useState<Record<string, string>>({})
-  const { updateStatus } = useRegistrationMutations()
+  const { updateStatus, remove } = useRegistrationMutations()
   const [isSaving, setIsSaving] = useState(false)
+  const [deletingRegistration, setDeletingRegistration] = useState<null | { id: string; name: string }>(null)
 
   const changedIds = Object.keys(pendingChanges)
   const hasChanges = changedIds.length > 0
@@ -165,6 +167,27 @@ export function ProjectVolunteersSheet({
         </div>
       ),
     },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            onClick={() =>
+              setDeletingRegistration({
+                id: row.original.id,
+                name: row.original.volunteerName,
+              })
+            }
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -205,9 +228,28 @@ export function ProjectVolunteersSheet({
                 {isSaving ? 'Salvando...' : 'Salvar e notificar'}
               </Button>
             </div>
-          </SheetFooter>
-        )}
-      </SheetContent>
-    </Sheet>
+        </SheetFooter>
+      )}
+
+      <DeleteDialog
+        open={!!deletingRegistration}
+        onClose={() => setDeletingRegistration(null)}
+        onConfirm={() => {
+          if (deletingRegistration) {
+            remove.mutate(deletingRegistration.id, {
+              onSuccess: () => {
+                setDeletingRegistration(null)
+                const next = { ...pendingChanges }
+                delete next[deletingRegistration.id]
+                setPendingChanges(next)
+              },
+            })
+          }
+        }}
+        isPending={remove.isPending}
+        entity={`inscrição de ${deletingRegistration?.name ?? ''}`}
+      />
+    </SheetContent>
+  </Sheet>
   )
 }

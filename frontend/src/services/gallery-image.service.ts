@@ -34,14 +34,16 @@ export async function getGalleryImageById(id: string) {
 export async function createGalleryImage(data: {
   mediaId: string
   caption?: string
-  order?: number
   context: GalleryContext
   projectId?: string | null
   animalId?: string | null
 }) {
+  const maxOrder = await prisma.galleryImage.aggregate({ _max: { order: true } })
+  const order = (maxOrder._max.order ?? -1) + 1
   return prisma.galleryImage.create({
     data: {
       ...data,
+      order,
       projectId: data.projectId ?? null,
       animalId: data.animalId ?? null,
     },

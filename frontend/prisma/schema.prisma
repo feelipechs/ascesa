@@ -286,7 +286,7 @@ model Registration {
   status       RegistrationStatus @default(PENDING)
   message      String?
   volunteerId  String
-  volunteer    Volunteer          @relation(fields: [volunteerId], references: [id], onDelete: Restrict)
+  volunteer Volunteer @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
   projectId    String
   project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt    DateTime           @default(now())

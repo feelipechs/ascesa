@@ -3,7 +3,6 @@ import { z } from 'zod'
 export const createStatSchema = z.object({
   label: z.string().min(1, 'Label obrigatório'),
   value: z.string().min(1, 'Valor obrigatório'),
-  order: z.coerce.number().int().optional(),
 })
 
 export const updateStatSchema = createStatSchema.partial()

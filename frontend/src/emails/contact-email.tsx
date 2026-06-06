@@ -3,12 +3,11 @@ import { Html, Head, Body, Container, Heading, Text, Hr, Section, Row, Column } 
 type ContactEmailProps = {
   name: string
   email: string
-  phone?: string | null
   subject: string
   message: string
 }
 
-export function ContactEmail({ name, email, phone, subject, message }: ContactEmailProps) {
+export function ContactEmail({ name, email, subject, message }: ContactEmailProps) {
   return (
     <Html>
       <Head />
@@ -25,12 +24,6 @@ export function ContactEmail({ name, email, phone, subject, message }: ContactEm
               <Column style={label}>Email:</Column>
               <Column style={value}>{email}</Column>
             </Row>
-            {phone && (
-              <Row style={row}>
-                <Column style={label}>Telefone:</Column>
-                <Column style={value}>{phone}</Column>
-              </Row>
-            )}
             <Row style={row}>
               <Column style={label}>Assunto:</Column>
               <Column style={value}>{subject}</Column>

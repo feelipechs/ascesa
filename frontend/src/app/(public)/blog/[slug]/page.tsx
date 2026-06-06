@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostService } from '@/services/post.service'
 import { PostDetail } from './_sections'
-import { PageSection } from '@/components/page-section'
+import { auth } from '@/auth'
+import { headers } from 'next/headers'
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     title: `${post.title} — Ascesa`,
     description: post.excerpt || `Leia "${post.title}" no blog da Ascesa.`,
     openGraph: post.coverMedia?.url
-    ? { images: [{ url: post.coverMedia.url, alt: post.title }] }
+      ? { images: [{ url: post.coverMedia.url, alt: post.title }] }
       : undefined,
   }
 }
@@ -29,7 +30,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params
   const post = await PostService.findBySlug(slug)
 
-  if (!post || !post.publishedAt) {
+  if (!post) {
+    notFound()
+  }
+
+  const session = await auth.api.getSession({ headers: await headers() })
+  const isAuthenticated = !!session
+
+  if (!post.publishedAt && !isAuthenticated) {
     notFound()
   }
 
@@ -37,7 +45,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     <main className="flex flex-col pt-17.5">
       <section className="border-b border-border py-16 md:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <PostDetail post={post} />
+          <PostDetail post={post} isDraft={!post.publishedAt} isAuthenticated={isAuthenticated} />
         </div>
       </section>
     </main>

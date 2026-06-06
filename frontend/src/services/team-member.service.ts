@@ -25,13 +25,15 @@ export async function createTeamMember(data: {
   role: string
   bio?: string
   photoMediaId?: string
-  order?: number
   areaIds: string[]
 }) {
   const { areaIds, ...fields } = data
+  const maxOrder = await prisma.teamMember.aggregate({ _max: { order: true } })
+  const order = (maxOrder._max.order ?? -1) + 1
   return prisma.teamMember.create({
     data: {
       ...fields,
+      order,
       areas: { create: areaIds.map((areaId) => ({ areaId })) },
     },
     include: memberInclude,
