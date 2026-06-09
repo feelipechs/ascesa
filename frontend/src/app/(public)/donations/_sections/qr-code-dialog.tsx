@@ -1,7 +1,7 @@
 'use client'
 
-import { QRCode } from 'react-qr-code'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { QRCode, QRCodeSvg } from '@/components/ui/qr-code'
 
 type QrCodeDialogProps = {
   qrcodeKey: string | null
@@ -16,7 +16,11 @@ export function QrCodeDialog({ qrcodeKey, onOpenChange }: QrCodeDialogProps) {
           <DialogTitle>QR Code PIX</DialogTitle>
         </DialogHeader>
         <figure className="flex justify-center p-4">
-          {qrcodeKey && <QRCode value={qrcodeKey} size={256} />}
+          {qrcodeKey && (
+            <QRCode value={qrcodeKey} size={256}>
+              <QRCodeSvg />
+            </QRCode>
+          )}
         </figure>
         <p className="text-sm text-muted-foreground text-center">
           Abra o app do seu banco, escaneie o código e faça a doação.

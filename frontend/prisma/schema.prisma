@@ -266,7 +266,6 @@ model Volunteer {
   name          String
   email         String         @unique
   phone         String?
-  birthDate     DateTime?
   registrations Registration[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -397,8 +396,7 @@ model PaymentMethod {
   type         PaymentMethodType
   label        String
   instructions String?
-  isActive     Boolean           @default(true)
-  displayOrder Int               @default(0)
+  order        Int               @default(0)
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
   pixConfig    PixConfig?

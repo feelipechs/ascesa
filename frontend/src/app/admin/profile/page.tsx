@@ -11,29 +11,37 @@ import { AccountInfoSection } from './_sections/account-info-section'
 import { PasswordSection } from './_sections/password-section'
 
 export default function ProfilePage() {
-  const { data: session } = useSession()
+  const { data: session, isPending } = useSession()
+
+  if (isPending) return null
+  if (!session?.user) return null
+
+  return (
+    <ProfilePageInner
+      name={session.user.name ?? ''}
+      email={session.user.email ?? ''}
+    />
+  )
+}
+
+type ProfilePageInnerProps = {
+  name: string
+  email: string
+}
+
+function ProfilePageInner({ name, email }: ProfilePageInnerProps) {
   const { update, isPending } = useMeMutations()
   const [isEditing, setIsEditing] = useState(false)
 
   const form = useForm<UpdateMeInput>({
     resolver: zodResolver(updateMeSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-    },
+    defaultValues: { name, email },
   })
-
-  if (session?.user && !form.formState.isDirty && form.getValues('name') === '') {
-    form.reset({
-      name: session.user.name ?? '',
-      email: session.user.email ?? '',
-    })
-  }
 
   function onSubmit(data: UpdateMeInput) {
     const payload: UpdateMeInput = {}
-    if (data.name !== session?.user?.name) payload.name = data.name
-    if (data.email !== session?.user?.email) payload.email = data.email
+    if (data.name !== name) payload.name = data.name
+    if (data.email !== email) payload.email = data.email
     if (Object.keys(payload).length === 0) return
 
     update.mutate(payload, {
@@ -58,10 +66,7 @@ export default function ProfilePage() {
           onEdit={() => setIsEditing(true)}
           onCancel={() => {
             setIsEditing(false)
-            form.reset({
-              name: session?.user?.name ?? '',
-              email: session?.user?.email ?? '',
-            })
+            form.reset({ name, email })
           }}
         />
       </form>

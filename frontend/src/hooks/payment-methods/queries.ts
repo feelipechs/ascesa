@@ -8,15 +8,15 @@ import { getErrorMessage } from '@/lib/utils'
 export const paymentMethodKeys = {
   all: ['payment-methods'] as const,
   lists: () => [...paymentMethodKeys.all, 'list'] as const,
-  list: (activeOnly?: boolean) => [...paymentMethodKeys.lists(), { activeOnly }] as const,
+  list: () => [...paymentMethodKeys.lists()] as const,
   details: () => [...paymentMethodKeys.all, 'detail'] as const,
   detail: (id: string) => [...paymentMethodKeys.details(), id] as const,
 }
 
-export const paymentMethodsQueryOptions = (activeOnly?: boolean) =>
+export const paymentMethodsQueryOptions = () =>
   queryOptions({
-    queryKey: paymentMethodKeys.list(activeOnly),
-    queryFn: () => PaymentMethodsApi.findAll(activeOnly),
+    queryKey: paymentMethodKeys.list(),
+    queryFn: () => PaymentMethodsApi.findAll(),
   })
 
 export const paymentMethodQueryOptions = (id: string | undefined) =>
@@ -26,8 +26,8 @@ export const paymentMethodQueryOptions = (id: string | undefined) =>
     enabled: !!id,
   })
 
-export function usePaymentMethods(activeOnly?: boolean) {
-  return useQuery(paymentMethodsQueryOptions(activeOnly))
+export function usePaymentMethods() {
+  return useQuery(paymentMethodsQueryOptions())
 }
 
 export function usePaymentMethodMutations() {

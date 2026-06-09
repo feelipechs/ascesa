@@ -30,8 +30,7 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
         type: 'PIX',
         label: 'PIX — CPF',
         instructions: 'Use a chave CPF para doar.',
-        isActive: true,
-        displayOrder: 1,
+        order: 1,
         key: '123.456.789-00',
         receiverName: 'Ascesa Doação',
         receiverCity: 'São Paulo',
@@ -49,8 +48,7 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
         type: 'BANK_TRANSFER',
         label: 'Transferência BB',
         instructions: 'Faça a transferência para a conta abaixo.',
-        isActive: true,
-        displayOrder: 2,
+        order: 2,
         bankName: 'Banco do Brasil',
         agency: '0001',
         account: '12345-6',
@@ -68,8 +66,7 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
         type: 'CASH',
         label: 'Doação em Dinheiro',
         instructions: 'Entre em contato para combinar.',
-        isActive: true,
-        displayOrder: 3,
+        order: 3,
       },
     })
     expect(resp.status()).toBe(201)
@@ -84,12 +81,11 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
     expect(body.data).toBeInstanceOf(Array)
   })
 
-  test('GET /api/payment-methods?active=true filtra ativos', async ({ request }) => {
-    const resp = await request.get('/api/payment-methods?active=true')
+  test('GET /api/payment-methods retorna lista ordenada', async ({ request }) => {
+    const resp = await request.get('/api/payment-methods')
     expect(resp.ok()).toBeTruthy()
     const body = await resp.json()
-    const allActive = body.data.every((m: { isActive: boolean }) => m.isActive)
-    expect(allActive).toBeTruthy()
+    expect(body.data).toBeInstanceOf(Array)
   })
 
   test('GET /api/payment-methods/:id retorna método específico', async ({ request }) => {
@@ -107,8 +103,7 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
       data: {
         type: 'PIX',
         label: 'PIX Para Editar',
-        isActive: true,
-        displayOrder: 99,
+        order: 99,
         key: '999.999.999-99',
         receiverName: 'Teste',
         receiverCity: 'Rio',
@@ -130,8 +125,7 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
       data: {
         type: 'CASH',
         label: 'Método Para Deletar',
-        isActive: true,
-        displayOrder: 100,
+        order: 100,
       },
     })
     expect(createResp.status()).toBe(201)
@@ -146,7 +140,7 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
     const body = await list.json()
     const items = body.data?.map((m: { id: string }, i: number) => ({
       id: m.id,
-      displayOrder: body.data.length - i,
+      order: body.data.length - i,
     }))
     if (items && items.length >= 2) {
       const resp = await request.patch('/api/payment-methods/reorder', { data: { items } })
@@ -159,8 +153,7 @@ test.describe('Admin Métodos de Pagamento (inline em /doacoes)', () => {
       data: {
         type: 'CASH',
         label: 'Dinheiro Para Deletar E2E',
-        isActive: true,
-        displayOrder: 101,
+        order: 101,
       },
     })
 

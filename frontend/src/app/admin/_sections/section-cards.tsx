@@ -3,7 +3,6 @@ import {
   Folder,
   FileText,
   PawPrint,
-  ArrowUpDown,
   Wallet,
   MessageSquare,
   Receipt,
@@ -15,12 +14,7 @@ import {
   Image,
 } from 'lucide-react'
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Stat, StatIndicator, StatLabel, StatValue } from '@/components/ui/stat'
 
 type SectionCardsProps = {
   areas: number
@@ -72,21 +66,15 @@ export function SectionCards({
   return (
     <div className="grid grid-cols-1 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 @7xl/main:grid-cols-5">
       {cards.map((card) => (
-        <Card key={card.label} className="@container/card">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <card.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardDescription>{card.label}</CardDescription>
-                <CardTitle className="text-2xl font-semibold tabular-nums">
-                  {card.value}
-                </CardTitle>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+        <Stat key={card.label} className="@container/card">
+          <StatIndicator variant="icon" color="default">
+            <card.icon className="h-5 w-5 text-primary" />
+          </StatIndicator>
+          <StatLabel>{card.label}</StatLabel>
+          <StatValue className="text-2xl font-semibold tabular-nums">
+            {card.value}
+          </StatValue>
+        </Stat>
       ))}
     </div>
   )

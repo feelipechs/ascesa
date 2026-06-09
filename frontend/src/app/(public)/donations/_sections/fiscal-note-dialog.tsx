@@ -1,14 +1,16 @@
 'use client'
 
-import { useForm, type FieldErrors } from 'react-hook-form'
+import { useForm, Controller, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MaskInput } from '@/components/ui/mask-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useFiscalNoteMutations } from '@/hooks/fiscal-notes/queries'
 import { createFiscalNoteSchema } from '@/schemas/fiscal-note.schema'
+import { cnpjMask, accessKeyMask } from '@/lib/mask-patterns'
 
 function getError(errors: FieldErrors, field: string) {
   return (errors as Record<string, { message?: string } | undefined>)[field]
@@ -78,27 +80,46 @@ export function FiscalNoteDialog({ open, onOpenChange }: FiscalNoteDialogProps) 
 
           {fiscalType === 'ACCESS_KEY' && (
             <div className="space-y-2">
-              <Label htmlFor="accessKey">Chave de Acesso (44 dígitos)</Label>
-              <Input
+          <Label htmlFor="accessKey">Chave de Acesso (44 dígitos)</Label>
+          <Controller
+            name="accessKey"
+            control={fiscalForm.control}
+            render={({ field }) => (
+              <MaskInput
                 id="accessKey"
-                {...fiscalForm.register('accessKey')}
-                placeholder="0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000"
-                maxLength={44}
+                mask={accessKeyMask}
+                value={field.value}
+                onValueChange={(_masked, unmasked) => field.onChange(unmasked)}
+                invalid={!!getError(errors, 'accessKey')}
               />
-              {getError(errors, 'accessKey') && (
-                <p className="text-sm text-destructive">{getError(errors, 'accessKey')!.message}</p>
-              )}
+            )}
+          />
+          {getError(errors, 'accessKey') && (
+            <p className="text-sm text-destructive">{getError(errors, 'accessKey')!.message}</p>
+          )}
             </div>
           )}
 
           {fiscalType === 'DETAILED' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="cnpj">CNPJ</Label>
-                <Input id="cnpj" {...fiscalForm.register('cnpj')} placeholder="00.000.000/0000-00" />
-                {getError(errors, 'cnpj') && (
-                  <p className="text-sm text-destructive">{getError(errors, 'cnpj')!.message}</p>
-                )}
+            <Label htmlFor="cnpj">CNPJ</Label>
+            <Controller
+              name="cnpj"
+              control={fiscalForm.control}
+              render={({ field }) => (
+                <MaskInput
+                  id="cnpj"
+                  mask={cnpjMask}
+                  value={field.value}
+                  onValueChange={(_masked, unmasked) => field.onChange(unmasked)}
+                  invalid={!!getError(errors, 'cnpj')}
+                />
+              )}
+            />
+            {getError(errors, 'cnpj') && (
+              <p className="text-sm text-destructive">{getError(errors, 'cnpj')!.message}</p>
+            )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="coo">COO</Label>

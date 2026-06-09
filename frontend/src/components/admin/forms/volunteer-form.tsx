@@ -1,15 +1,17 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createVolunteerSchema, updateVolunteerSchema } from '@/schemas/volunteer.schema'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { MaskInput } from '@/components/ui/mask-input'
 import { useVolunteerMutations, volunteerQueryOptions } from '@/hooks/volunteers/queries'
 import { useQuery } from '@tanstack/react-query'
-import { toDateInput } from '@/lib/utils-date'
+import { brPhoneMask } from '@/lib/mask-patterns'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { VolunteerWithRegistrations } from '@/types'
 
 type VolunteerFormProps = {
   volunteerId?: string
@@ -19,39 +21,61 @@ type VolunteerFormProps = {
 
 export function VolunteerForm({ volunteerId, onSuccess, onCancel }: VolunteerFormProps) {
   const isEditing = !!volunteerId
-  const { data: volunteerData } = useQuery(volunteerQueryOptions(volunteerId))
+  const { data: volunteerData, isLoading } = useQuery(volunteerQueryOptions(volunteerId))
   const { create, update, isPending } = useVolunteerMutations()
 
+  if (isEditing && isLoading) return <Skeleton className="h-96 w-full" />
+  if (isEditing && !volunteerData) return null
+
+  return (
+    <VolunteerFormInner
+      volunteerId={volunteerId}
+      isEditing={isEditing}
+      volunteerData={volunteerData}
+      isPending={isPending}
+      create={create}
+      update={update}
+      onSuccess={onSuccess}
+      onCancel={onCancel}
+    />
+  )
+}
+
+type VolunteerFormInnerProps = {
+  volunteerId?: string
+  isEditing: boolean
+  volunteerData?: VolunteerWithRegistrations
+  isPending: boolean
+  create: ReturnType<typeof useVolunteerMutations>['create']
+  update: ReturnType<typeof useVolunteerMutations>['update']
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+function VolunteerFormInner({
+  volunteerId,
+  isEditing,
+  volunteerData,
+  isPending,
+  create,
+  update,
+  onSuccess,
+  onCancel,
+}: VolunteerFormInnerProps) {
   const form = useForm({
     resolver: zodResolver(isEditing ? updateVolunteerSchema : createVolunteerSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      birthDate: '',
+      name: volunteerData?.name ?? '',
+      email: volunteerData?.email ?? '',
+      phone: volunteerData?.phone ?? '',
     },
   })
 
-  useEffect(() => {
-    if (!volunteerData) return
-    const data = volunteerData as unknown as Record<string, unknown>
-    form.reset({
-      name: (data.name as string) ?? '',
-      email: (data.email as string) ?? '',
-      phone: (data.phone as string) ?? '',
-      birthDate: data.birthDate ? toDateInput(data.birthDate as string | Date) : '',
-    })
-  }, [volunteerData, form])
-
   function handleSubmit(data: Record<string, unknown>) {
-  const payload = {
-    ...data,
-    birthDate: (data.birthDate as string) || null,
-  }
     if (isEditing && volunteerId) {
-      update.mutate({ id: volunteerId, data: payload }, { onSuccess })
+      update.mutate({ id: volunteerId, data }, { onSuccess })
     } else {
-      create.mutate(payload, { onSuccess })
+      create.mutate(data, { onSuccess })
     }
   }
 
@@ -75,12 +99,18 @@ export function VolunteerForm({ volunteerId, onSuccess, onCancel }: VolunteerFor
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="phone">Telefone</Label>
-        <Input id="phone" {...form.register('phone')} placeholder="(11) 99999-9999" />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="birthDate">Data de nascimento</Label>
-        <Input id="birthDate" type="date" {...form.register('birthDate')} />
+        <Controller
+          name="phone"
+          control={form.control}
+          render={({ field }) => (
+            <MaskInput
+              id="phone"
+              mask={brPhoneMask}
+              value={field.value}
+              onValueChange={(_masked, unmasked) => field.onChange(unmasked)}
+            />
+          )}
+        />
       </div>
 
       <div className="flex gap-2 pt-2">

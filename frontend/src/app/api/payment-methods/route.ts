@@ -3,11 +3,9 @@ import { PaymentMethodService } from '@/services/payment-method.service'
 import { apiHandler, protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createPaymentMethodSchema } from '@/schemas/payment-method.schema'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   return apiHandler(async () => {
-    const { searchParams } = new URL(req.url)
-    const activeOnly = searchParams.get('active') === 'true'
-    const methods = await PaymentMethodService.findAll(activeOnly)
+    const methods = await PaymentMethodService.findAll()
     return NextResponse.json({ data: methods })
   })
 }

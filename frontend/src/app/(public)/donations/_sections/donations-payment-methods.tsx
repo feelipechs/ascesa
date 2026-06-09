@@ -16,7 +16,7 @@ import { QrCodeDialog } from './qr-code-dialog'
 import type { MethodItem } from './payment-method-card'
 
 export function DonationsPaymentMethods({ isAuthenticated }: { isAuthenticated?: boolean }) {
-  const { data: methodsData, isLoading } = usePaymentMethods(true)
+  const { data: methodsData, isLoading } = usePaymentMethods()
   const methods: MethodItem[] = methodsData?.data ?? []
   const { remove, isPending: isMethodPending } = usePaymentMethodMutations()
   const [qrcodeKey, setQrcodeKey] = useState<string | null>(null)

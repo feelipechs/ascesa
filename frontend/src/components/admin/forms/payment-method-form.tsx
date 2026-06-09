@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { usePaymentMethodMutations } from '@/hooks/payment-methods/queries'
 
@@ -30,8 +29,7 @@ export function PaymentMethodForm({ method, onSuccess, onCancel }: PaymentMethod
       type: 'PIX',
       label: '',
       instructions: '',
-      isActive: true,
-      displayOrder: 0,
+      order: 0,
       key: '',
       receiverName: '',
       receiverCity: '',
@@ -49,8 +47,7 @@ export function PaymentMethodForm({ method, onSuccess, onCancel }: PaymentMethod
       type: (method.type as 'PIX' | 'BANK_TRANSFER' | 'CASH') ?? 'PIX',
       label: (method.label as string) ?? '',
       instructions: (method.instructions as string) ?? '',
-      isActive: (method.isActive as boolean) ?? true,
-      displayOrder: (method.displayOrder as number) ?? 0,
+      order: (method.order as number) ?? 0,
       key: (method.pixConfig as Record<string, unknown> | null)?.key as string ?? '',
       receiverName: (method.pixConfig as Record<string, unknown> | null)?.receiverName as string ?? '',
       receiverCity: (method.pixConfig as Record<string, unknown> | null)?.receiverCity as string ?? '',
@@ -66,8 +63,7 @@ export function PaymentMethodForm({ method, onSuccess, onCancel }: PaymentMethod
       type,
       label: data.label as string,
       instructions: (data.instructions as string) || null,
-      isActive: data.isActive as boolean,
-      displayOrder: Number(data.displayOrder) || 0,
+      order: Number(data.order) || 0,
     }
     if (type === 'PIX') {
       payload.key = data.key
@@ -112,12 +108,8 @@ export function PaymentMethodForm({ method, onSuccess, onCancel }: PaymentMethod
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="displayOrder">Ordem</Label>
-          <Input id="displayOrder" type="number" {...form.register('displayOrder', { valueAsNumber: true })} placeholder="0" />
-        </div>
-        <div className="flex items-end gap-2 pb-2">
-          <Switch id="isActive" checked={form.watch('isActive')} onCheckedChange={(v) => form.setValue('isActive', v)} />
-          <Label htmlFor="isActive">Ativo</Label>
+          <Label htmlFor="order">Ordem</Label>
+          <Input id="order" type="number" {...form.register('order', { valueAsNumber: true })} placeholder="0" />
         </div>
       </div>
 

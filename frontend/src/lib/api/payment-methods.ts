@@ -1,7 +1,6 @@
 export const PaymentMethodsApi = {
-  async findAll(activeOnly?: boolean) {
-    const query = activeOnly ? '?active=true' : ''
-    const res = await fetch(`/api/payment-methods${query}`)
+  async findAll() {
+    const res = await fetch('/api/payment-methods')
     if (!res.ok) throw new Error('Falha ao carregar métodos de pagamento')
     return res.json()
   },
@@ -37,7 +36,7 @@ export const PaymentMethodsApi = {
     if (!res.ok) throw new Error('Falha ao remover método de pagamento')
   },
 
-  async reorder(items: { id: string; displayOrder: number }[]): Promise<void> {
+  async reorder(items: { id: string; order: number }[]): Promise<void> {
     const res = await fetch('/api/payment-methods/reorder', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },

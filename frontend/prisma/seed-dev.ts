@@ -675,16 +675,16 @@ const projectGalleryByArea: Record<string, { url: string; caption: string }[]> =
 // --------------------
 
 const volunteersData = [
-  { name: 'Ana Beatriz Lima', email: 'ana.lima@email.com', phone: '(11) 98888-1111', birthDate: new Date('1995-03-15') },
-  { name: 'Carlos Eduardo Santos', email: 'carlos.santos@email.com', phone: '(11) 97777-2222', birthDate: new Date('1988-07-22') },
-  { name: 'Débora Oliveira', email: 'debora.oli@email.com', phone: '(11) 96666-3333', birthDate: new Date('1992-11-08') },
-  { name: 'Eduardo Martins', email: 'edu.martins@email.com', phone: '(11) 95555-4444', birthDate: new Date('2000-01-30') },
-  { name: 'Fernanda Souza', email: 'fernanda.souza@email.com', phone: '(11) 94444-5555', birthDate: new Date('1990-05-12') },
-  { name: 'Gustavo Almeida', email: 'gustavo.almeida@email.com', phone: '(11) 93333-6666', birthDate: new Date('1985-09-18') },
-  { name: 'Helena Costa', email: 'helena.costa@email.com', phone: '(11) 92222-7777', birthDate: new Date('1998-12-25') },
-  { name: 'Igor Pereira', email: 'igor.pereira@email.com', phone: '(11) 91111-8888', birthDate: new Date('1993-04-03') },
-  { name: 'Julia Carvalho', email: 'julia.carvalho@email.com', phone: '(11) 90000-9999', birthDate: new Date('1991-08-14') },
-  { name: 'Kevin Barbosa', email: 'kevin.barbosa@email.com', phone: '(11) 98888-0000', birthDate: new Date('1996-02-28') },
+  { name: 'Ana Beatriz Lima', email: 'ana.lima@email.com', phone: '(11) 98888-1111' },
+  { name: 'Carlos Eduardo Santos', email: 'carlos.santos@email.com', phone: '(11) 97777-2222' },
+  { name: 'Débora Oliveira', email: 'debora.oli@email.com', phone: '(11) 96666-3333' },
+  { name: 'Eduardo Martins', email: 'edu.martins@email.com', phone: '(11) 95555-4444' },
+  { name: 'Fernanda Souza', email: 'fernanda.souza@email.com', phone: '(11) 94444-5555' },
+  { name: 'Gustavo Almeida', email: 'gustavo.almeida@email.com', phone: '(11) 93333-6666' },
+  { name: 'Helena Costa', email: 'helena.costa@email.com', phone: '(11) 92222-7777' },
+  { name: 'Igor Pereira', email: 'igor.pereira@email.com', phone: '(11) 91111-8888' },
+  { name: 'Julia Carvalho', email: 'julia.carvalho@email.com', phone: '(11) 90000-9999' },
+  { name: 'Kevin Barbosa', email: 'kevin.barbosa@email.com', phone: '(11) 98888-0000' },
 ]
 
 // --------------------
@@ -1146,8 +1146,7 @@ for (const img of animalGallery) {
       type: 'PIX',
       label: 'PIX — CNPJ',
       instructions: 'Use qualquer banco para fazer um PIX usando a chave CNPJ abaixo.',
-      isActive: true,
-      displayOrder: 0,
+      order: 0,
     },
   })
   await prisma.pixConfig.create({
@@ -1164,8 +1163,7 @@ for (const img of animalGallery) {
       type: 'BANK_TRANSFER',
       label: 'Transferência Bancária',
       instructions: 'Depósito ou transferência para a conta corrente da Ascesa.',
-      isActive: true,
-      displayOrder: 1,
+      order: 1,
     },
   })
   await prisma.bankConfig.create({
@@ -1183,9 +1181,44 @@ for (const img of animalGallery) {
       type: 'CASH',
       label: 'Doação em Dinheiro',
       instructions: 'Entre em contato pelo WhatsApp para combinar a entrega da sua doação.',
-      isActive: true,
-      displayOrder: 2,
+      order: 2,
     },
+  })
+
+  // Fiscal Notes
+  console.log('🧾  Criando notas fiscais...')
+  await prisma.fiscalNote.createMany({
+    data: [
+      {
+        type: 'DETAILED',
+        cnpj: '12.345.678/0001-99',
+        emissionDate: new Date('2025-03-15'),
+        coo: '123456',
+        amount: 1500.00,
+      },
+      {
+        type: 'DETAILED',
+        cnpj: '98.765.432/0001-10',
+        emissionDate: new Date('2025-04-20'),
+        coo: '654321',
+        amount: 3200.50,
+      },
+      {
+        type: 'ACCESS_KEY',
+        accessKey: '35200612345678901234567890123456789012345678',
+      },
+      {
+        type: 'ACCESS_KEY',
+        accessKey: '35200698765432109876543210987654321098765432',
+      },
+      {
+        type: 'DETAILED',
+        cnpj: '11.222.333/0001-44',
+        emissionDate: new Date('2025-05-10'),
+        coo: '789012',
+        amount: 890.75,
+      },
+    ],
   })
 
   // -------------------------------------------------------
@@ -1212,6 +1245,7 @@ for (const img of animalGallery) {
     statsForReorder.map((item, i) => ({ id: item.id, order: i }))
   )
 
+  const fiscalNoteCount = await prisma.fiscalNote.count()
   const totalProjects = projectsCreated.length
   const totalTestimonials = testimonials.length
   const totalProjectGallery = projectGalleryItems.length
@@ -1229,6 +1263,7 @@ for (const img of animalGallery) {
   console.log(` ${postsData.length} posts`)
   console.log(` ${statsCreated.length} métricas`)
   console.log(` ${animals.length} animais`)
+  console.log(` ${fiscalNoteCount} notas fiscais`)
 }
 
 main()

@@ -28,7 +28,7 @@ export async function getGalleryImages(params?: {
 }
 
 export async function getGalleryImageById(id: string) {
-  return prisma.galleryImage.findUnique({ where: { id } })
+  return prisma.galleryImage.findUnique({ where: { id }, include: { media: { select: { id: true, url: true } } } })
 }
 
 export async function createGalleryImage(data: {

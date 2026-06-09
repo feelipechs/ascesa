@@ -201,10 +201,26 @@ async function main() {
   })
 
   const pixMethod = await prisma.paymentMethod.create({
-    data: { type: 'PIX', label: 'PIX', instructions: 'Use a chave CNPJ.', isActive: true, displayOrder: 0 },
+    data: { type: 'PIX', label: 'PIX', instructions: 'Use a chave CNPJ.', order: 0 },
   })
   await prisma.pixConfig.create({
     data: { id: pixMethod.id, key: '12.345.678/0001-99', receiverName: 'Ascesa', receiverCity: 'São Paulo' },
+  })
+
+  await prisma.fiscalNote.createMany({
+    data: [
+      {
+        type: 'DETAILED',
+        cnpj: '12.345.678/0001-99',
+        emissionDate: new Date('2025-03-15'),
+        coo: '123456',
+        amount: 1500.00,
+      },
+      {
+        type: 'ACCESS_KEY',
+        accessKey: '35200612345678901234567890123456789012345678',
+      },
+    ],
   })
 
   console.log('✅ Seed de teste concluído!')

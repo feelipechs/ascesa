@@ -6,8 +6,7 @@ type PaymentMethodWithConfig = {
   type: string
   label: string
   instructions: string | null
-  isActive: boolean
-  displayOrder: number
+  order: number
   createdAt: Date
   updatedAt: Date
   pixConfig: { id: string; key: string; receiverName: string; receiverCity: string } | null
@@ -15,11 +14,9 @@ type PaymentMethodWithConfig = {
 }
 
 export const PaymentMethodService = {
-  async findAll(activeOnly = false) {
-    const where = activeOnly ? { isActive: true } : {}
+  async findAll() {
     return prisma.paymentMethod.findMany({
-      where,
-      orderBy: { displayOrder: 'asc' },
+      orderBy: { order: 'asc' },
       include: { pixConfig: true, bankConfig: true },
     }) as Promise<PaymentMethodWithConfig[]>
   },
@@ -38,8 +35,7 @@ export const PaymentMethodService = {
           type: data.type,
           label: data.label,
           instructions: data.instructions ?? null,
-          isActive: data.isActive ?? true,
-          displayOrder: data.displayOrder ?? 0,
+          order: data.order ?? 0,
         },
       })
 
@@ -73,8 +69,7 @@ export const PaymentMethodService = {
       const updateData: Record<string, unknown> = {}
       if (data.label !== undefined) updateData.label = data.label
       if (data.instructions !== undefined) updateData.instructions = data.instructions
-      if (data.isActive !== undefined) updateData.isActive = data.isActive
-      if (data.displayOrder !== undefined) updateData.displayOrder = data.displayOrder
+      if (data.order !== undefined) updateData.order = data.order
       if (data.type !== undefined) updateData.type = data.type
 
       const method = await tx.paymentMethod.update({
@@ -109,12 +104,12 @@ export const PaymentMethodService = {
     return prisma.paymentMethod.delete({ where: { id } })
   },
 
-  async reorder(items: { id: string; displayOrder: number }[]) {
+  async reorder(items: { id: string; order: number }[]) {
     return prisma.$transaction(
       items.map((item) =>
         prisma.paymentMethod.update({
           where: { id: item.id },
-          data: { displayOrder: item.displayOrder },
+          data: { order: item.order },
         })
       )
     )

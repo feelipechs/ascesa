@@ -24,7 +24,6 @@ type MethodItem = {
   type: string
   label: string
   instructions: string | null
-  isActive: boolean
   pixConfig: { key: string; receiverName: string; receiverCity: string } | null
   bankConfig: { bankName: string; agency: string; account: string; accountType: string | null } | null
 }
