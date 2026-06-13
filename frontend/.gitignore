@@ -46,3 +46,6 @@ next-env.d.ts
 # opencode
 .opencode/
 AGENTS.md
+
+# playwright
+playwright-report/
