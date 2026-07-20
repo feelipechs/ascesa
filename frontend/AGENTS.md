@@ -504,6 +504,22 @@ npm run db:studio        # Interface visual do banco (Prisma Studio)
 npm run test:e2e         # Testes E2E (Playwright)
 ```
 
+## Docker (banco de dados)
+
+O projeto usa dois compose files para o PostgreSQL, um por ambiente. As credenciais e porta são lidas dos respectivos `.env.*` via `${VAR}`, nunca hardcoded.
+
+```bash
+# Dev
+docker compose -f compose.dev.yml --env-file .env.development up -d
+
+# Test
+docker compose -f compose.test.yml --env-file .env.test up -d
+```
+
+As variáveis usadas pelos compose (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `DB_PORT`) estão nos próprios `.env.development` e `.env.test`. Um `.env.example` na raiz documenta todas as chaves esperadas sem valores reais.
+
+**Produção:** nunca manter `.env.production` no disco do servidor. Injetar `POSTGRES_PASSWORD` e demais segredos via gerenciador de secrets da plataforma de deploy (Docker Secrets, GH Actions secrets, AWS Secrets Manager, etc.).
+
 ## Paleta de cores (modo claro)
 
 | Token | Cor |
