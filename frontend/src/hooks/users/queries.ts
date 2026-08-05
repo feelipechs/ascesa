@@ -4,19 +4,20 @@ import { useMutation, useQuery, useQueryClient, queryOptions } from '@tanstack/r
 import { toast } from 'sonner'
 import { UsersApi } from '@/lib/api/users'
 import { getErrorMessage } from '@/lib/utils'
+import type { UserFilters } from '@/types'
 
 export const userKeys = {
   all: ['users'] as const,
   lists: () => [...userKeys.all, 'list'] as const,
-  list: () => [...userKeys.lists()] as const,
+  list: (filters?: UserFilters) => [...userKeys.lists(), filters] as const,
   details: () => [...userKeys.all, 'detail'] as const,
   detail: (id: string) => [...userKeys.details(), id] as const,
 }
 
-export const usersQueryOptions = () =>
+export const usersQueryOptions = (filters?: UserFilters) =>
   queryOptions({
-    queryKey: userKeys.list(),
-    queryFn: () => UsersApi.findAll(),
+    queryKey: userKeys.list(filters),
+    queryFn: () => UsersApi.findAll(filters),
   })
 
 export const userQueryOptions = (id: string | undefined) =>
@@ -26,8 +27,8 @@ export const userQueryOptions = (id: string | undefined) =>
     enabled: !!id,
   })
 
-export function useUsers() {
-  return useQuery(usersQueryOptions())
+export function useUsers(filters?: UserFilters) {
+  return useQuery(usersQueryOptions(filters))
 }
 
 export function useUserMutations() {

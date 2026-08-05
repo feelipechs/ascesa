@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { hashPassword } from '@/lib/password'
+import { calculatePaginationMeta } from '@/lib/pagination'
 
 const userSelect = {
   id: true,
@@ -10,9 +11,20 @@ const userSelect = {
   updatedAt: true,
 } as const
 
+const DEFAULT_LIMIT = 12
+
 export const UserService = {
-  async findAll() {
-    return prisma.user.findMany({ select: userSelect, orderBy: { createdAt: 'desc' } })
+  async findAll(filters?: { page?: number; limit?: number }) {
+    const page = filters?.page ?? 1
+    const limit = filters?.limit ?? DEFAULT_LIMIT
+    const skip = (page - 1) * limit
+
+    const [data, total] = await Promise.all([
+      prisma.user.findMany({ select: userSelect, orderBy: { createdAt: 'desc' }, skip, take: limit }),
+      prisma.user.count(),
+    ])
+
+    return { data, meta: calculatePaginationMeta(total, page, limit) }
   },
 
   async findById(id: string) {

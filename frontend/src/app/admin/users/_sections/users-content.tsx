@@ -23,7 +23,11 @@ type UserRow = {
 }
 
 export function UsersContent() {
-  const { data: users, isLoading } = useUsers()
+  const [pageIndex, setPageIndex] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const { data, isLoading } = useUsers({ page: pageIndex + 1, limit: pageSize })
+  const users = data?.data ?? []
+  const totalRows = data?.meta?.total ?? 0
   const { remove, isPending } = useUserMutations()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<null | { id: string }>(null)
@@ -110,7 +114,21 @@ export function UsersContent() {
       ) : !users || users.length === 0 ? (
         <EmptyState title="Nenhum usuário encontrado." />
       ) : (
-        <DataTable columns={columns} data={users as UserRow[]} searchKey="name" enableRowSelection />
+        <DataTable
+          columns={columns}
+          data={users as UserRow[]}
+          searchKey="name"
+          enableRowSelection
+          serverPagination={{
+            totalRows,
+            pageIndex,
+            pageSize,
+            onPaginationChange: ({ pageIndex: nextPage, pageSize: nextSize }) => {
+              setPageSize(nextSize)
+              setPageIndex(nextSize !== pageSize ? 0 : nextPage)
+            },
+          }}
+        />
       )}
 
       <AdminSheet

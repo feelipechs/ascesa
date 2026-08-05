@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createUserSchema } from '@/schemas/user.schema'
+import { paginationSchema } from '@/schemas/pagination.schema'
 import { UserService } from '@/services/user.service'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   return protectedApiHandler(async () => {
-    const users = await UserService.findAll()
-    return NextResponse.json({ data: users })
+    const { searchParams } = new URL(req.url)
+    const query = Object.fromEntries(searchParams.entries())
+    const parsed = paginationSchema.safeParse(query)
+    if (!parsed.success) return validationError(parsed.error)
+    const result = await UserService.findAll(parsed.data)
+    return NextResponse.json(result)
   }, { role: 'ADMIN' })
 }
 

@@ -1,14 +1,17 @@
-import type { UserListItem } from '@/types'
+import type { UserListItem, UserFilters, PaginatedResponse } from '@/types'
 
 export const UsersApi = {
-  async findAll(): Promise<UserListItem[]> {
-    const res = await fetch('/api/users')
+  async findAll(filters?: UserFilters): Promise<PaginatedResponse<UserListItem>> {
+    const params = new URLSearchParams()
+    if (filters?.page) params.set('page', String(filters.page))
+    if (filters?.limit) params.set('limit', String(filters.limit))
+    const query = params.toString()
+    const res = await fetch(`/api/users${query ? `?${query}` : ''}`)
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
       throw new Error(body.error || 'Falha ao carregar usuários')
     }
-    const json = await res.json()
-    return json.data
+    return res.json()
   },
 
   async findById(id: string): Promise<UserListItem> {

@@ -307,10 +307,19 @@ export type RegistrationFilters = {
   volunteerId?: string
   projectId?: string
   status?: RegistrationStatus
+  page?: number
+  limit?: number
 }
 
 export type VolunteerFilters = {
   search?: string
+  page?: number
+  limit?: number
+}
+
+export type UserFilters = {
+  page?: number
+  limit?: number
 }
 
 export type PostFilters = {

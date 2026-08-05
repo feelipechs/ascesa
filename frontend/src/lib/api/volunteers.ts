@@ -1,9 +1,11 @@
-import type { Volunteer, VolunteerFilters, VolunteerWithRegistrations } from '@/types'
+import type { Volunteer, VolunteerFilters, VolunteerWithRegistrations, PaginatedResponse } from '@/types'
 
 export const VolunteersApi = {
-  async findAll(filters?: VolunteerFilters): Promise<Volunteer[]> {
+  async findAll(filters?: VolunteerFilters): Promise<PaginatedResponse<Volunteer>> {
     const params = new URLSearchParams()
     if (filters?.search) params.set('search', filters.search)
+    if (filters?.page) params.set('page', String(filters.page))
+    if (filters?.limit) params.set('limit', String(filters.limit))
     const query = params.toString()
     const res = await fetch(`/api/volunteers${query ? `?${query}` : ''}`)
     if (!res.ok) {

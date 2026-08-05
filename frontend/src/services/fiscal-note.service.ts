@@ -1,11 +1,25 @@
 import { prisma } from '@/lib/prisma'
+import { calculatePaginationMeta } from '@/lib/pagination'
 import type { CreateFiscalNoteInput } from '@/schemas/fiscal-note.schema'
 
+const DEFAULT_LIMIT = 12
+
 export const FiscalNoteService = {
-  async findAll() {
-    return prisma.fiscalNote.findMany({
-      orderBy: { createdAt: 'desc' },
-    })
+  async findAll(filters?: { page?: number; limit?: number }) {
+    const page = filters?.page ?? 1
+    const limit = filters?.limit ?? DEFAULT_LIMIT
+    const skip = (page - 1) * limit
+
+    const [data, total] = await Promise.all([
+      prisma.fiscalNote.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.fiscalNote.count(),
+    ])
+
+    return { data, meta: calculatePaginationMeta(total, page, limit) }
   },
 
   async findById(id: string) {

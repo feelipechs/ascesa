@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { VolunteerService } from '@/services/volunteer.service'
 import { protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createVolunteerSchema } from '@/schemas/volunteer.schema'
+import { paginationSchema } from '@/schemas/pagination.schema'
 
 export async function GET(req: NextRequest) {
   return protectedApiHandler(async () => {
     const { searchParams } = new URL(req.url)
+    const query = Object.fromEntries(searchParams.entries())
+    const parsed = paginationSchema.safeParse(query)
+    if (!parsed.success) return validationError(parsed.error)
     const search = searchParams.get('search') ?? undefined
-    const volunteers = await VolunteerService.findAll(search)
-    return NextResponse.json(volunteers)
+    const result = await VolunteerService.findAll({ search, page: parsed.data.page, limit: parsed.data.limit })
+    return NextResponse.json(result)
   })
 }
 

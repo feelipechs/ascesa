@@ -1,11 +1,13 @@
-import type { Registration, RegistrationWithIncludes, RegistrationFilters } from '@/types'
+import type { Registration, RegistrationWithIncludes, RegistrationFilters, PaginatedResponse } from '@/types'
 
 export const RegistrationsApi = {
-  async findAll(filters?: RegistrationFilters): Promise<RegistrationWithIncludes[]> {
+  async findAll(filters?: RegistrationFilters): Promise<PaginatedResponse<RegistrationWithIncludes>> {
     const params = new URLSearchParams()
     if (filters?.projectId) params.set('projectId', filters.projectId)
     if (filters?.volunteerId) params.set('volunteerId', filters.volunteerId)
     if (filters?.status) params.set('status', filters.status)
+    if (filters?.page) params.set('page', String(filters.page))
+    if (filters?.limit) params.set('limit', String(filters.limit))
     const query = params.toString()
     const res = await fetch(`/api/registrations${query ? `?${query}` : ''}`)
     if (!res.ok) {

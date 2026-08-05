@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 
 import type {
   ColumnDef,
@@ -51,12 +51,21 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+type ServerPaginationProps = {
+  totalRows: number
+  pageIndex: number
+  pageSize: number
+  onPaginationChange: (state: { pageIndex: number; pageSize: number }) => void
+  onSearchChange?: (value: string) => void
+}
+
 type DataTableProps<TData> = {
   columns: ColumnDef<TData>[]
   data: TData[]
   searchKey?: string
   onRowClick?: (row: TData) => void
   enableRowSelection?: boolean
+  serverPagination?: ServerPaginationProps
 }
 
 export function DataTable<TData>({
@@ -65,7 +74,19 @@ export function DataTable<TData>({
   searchKey,
   onRowClick,
   enableRowSelection,
+  serverPagination,
 }: DataTableProps<TData>) {
+  const isServer = !!serverPagination
+  const [searchValue, setSearchValue] = useState('')
+
+  const onServerSearch = serverPagination?.onSearchChange
+
+  useEffect(() => {
+    if (!isServer || !onServerSearch) return
+    const timer = setTimeout(() => onServerSearch(searchValue), 300)
+    return () => clearTimeout(timer)
+  }, [searchValue, isServer, onServerSearch])
+
   const columns = useMemo(() => {
     if (!enableRowSelection) return rawColumns
     return [
@@ -99,6 +120,13 @@ export function DataTable<TData>({
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
 
+  const commonState = {
+    sorting,
+    columnFilters,
+    columnVisibility,
+    rowSelection,
+  }
+
   const table = useReactTable({
     data,
     columns,
@@ -106,24 +134,46 @@ export function DataTable<TData>({
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     globalFilterFn: 'includesString',
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-      globalFilter,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
+    state: isServer
+      ? {
+          ...commonState,
+          pagination: {
+            pageIndex: serverPagination.pageIndex,
+            pageSize: serverPagination.pageSize,
+          },
+        }
+      : {
+          ...commonState,
+          globalFilter,
+        },
+    ...(isServer
+      ? {
+          manualPagination: true,
+          rowCount: serverPagination.totalRows,
+          onPaginationChange: (updater) => {
+            const next =
+              typeof updater === 'function'
+                ? updater({
+                    pageIndex: serverPagination.pageIndex,
+                    pageSize: serverPagination.pageSize,
+                  })
+                : updater
+            serverPagination.onPaginationChange(next)
+          },
+        }
+      : {
+          getPaginationRowModel: getPaginationRowModel(),
+          initialState: {
+            pagination: {
+              pageSize: 10,
+            },
+          },
+        }),
   })
 
   function getColumnLabel(columnId: string): string {
@@ -133,10 +183,11 @@ export function DataTable<TData>({
   }
 
   function exportToCSV() {
+    const exportRows = isServer ? table.getRowModel().rows : table.getFilteredRowModel().rows
     const visibleColumns = table.getVisibleFlatColumns().filter((col) => col.id !== 'select')
     const headers = visibleColumns.map((col) => getColumnLabel(col.id))
 
-    const rows = table.getFilteredRowModel().rows.map((row) =>
+    const rows = exportRows.map((row) =>
       visibleColumns.map((col) => row.getValue(col.id)).join(',')
     )
 
@@ -160,8 +211,11 @@ export function DataTable<TData>({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Pesquisar..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
+            value={isServer ? searchValue : globalFilter}
+            onChange={(e) => {
+              if (isServer) setSearchValue(e.target.value)
+              else setGlobalFilter(e.target.value)
+            }}
             className="pl-9"
           />
         </div>

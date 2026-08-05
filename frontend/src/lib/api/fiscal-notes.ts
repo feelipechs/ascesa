@@ -1,6 +1,12 @@
+import type { FiscalNote, PaginatedResponse } from '@/types'
+
 export const FiscalNotesApi = {
-  async findAll() {
-    const res = await fetch('/api/fiscal-notes')
+  async findAll(filters?: { page?: number; limit?: number }): Promise<PaginatedResponse<FiscalNote>> {
+    const params = new URLSearchParams()
+    if (filters?.page) params.set('page', String(filters.page))
+    if (filters?.limit) params.set('limit', String(filters.limit))
+    const query = params.toString()
+    const res = await fetch(`/api/fiscal-notes${query ? `?${query}` : ''}`)
     if (!res.ok) throw new Error('Falha ao carregar notas fiscais')
     return res.json()
   },

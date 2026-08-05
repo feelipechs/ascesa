@@ -1,23 +1,39 @@
 import { prisma } from '@/lib/prisma'
+import { calculatePaginationMeta } from '@/lib/pagination'
+import type { Prisma } from '@/generated/prisma/client'
 import type { UpdateRegistrationInput, PublicRegistrationInput } from '@/schemas/registration.schema'
 import { VolunteerService } from './volunteer.service'
 import { EmailService } from './email.service'
+import type { RegistrationFilters } from '@/types'
+
+const DEFAULT_LIMIT = 12
 
 export const RegistrationService = {
-  async findAll(filters?: { projectId?: string; volunteerId?: string; status?: string }) {
-    const where: Record<string, unknown> = {}
-    if (filters?.projectId) where.projectId = filters.projectId
-    if (filters?.volunteerId) where.volunteerId = filters.volunteerId
-    if (filters?.status) where.status = filters.status
+  async findAll(filters: RegistrationFilters = {}) {
+    const page = filters.page ?? 1
+    const limit = filters.limit ?? DEFAULT_LIMIT
+    const skip = (page - 1) * limit
 
-    return prisma.registration.findMany({
-      where,
-      include: {
-        volunteer: { select: { id: true, name: true, email: true, phone: true } },
-        project: { select: { id: true, title: true, slug: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
+    const where: Prisma.RegistrationWhereInput = {}
+    if (filters.projectId) where.projectId = filters.projectId
+    if (filters.volunteerId) where.volunteerId = filters.volunteerId
+    if (filters.status) where.status = filters.status
+
+    const [data, total] = await Promise.all([
+      prisma.registration.findMany({
+        where,
+        include: {
+          volunteer: { select: { id: true, name: true, email: true, phone: true } },
+          project: { select: { id: true, title: true, slug: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.registration.count({ where }),
+    ])
+
+    return { data, meta: calculatePaginationMeta(total, page, limit) }
   },
 
   async findById(id: string) {

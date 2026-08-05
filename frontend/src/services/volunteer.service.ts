@@ -1,20 +1,35 @@
 import { prisma } from '@/lib/prisma'
+import { calculatePaginationMeta } from '@/lib/pagination'
 import type { CreateVolunteerInput, UpdateVolunteerInput } from '@/schemas/volunteer.schema'
 
+const DEFAULT_LIMIT = 12
+
 export const VolunteerService = {
-  async findAll(search?: string) {
-    const where = search
+  async findAll(filters?: { search?: string; page?: number; limit?: number }) {
+    const page = filters?.page ?? 1
+    const limit = filters?.limit ?? DEFAULT_LIMIT
+    const skip = (page - 1) * limit
+
+    const where = filters?.search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { email: { contains: search, mode: 'insensitive' as const } },
+            { name: { contains: filters.search, mode: 'insensitive' as const } },
+            { email: { contains: filters.search, mode: 'insensitive' as const } },
           ],
         }
       : undefined
-    return prisma.volunteer.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-    })
+
+    const [data, total] = await Promise.all([
+      prisma.volunteer.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.volunteer.count({ where }),
+    ])
+
+    return { data, meta: calculatePaginationMeta(total, page, limit) }
   },
 
   async findById(id: string) {

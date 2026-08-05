@@ -22,7 +22,12 @@ type VolunteerRow = {
 }
 
 export function VolunteersContent() {
-  const { data: volunteers, isLoading } = useVolunteers()
+  const [pageIndex, setPageIndex] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const [search, setSearch] = useState('')
+  const { data, isLoading } = useVolunteers({ search, page: pageIndex + 1, limit: pageSize })
+  const volunteers = data?.data ?? []
+  const totalRows = data?.meta?.total ?? 0
   const { remove, isPending } = useVolunteerMutations()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingVolunteer, setEditingVolunteer] = useState<null | { id: string }>(null)
@@ -104,7 +109,25 @@ export function VolunteersContent() {
       ) : !volunteers || volunteers.length === 0 ? (
         <EmptyState title="Nenhum voluntário encontrado." />
       ) : (
-        <DataTable columns={columns} data={volunteers as VolunteerRow[]} searchKey="name" enableRowSelection />
+        <DataTable
+          columns={columns}
+          data={volunteers as VolunteerRow[]}
+          searchKey="name"
+          enableRowSelection
+          serverPagination={{
+            totalRows,
+            pageIndex,
+            pageSize,
+            onPaginationChange: ({ pageIndex: nextPage, pageSize: nextSize }) => {
+              setPageSize(nextSize)
+              setPageIndex(nextSize !== pageSize ? 0 : nextPage)
+            },
+            onSearchChange: (value) => {
+              setSearch(value)
+              setPageIndex(0)
+            },
+          }}
+        />
       )}
 
       <AdminSheet

@@ -8,17 +8,17 @@ import { getErrorMessage } from '@/lib/utils'
 export const fiscalNoteKeys = {
   all: ['fiscal-notes'] as const,
   lists: () => [...fiscalNoteKeys.all, 'list'] as const,
-  list: () => [...fiscalNoteKeys.lists()] as const,
+  list: (filters?: { page?: number; limit?: number }) => [...fiscalNoteKeys.lists(), filters] as const,
 }
 
-export const fiscalNotesQueryOptions = () =>
+export const fiscalNotesQueryOptions = (filters?: { page?: number; limit?: number }) =>
   queryOptions({
-    queryKey: fiscalNoteKeys.list(),
-    queryFn: () => FiscalNotesApi.findAll(),
+    queryKey: fiscalNoteKeys.list(filters),
+    queryFn: () => FiscalNotesApi.findAll(filters),
   })
 
-export function useFiscalNotes() {
-  return useQuery(fiscalNotesQueryOptions())
+export function useFiscalNotes(filters?: { page?: number; limit?: number }) {
+  return useQuery(fiscalNotesQueryOptions(filters))
 }
 
 export function useFiscalNoteMutations() {
