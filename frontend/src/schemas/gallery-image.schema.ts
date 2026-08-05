@@ -1,27 +1,26 @@
 import { z } from 'zod'
 import { GalleryContext } from '@/generated/prisma/enums'
 
-export const createGalleryImageSchema = z.object({
+const baseGalleryImageSchema = z.object({
   mediaId: z.string().min(1, 'Imagem obrigatória'),
   caption: z.string().optional(),
   context: z.nativeEnum(GalleryContext).default('PROJECT'),
   projectId: z.string().nullable().optional(),
   animalId: z.string().nullable().optional(),
-}).refine(
-  (data) => data.context !== 'PROJECT' || data.projectId,
-  { message: 'projectId é obrigatório quando context é PROJECT', path: ['projectId'] }
-).refine(
-  (data) => data.context !== 'ANIMAL' || data.animalId,
-  { message: 'animalId é obrigatório quando context é ANIMAL', path: ['animalId'] }
-)
+})
 
-export const updateGalleryImageSchema = z.object({
-  mediaId: z.string().min(1).optional(),
-  caption: z.string().optional(),
+export const createGalleryImageSchema = baseGalleryImageSchema
+  .refine(
+    (data) => data.context !== 'PROJECT' || data.projectId,
+    { message: 'projectId é obrigatório quando context é PROJECT', path: ['projectId'] }
+  )
+  .refine(
+    (data) => data.context !== 'ANIMAL' || data.animalId,
+    { message: 'animalId é obrigatório quando context é ANIMAL', path: ['animalId'] }
+  )
+
+export const updateGalleryImageSchema = baseGalleryImageSchema.partial().extend({
   order: z.coerce.number().int().optional(),
-  context: z.nativeEnum(GalleryContext).optional(),
-  projectId: z.string().nullable().optional(),
-  animalId: z.string().nullable().optional(),
 })
 
 export const reorderGalleryImageSchema = z.object({

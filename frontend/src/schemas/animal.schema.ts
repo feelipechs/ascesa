@@ -3,10 +3,10 @@ import { AnimalGender, AnimalStatus, AnimalSpecies, AnimalSize, AnimalAgeRange }
 import { dateInputToISO } from '@/lib/utils-date'
 
 export const createAnimalSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
+  name: z.string().min(1, 'Nome é obrigatório').max(255, 'Máximo 255 caracteres'),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/).max(100, 'Máximo 100 caracteres'),
   species: z.nativeEnum(AnimalSpecies),
-  breed: z.string().optional().nullable(),
+  breed: z.string().max(255, 'Máximo 255 caracteres').optional().nullable(),
   gender: z.nativeEnum(AnimalGender),
   size: z.nativeEnum(AnimalSize).optional().nullable(),
   birthDate: z.preprocess(

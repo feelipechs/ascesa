@@ -2,22 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { AnimalService } from '@/services/animal.service'
 import { apiHandler, protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createAnimalSchema } from '@/schemas/animal.schema'
+import { animalFiltersSchema } from '@/schemas/animal.filters.schema'
 
 export async function GET(req: NextRequest) {
   return apiHandler(async () => {
     const { searchParams } = new URL(req.url)
-    const filters = {
-      species: searchParams.get('species') ?? undefined,
-      size: searchParams.get('size') ?? undefined,
-      ageRange: searchParams.get('ageRange') ?? undefined,
-      gender: searchParams.get('gender') ?? undefined,
-      status: searchParams.get('status') ?? undefined,
-      search: searchParams.get('search') ?? undefined,
-      featured: searchParams.get('featured') === 'true' ? true : undefined,
-      page: searchParams.get('page') ? Number(searchParams.get('page')) : undefined,
-      limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : undefined,
-    }
-    const result = await AnimalService.findAll(filters)
+    const query = Object.fromEntries(searchParams.entries())
+    const parsed = animalFiltersSchema.safeParse(query)
+    if (!parsed.success) return validationError(parsed.error)
+    const result = await AnimalService.findAll(parsed.data)
     return NextResponse.json(result)
   })
 }

@@ -4,7 +4,7 @@ import { SectionHeading } from '@/components/section-heading'
 
 export async function ContactMap() {
   const settings = await prisma.siteSettings.findUnique({ where: { id: 'main' } })
-  const mapUrl = (settings as Record<string, string | null> | null)?.googleMapsEmbedUrl
+  const mapUrl = (settings as Record<string, string | null> | null)?.googleMapsEmbedUrl ?? undefined
 
   return (
     <PageSection borderTop padding="compact">

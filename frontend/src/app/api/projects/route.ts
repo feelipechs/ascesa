@@ -2,22 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getProjects, createProject } from '@/services/project.service'
 import { apiHandler, protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createProjectSchema } from '@/schemas/project.schema'
+import { projectFiltersSchema } from '@/schemas/project.filters.schema'
 
 export async function GET(req: NextRequest) {
   return apiHandler(async () => {
     const { searchParams } = new URL(req.url)
-    const search = searchParams.get('search') ?? ''
-    const areas = searchParams.get('areas') ?? ''
-    const featured = searchParams.get('featured')
-    const page = Number(searchParams.get('page') ?? '1')
-    const limit = Number(searchParams.get('limit') ?? '8')
-
+    const query = Object.fromEntries(searchParams.entries())
+    const parsed = projectFiltersSchema.safeParse(query)
+    if (!parsed.success) return validationError(parsed.error)
+    const { areas, ...rest } = parsed.data
     const result = await getProjects({
-      search,
+      ...rest,
       areas: areas ? areas.split(',') : [],
-      featured: featured !== null ? featured === 'true' : undefined,
-      page,
-      limit,
     })
 
     return NextResponse.json(result)

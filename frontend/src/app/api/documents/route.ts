@@ -2,23 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getDocuments, createDocument } from '@/services/document.service'
 import { apiHandler, protectedApiHandler, validationError } from '@/lib/api-handler'
 import { createDocumentSchema } from '@/schemas/document.schema'
+import { documentFiltersSchema } from '@/schemas/document.filters.schema'
 
 export async function GET(req: NextRequest) {
   return apiHandler(async () => {
     const { searchParams } = new URL(req.url)
-    const search = searchParams.get('search') ?? ''
-    const categoryId = searchParams.get('categoryId') ?? ''
-    const year = searchParams.get('year')
-    const page = Number(searchParams.get('page') ?? '1')
-    const limit = Number(searchParams.get('limit') ?? '10')
+    const query = Object.fromEntries(searchParams.entries())
+    const parsed = documentFiltersSchema.safeParse(query)
+    if (!parsed.success) return validationError(parsed.error)
 
-    const result = await getDocuments({
-      search,
-      categoryId,
-      ...(year && { year: Number(year) }),
-      page,
-      limit,
-    })
+    const result = await getDocuments(parsed.data)
 
     return NextResponse.json(result)
   })

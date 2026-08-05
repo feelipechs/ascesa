@@ -12,10 +12,10 @@ export const updateRegistrationSchema = z.object({
 })
 
 export const publicRegistrationSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  email: z.string().email('Email inválido'),
-  phone: z.string().optional(),
-  message: z.string().optional(),
+  name: z.string().min(1, 'Nome é obrigatório').max(255, 'Máximo 255 caracteres'),
+  email: z.string().email('Email inválido').max(255, 'Máximo 255 caracteres'),
+  phone: z.string().max(20, 'Telefone inválido').optional(),
+  message: z.string().max(2000, 'Máximo 2000 caracteres').optional(),
   projectId: z.string().min(1),
 })
 

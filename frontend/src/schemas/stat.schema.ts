@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 export const createStatSchema = z.object({
-  label: z.string().min(1, 'Label obrigatório'),
-  value: z.string().min(1, 'Valor obrigatório'),
+  label: z.string().min(1, 'Label obrigatório').max(255, 'Máximo 255 caracteres'),
+  value: z.string().min(1, 'Valor obrigatório').max(255, 'Máximo 255 caracteres'),
 })
 
 export const updateStatSchema = createStatSchema.partial()

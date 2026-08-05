@@ -4,12 +4,12 @@ import { dateInputToISO } from '@/lib/utils-date'
 export const createFiscalNoteSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('DETAILED'),
-    cnpj: z.string().min(1, 'CNPJ é obrigatório'),
+    cnpj: z.string().min(1, 'CNPJ é obrigatório').max(18, 'CNPJ inválido'),
     emissionDate: z.preprocess(
       (v) => (typeof v === 'string' && v.trim() !== '' ? dateInputToISO(v) : undefined),
       z.string().datetime().optional(),
     ),
-    coo: z.string().min(1, 'COO é obrigatório'),
+    coo: z.string().min(1, 'COO é obrigatório').max(50, 'COO inválido'),
     amount: z.number().positive('Valor deve ser positivo'),
   }),
   z.object({
