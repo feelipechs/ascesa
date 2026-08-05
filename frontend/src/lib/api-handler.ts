@@ -4,6 +4,16 @@ import { z } from 'zod'
 import { Prisma } from '@/generated/prisma/client'
 import { headers } from 'next/headers'
 
+export class BusinessError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number = 400,
+  ) {
+    super(message)
+    this.name = 'BusinessError'
+  }
+}
+
 function handlePrismaError(error: Prisma.PrismaClientKnownRequestError): NextResponse {
   switch (error.code) {
     case 'P2002':
@@ -30,6 +40,9 @@ export async function apiHandler(fn: () => Promise<NextResponse>): Promise<NextR
   try {
     return await fn()
   } catch (err) {
+    if (err instanceof BusinessError) {
+      return NextResponse.json({ error: err.message }, { status: err.statusCode })
+    }
     console.error(err)
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       return handlePrismaError(err)
@@ -63,6 +76,9 @@ export async function protectedApiHandler(
   try {
     return await fn(session)
   } catch (error) {
+    if (error instanceof BusinessError) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+    }
     console.error(error)
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       return handlePrismaError(error)

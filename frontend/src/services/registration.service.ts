@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { calculatePaginationMeta } from '@/lib/pagination'
+import { BusinessError } from '@/lib/api-handler'
 import type { Prisma } from '@/generated/prisma/client'
 import type { UpdateRegistrationInput, PublicRegistrationInput } from '@/schemas/registration.schema'
 import { VolunteerService } from './volunteer.service'
@@ -47,6 +48,15 @@ export const RegistrationService = {
   },
 
   async publicRegister(data: PublicRegistrationInput) {
+    const [project, registrationsCount] = await Promise.all([
+      prisma.project.findUnique({ where: { id: data.projectId }, select: { vacancies: true } }),
+      prisma.registration.count({ where: { projectId: data.projectId } }),
+    ])
+
+    if (project?.vacancies != null && registrationsCount >= project.vacancies) {
+      throw new BusinessError('Projeto não possui vagas disponíveis', 409)
+    }
+
     const volunteer = await VolunteerService.upsertByEmail({
       name: data.name,
       email: data.email,

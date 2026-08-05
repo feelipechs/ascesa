@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { BusinessError } from '@/lib/api-handler'
 
 export async function getTestimonials() {
   return prisma.testimonial.findMany({
@@ -17,6 +18,10 @@ export async function createTestimonial(data: {
   role?: string
   message: string
 }) {
+  const count = await prisma.testimonial.count()
+  if (count >= 20) {
+    throw new BusinessError('Máximo de 20 depoimentos atingido')
+  }
   return prisma.testimonial.create({ data })
 }
 
