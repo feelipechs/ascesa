@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { cleanupOrphanedMedia } from '@/lib/media'
 import type { Prisma } from '@/generated/prisma/client'
+import { AnimalSpecies, AnimalSize, AnimalAgeRange, AnimalGender, AnimalStatus } from '@/generated/prisma/enums'
 import type { AnimalListItem, AnimalWithDetails, AnimalFilters, PaginatedResponse } from '@/types'
 
 const DEFAULT_LIMIT = 12
@@ -11,15 +12,15 @@ export const AnimalService = {
     const limit = filters.limit ?? DEFAULT_LIMIT
     const skip = (page - 1) * limit
 
-    const where: Record<string, unknown> = {}
-    if (filters.species) where.species = filters.species
-    if (filters.size) where.size = filters.size
-    if (filters.ageRange) where.ageRange = filters.ageRange
-    if (filters.gender) where.gender = filters.gender
-    if (filters.status) where.status = filters.status
+    const where: Prisma.AnimalWhereInput = {}
+    if (filters.species) where.species = filters.species as AnimalSpecies
+    if (filters.size) where.size = filters.size as AnimalSize
+    if (filters.ageRange) where.ageRange = filters.ageRange as AnimalAgeRange
+    if (filters.gender) where.gender = filters.gender as AnimalGender
+    if (filters.status) where.status = filters.status as AnimalStatus
     if (filters.featured) where.featured = true
     if (filters.search) {
-      where.OR = [{ name: { contains: filters.search, mode: 'insensitive' as const } }]
+      where.OR = [{ name: { contains: filters.search, mode: 'insensitive' } }]
     }
 
     const [data, total] = await Promise.all([

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { cleanupOrphanedMedia } from '@/lib/media'
+import type { Prisma } from '@/generated/prisma/client'
 import { GalleryContext } from '@/generated/prisma/enums'
 
 export async function getGalleryImages(params?: {
@@ -9,9 +10,9 @@ export async function getGalleryImages(params?: {
 }) {
   const { context, projectId, animalId } = params ?? {}
 
-  const where: Record<string, unknown> = {}
+  const where: Prisma.GalleryImageWhereInput = {}
   if (context && (context === GalleryContext.HOME || context === GalleryContext.PROJECT || context === GalleryContext.ANIMAL)) {
-    where.context = context
+    where.context = context as GalleryContext
   }
   if (projectId) {
     where.projectId = projectId
